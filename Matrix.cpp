@@ -1,5 +1,3 @@
-
-
 #include "Matrix.h"
 
 //Constructor
@@ -44,13 +42,13 @@ int Matrix::numCols() const{
 void Matrix::printData() const{
     for(int row = 0; row < rows_; ++row){
         for(int col = 0; col < cols_; ++col){
-            std::cout << data_[cols_*row + col] << '\t';
+            printf("%10.5lf", data_[cols_*row + col]);
         }
         std::cout << std::endl;
     }
 }
 
-//Returns a copy of which is transposed
+//Returns a copy which is transposed
 Matrix Matrix::transpose() const{
     Matrix temp(cols_, rows_);
     for(int row = 0; row < rows_; ++row){
@@ -63,11 +61,11 @@ Matrix Matrix::transpose() const{
 
 //Destructor
 Matrix::~Matrix(){
-    delete[] data_;
+    delete data_;
 }
 
 //Override = operator
-Matrix& Matrix::operator= (const Matrix& m){
+Matrix& Matrix::operator= (const Matrix m){
     if(m.numRows() != rows_ || m.numCols() != cols_){
         throw std::out_of_range("Matrix sizes are not equivalent. Cannot perform assignment");
     }
@@ -161,7 +159,35 @@ double Matrix::operator() (unsigned row, unsigned col) const{
     return data_[cols_*row + col];
 }
 
+void Matrix::initRand(const double min, const double max, const int resolution){
+    for(int row = 0; row < rows_; ++row){
+            for(int col = 0; col < cols_; ++col){
+                int bound = (int)(max - min);
+                bound *= resolution;
 
+                double randDouble = (double)(rand() % bound);
+
+                randDouble = randDouble / resolution + min;
+
+                data_[cols_*row + col] = randDouble;
+            }
+        }
+}
+
+//Returns the (flattened) index of the max value
+int Matrix::maxVal() const{
+    double maxVal = data_[0];
+    int index = 0;
+    for(int row = 0; row < rows_; ++row){
+        for(int col = 0; col < cols_; ++col){
+            if(data_[cols_*row + col] > maxVal){
+                maxVal = data_[cols_*row + col];
+                index = cols_*row + col;
+            }
+        }
+    }
+    return index;
+}
 
 
 
