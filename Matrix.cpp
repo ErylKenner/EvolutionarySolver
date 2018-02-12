@@ -1,6 +1,6 @@
 #include "Matrix.h"
 
-//Constructor
+//Size Constructor
 Matrix::Matrix(unsigned rows, unsigned cols)
     : rows_ (rows)
     , cols_ (cols){
@@ -23,6 +23,7 @@ Matrix::Matrix(const Matrix& m)
     }
 }
 
+//Sets all matrix elements to 'n'
 void Matrix::initialize(const int n){
     for(int row = 0; row < rows_; ++row){
         for(int col = 0; col < cols_; ++col){
@@ -39,7 +40,7 @@ int Matrix::numCols() const{
     return cols_;
 }
 
-//Prints the matrix as a grid
+//Prints the matrix as a grid to the console
 void Matrix::printData() const{
     for(int row = 0; row < rows_; ++row){
         for(int col = 0; col < cols_; ++col){
@@ -49,7 +50,7 @@ void Matrix::printData() const{
     }
 }
 
-//Returns a copy which is transposed
+//Returns a copy of itself which is transposed
 Matrix Matrix::transpose() const{
     Matrix temp(cols_, rows_);
     for(int row = 0; row < rows_; ++row){
@@ -65,7 +66,7 @@ Matrix::~Matrix(){
     delete[] data_;
 }
 
-//Override = operator
+//Override = operator to copy each element
 Matrix& Matrix::operator= (const Matrix m){
     if(m.numRows() != rows_ || m.numCols() != cols_){
         throw std::out_of_range("Matrix sizes are not equivalent. Cannot perform assignment");
@@ -77,7 +78,7 @@ Matrix& Matrix::operator= (const Matrix m){
     }
 }
 
-//Override - (unary) operator
+//Override - (unary) operator to negate each element
 Matrix Matrix::operator- (){
     Matrix temp(rows_, cols_);
     for(int row = 0; row < rows_; ++row){
@@ -88,7 +89,7 @@ Matrix Matrix::operator- (){
     return temp;
 }
 
-//Override + operator
+//Override + operator to add elementwise
 Matrix Matrix::operator+ (const Matrix a){
     if(a.numRows() != rows_ || a.numCols() != cols_){
         throw std::out_of_range("Matrix sizes are not equivalent. Cannot perform addition");
@@ -102,7 +103,7 @@ Matrix Matrix::operator+ (const Matrix a){
     return temp;
 }
 
-//Override - operator
+//Override - operator to subtract elementwise
 Matrix Matrix::operator- (const Matrix a){
     if(a.numRows() != rows_ || a.numCols() != cols_){
         throw std::out_of_range("Matrix sizes are not equivalent. Cannot perform subtraction");
@@ -116,7 +117,7 @@ Matrix Matrix::operator- (const Matrix a){
     return temp;
 }
 
-//Override * (constant) operator
+//Override * operator to multiply elementwise by a constant
 Matrix Matrix::operator* (int a){
     Matrix temp(rows_, cols_);
     for(int row = 0; row < rows_; ++row){
@@ -127,7 +128,7 @@ Matrix Matrix::operator* (int a){
     return temp;
 }
 
-//Override * operator
+//Override * operator to perform standard matrix multiplication
 Matrix Matrix::operator* (const Matrix a){
     if(cols_ != a.numRows()){
         throw std::out_of_range("Matrix sizes are incompatible. Cannot perform multiplication");
@@ -144,7 +145,7 @@ Matrix Matrix::operator* (const Matrix a){
     return temp;
 }
 
-//Override () operator
+//Override () operator to allow access at a specific location
 double& Matrix::operator() (unsigned row, unsigned col){
     if (row >= rows_ || col >= cols_ || row < 0 || col < 0){
         throw std::out_of_range("Matrix subscript out of bounds");
@@ -152,7 +153,7 @@ double& Matrix::operator() (unsigned row, unsigned col){
     return data_[cols_*row + col];
 }
 
-//Override () operator
+//Override () operator to allow access at a specific location
 double Matrix::operator() (unsigned row, unsigned col) const{
     if (row >= rows_ || col >= cols_ || row < 0 || col < 0){
         throw std::out_of_range("Matrix subscript out of bounds");
@@ -160,6 +161,7 @@ double Matrix::operator() (unsigned row, unsigned col) const{
     return data_[cols_*row + col];
 }
 
+//Sets each element to a random double in the range [min, max] with specified resolution
 void Matrix::initRand(const double min, const double max, const int resolution){
     for(int row = 0; row < rows_; ++row){
             for(int col = 0; col < cols_; ++col){
@@ -181,9 +183,9 @@ int Matrix::maxVal() const{
     int index = 0;
     for(int row = 0; row < rows_; ++row){
         for(int col = 0; col < cols_; ++col){
-            if(data_[cols_*row + col] > maxVal){
-                maxVal = data_[cols_*row + col];
-                index = cols_*row + col;
+            if(data_[cols_ * row + col] > maxVal){
+                maxVal = data_[cols_ * row + col];
+                index = cols_ * row + col;
             }
         }
     }

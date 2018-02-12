@@ -13,14 +13,15 @@ public:
     void playGame();
     
 private:
+    bool takeTurn(int squareIdentity);
     bool isEmpty() const;
     bool isFull() const;
 
     Matrix flattenBoard() const;
-    double getBoardPosition(const int position) const;
-    void setBoardPosition(const int position, const int value);
+    double getBoardAtPosition(const int position) const;
+    void setBoardAtPosition(const int position, const int value);
 
-    Matrix pickMove(const Matrix input) const;
+    Matrix bestMoves(const Matrix input) const;
     void printBoard() const;
     bool hasWon(const double playerValue) const;
 

@@ -48,8 +48,10 @@ int main(){
     //Play games
     for(int i = 0; i < populationSize; ++i){
         for(int j = i + 1; j < populationSize; ++j){
+            //Game 1 (play 2 games so both players can start first)
             TicTacToe game1(population[i], population[j], false);
             game1.playGame();
+            //Game 2
             TicTacToe game2(population[j], population[i], false);
             game2.playGame();
         }   
