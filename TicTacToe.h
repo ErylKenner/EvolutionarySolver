@@ -9,7 +9,7 @@
 
 class TicTacToe {
 public:
-    TicTacToe(NeuralNet *player1, NeuralNet *player2, bool displayStates=false);
+    TicTacToe(NeuralNet& player1, NeuralNet& player2, bool displayStates=false);
     void playGame();
     
 private:
@@ -24,8 +24,8 @@ private:
     void printBoard() const;
     bool hasWon(const double playerValue) const;
 
-    NeuralNet *player1_;
-    NeuralNet *player2_;
+    NeuralNet& player1_;
+    NeuralNet& player2_;
 
     Matrix board_;
     int numSquares_;

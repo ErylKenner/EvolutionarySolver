@@ -3,25 +3,21 @@
 
 //Constructor
 NeuralNet::NeuralNet(const Matrix layerSizes)
-    : layerSizes_(layerSizes.numRows(), layerSizes.numCols())
+    : layerSizes_(layerSizes)
     , weights_(1, Matrix(layerSizes(0, 0), layerSizes(0,1)) )
     , biases_(1, Matrix(1, layerSizes(0, 1)) ){
     
-    layerSizes_ = layerSizes;
     weights_[0].initRand(-1, 1);
     biases_[0].initRand(-1, 1);
     for(int i = 1; i < layerSizes.numCols() - 1; ++i){
-        Matrix *temp = new Matrix(layerSizes(0, i), layerSizes(0, i+1));
-        Matrix *temp2 = new Matrix(1, layerSizes(0, i+1));
+        Matrix temp(layerSizes(0, i), layerSizes(0, i+1));
+        Matrix temp2(1, layerSizes(0, i+1));
         
-        temp->initRand(-1, 1);
-        temp2->initRand(-1, 1);
+        temp.initRand(-1, 1);
+        temp2.initRand(-1, 1);
         
-        weights_.push_back(*temp);
-        biases_.push_back(*temp2);
-        
-        delete temp;
-        delete temp2;
+        weights_.push_back(temp);
+        biases_.push_back(temp2);
     }
     fitness_ = 0;
 }
@@ -36,19 +32,12 @@ void NeuralNet::printWeights() const{
 }
 
 Matrix NeuralNet::forward(Matrix input) const{
-    Matrix *temp = new Matrix(input);
-    Matrix **prev = &temp;
-
+    std::vector<Matrix> prev;
+    prev.push_back(input);
     for(int lay = 0; lay < weights_.size(); ++lay){
-        Matrix cur(applyNonlinearity((**prev) * weights_[lay] + biases_[lay]));
-        delete *prev;
-        Matrix *temp = new Matrix(cur);
-        prev = &temp;
+        prev.push_back( applyNonlinearity( prev.back() * weights_[lay] + biases_[lay] ) );
     }
-
-    Matrix returnValue(**prev);
-    delete prev;
-    return returnValue;
+    return prev.back();
 }
 
 std::vector<Matrix> NeuralNet::getWeights() const{

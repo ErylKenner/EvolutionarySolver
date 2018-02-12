@@ -2,8 +2,8 @@
 
 //Constructor
 Matrix::Matrix(unsigned rows, unsigned cols)
-    :rows_ (rows)
-    ,cols_ (cols){
+    : rows_ (rows)
+    , cols_ (cols){
     if (rows == 0 || cols == 0){
         throw std::out_of_range("Matrix constructor has 0 size");
     }
@@ -12,8 +12,9 @@ Matrix::Matrix(unsigned rows, unsigned cols)
 
 //Copy constructor
 Matrix::Matrix(const Matrix& m)
-    :rows_(m.numRows())
-    ,cols_(m.numCols()){
+    : rows_(m.numRows())
+    , cols_(m.numCols()){
+    
     data_ = new double[rows_ * cols_];
     for(int row = 0; row < rows_; ++row){
         for(int col = 0; col < cols_; ++col){
@@ -61,7 +62,7 @@ Matrix Matrix::transpose() const{
 
 //Destructor
 Matrix::~Matrix(){
-    delete data_;
+    delete[] data_;
 }
 
 //Override = operator

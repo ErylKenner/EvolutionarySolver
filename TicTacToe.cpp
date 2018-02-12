@@ -1,12 +1,12 @@
 #include "TicTacToe.h"
 
 
-TicTacToe::TicTacToe(NeuralNet *player1, NeuralNet *player2, bool displayStates)
+TicTacToe::TicTacToe(NeuralNet& player1, NeuralNet& player2, bool displayStates)
 	: board_(3, 3)
-	, displayStates_(displayStates){
+	, displayStates_(displayStates)
+	, player1_(player1)
+	, player2_(player2){
 
-	player1_ = player1;
-	player2_ = player2;
 	numSquares_ = 9;
 	for(int i = 0; i < 3; ++i){
 		for(int j = 0; j < 3; ++j){
@@ -18,7 +18,7 @@ TicTacToe::TicTacToe(NeuralNet *player1, NeuralNet *player2, bool displayStates)
 
 void TicTacToe::playGame(){
 	while(true){
-		Matrix moves1(pickMove(player1_->forward(flattenBoard())));
+		Matrix moves1(pickMove(player1_.forward(flattenBoard())));
 		for(int i = 0; i < numSquares_; ++i){
 			if(getBoardPosition(moves1(0, i)) == 0.0){
 				setBoardPosition(moves1(0, i), 1);
@@ -29,23 +29,23 @@ void TicTacToe::playGame(){
 			printBoard();
 		}
 		if(hasWon(1)){
-			player1_->addToFitness(1.0);
+			player1_.addToFitness(1.0);
 			if(displayStates_){
 				std::cout << "========================" << std::endl;
 			}
 			return;
 		}
 		if(isFull()){
-			player1_->addToFitness(0.5);
-			player2_->addToFitness(0.5);
+			player1_.addToFitness(0.5);
+			player2_.addToFitness(0.5);
 			if(displayStates_){
 				std::cout << "========================" << std::endl;
 			}
 			return;
 		}
 
-
-		Matrix moves2(pickMove(player2_->forward(flattenBoard())));
+        
+		Matrix moves2(pickMove(player2_.forward(flattenBoard())));
 		for(int i = 0; i < numSquares_; ++i){
 			if(getBoardPosition(moves2(0, i)) == 0.0){
 				setBoardPosition(moves2(0, i), -1);
@@ -56,15 +56,15 @@ void TicTacToe::playGame(){
 			printBoard();
 		}
 		if(hasWon(-1)){
-			player2_->addToFitness(1.0);
+			player2_.addToFitness(1.0);
 			if(displayStates_){
 				std::cout << "========================" << std::endl;
 			}
 			return;
 		}
 		if(isFull()){
-			player1_->addToFitness(0.5);
-			player2_->addToFitness(0.5);
+			player1_.addToFitness(0.5);
+			player2_.addToFitness(0.5);
 			if(displayStates_){
 				std::cout << "========================" << std::endl;
 			}
@@ -105,7 +105,6 @@ Matrix TicTacToe::pickMove(const Matrix input) const{
 	for(int i = 0; i < numSquares_; ++i){
 		avail[i] = i;
 	}
-	
 	for(int choice = 0; choice < numSquares_; ++choice){
 		double max = input(0, avail[0]);
 		int index = avail[0];
@@ -129,7 +128,7 @@ void TicTacToe::printBoard() const{
 }
 
 Matrix TicTacToe::flattenBoard() const{
-	Matrix temp(1,numSquares_);
+	Matrix temp(1, numSquares_);
 	for(int i = 0; i < 3; ++i){
 		for(int j = 0; j < 3; ++j){
 			temp(0, 3 * i + j) = board_(i, j);

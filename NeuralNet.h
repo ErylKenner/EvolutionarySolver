@@ -10,6 +10,7 @@
 class NeuralNet {
 public:
     NeuralNet(const Matrix layerSizes);
+    
     Matrix forward(const Matrix input) const;
     void printWeights() const;
     
