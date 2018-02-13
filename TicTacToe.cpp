@@ -1,16 +1,15 @@
 #include "TicTacToe.h"
 
 
-TicTacToe::TicTacToe(NeuralNet& player1, NeuralNet& player2, bool displayStates)
-	: board_(3, 3)
-	, displayStates_(displayStates)
-	, player1_(player1)
-	, player2_(player2){
+TicTacToe::TicTacToe(NeuralNet& player1, NeuralNet& player2, bool verbose)
+	: m_board(NUM_ROWS, NUM_COLS)
+	, m_verbose(verbose)
+	, m_player1(player1)
+	, m_player2(player2){
 
-	numSquares_ = 9;
-	for(int i = 0; i < 3; ++i){
-		for(int j = 0; j < 3; ++j){
-			board_(i, j) = 0;
+	for(int row = 0; row < NUM_ROWS; ++row){
+		for(int col = 0; col < NUM_COLS; ++col){
+			m_board(row, col) = 0;
 		}
 	}
 }
@@ -32,9 +31,9 @@ void TicTacToe::playGame(){
 //Helper method to determine if the board is empty
 bool TicTacToe::isEmpty() const{
 	bool empty = true;
-	for(int i = 0; i < numSquares_; ++i){
-		for(int j =0; j < 3; ++j){
-			if(board_(i, j) != 0.0){
+	for(int row = 0; row < NUM_ROWS; ++row){
+		for(int col = 0; col < NUM_COLS; ++col){
+			if(m_board(row, col) != 0.0){
 				empty = false;
 				break;
 			}
@@ -46,9 +45,9 @@ bool TicTacToe::isEmpty() const{
 //Helper method to determine if the board is full
 bool TicTacToe::isFull() const{
 	bool full = true;
-	for(int i = 0; i < 3; ++i){
-		for(int j =0; j < 3; ++j){
-			if(board_(i, j) == 0.0){
+	for(int row = 0; row < NUM_ROWS; ++row){
+		for(int col = 0; col < NUM_COLS; ++col){
+			if(m_board(row, col) == 0.0){
 				full = false;
 				break;
 			}
@@ -57,17 +56,29 @@ bool TicTacToe::isFull() const{
 	return full;
 }
 
-//Returns a matrix of the preferred moves in descending order
-Matrix TicTacToe::bestMoves(const Matrix input) const{
-	Matrix maxIndexes(1, numSquares_);
-	std::vector<int> avail(numSquares_, 0);
-	for(int i = 0; i < numSquares_; ++i){
+//Returns a matrix of the preferred moves starting with most preffered
+Matrix TicTacToe::bestMoves(const Matrix& input) const{
+	//Stores the list of preferred moves
+	Matrix maxIndexes(1, NUM_OUTPUTS);
+
+	//After each iteration below, this stores the squares still available
+	std::vector<int> avail(NUM_OUTPUTS, 0);
+	for(int i = 0; i < NUM_OUTPUTS; ++i){
 		avail[i] = i;
 	}
-	for(int choice = 0; choice < numSquares_; ++choice){
+
+	/* Loops over avail[] (the remaining items), finding the max item left.
+	 * It adds the index of that value to maxIndexes, removes it from
+	 * avail[], and repeats. Ends when avail[] is gone.
+	 */
+	for(int choice = 0; choice < NUM_OUTPUTS; ++choice){
+		//Stores the max value
 		double max = input(0, avail[0]);
+		//Stores the index of max in m_board
 		int index = avail[0];
+		//Stores the index of max in avail[]
 		int availIndex = 0;
+
 		for(int i = 1; i < avail.size(); ++i){
 			if(input(0, avail[i]) > max){
 				max = input(0, avail[i]);
@@ -75,27 +86,29 @@ Matrix TicTacToe::bestMoves(const Matrix input) const{
 				availIndex = i;
 			}
 		}
+		//Adds the index of max in m_board to maxIndexes
 		maxIndexes(0, choice) = index;
+		//Removes max from avail[]
 		avail.erase(avail.begin() + availIndex);
 	}
 	return maxIndexes;
 }
 
-//Prionts the current board to the console
+//Prints the current board to the console
 void TicTacToe::printBoard() const{
 	std::cout << "Board:" << std::endl;
-	board_.printData();
+	m_board.printData();
 }
 
 /* The board is stored as a 3x3 matrix.
- * This helper method converts that into a 1D (matrix)
+ * This helper method converts that into a 1D column matrix
  * representation so it can be passed into other methods.
  */
 Matrix TicTacToe::flattenBoard() const{
-	Matrix temp(1, numSquares_);
-	for(int i = 0; i < 3; ++i){
-		for(int j = 0; j < 3; ++j){
-			temp(0, 3 * i + j) = board_(i, j);
+	Matrix temp(1, NUM_OUTPUTS);
+	for(int row = 0; row < NUM_ROWS; ++row){
+		for(int col = 0; col < NUM_COLS; ++col){
+			temp(0, NUM_COLS * row + col) = m_board(row, col);
 		}
 	}
 	return temp;
@@ -105,38 +118,34 @@ Matrix TicTacToe::flattenBoard() const{
  * This method returns the board position at that position. 
  */
 double TicTacToe::getBoardAtPosition(const int position) const{
-	return board_(position / 3, position % 3);
+	return m_board(position / NUM_COLS, position % NUM_COLS);
 }
 
 /* This method sets the board square given by 'position' to a given value. 
  */
 void TicTacToe::setBoardAtPosition(const int position, const int value){
-	board_(position / 3, position % 3) = value;
+	m_board(position / NUM_COLS, position % NUM_COLS) = value;
 }
 
 //Helper function to determine if a player has won
-bool TicTacToe::hasWon(const double playerValue) const{
-	//Rows
-	for(int i = 0; i < 3; ++i){
-		if(board_(i, 0) == playerValue && board_(i, 1) == playerValue
-			&& board_(i, 2) == playerValue){
+bool TicTacToe::hasWon(const double val) const{
+	//Check rows
+	for(int row = 0; row < NUM_ROWS; ++row){
+		if(m_board(row, 0) == val && m_board(row, 1) == val && m_board(row, 2) == val){
 			return true;
 		}
 	}
-	//Columns
-	for(int j = 0; j < 3; ++j){
-		if(board_(0, j) == playerValue && board_(1, j) == playerValue
-			&& board_(2, j) == playerValue){
+	//Check columns
+	for(int col = 0; col < NUM_COLS; ++col){
+		if(m_board(0, col) == val && m_board(1, col) == val && m_board(2, col) == val){
 			return true;
 		}
 	}
-	//Diagonals
-	if(board_(0, 0) == playerValue && board_(1, 1) == playerValue
-		&& board_(2, 2) == playerValue){
+	//Check diagonals
+	if(m_board(0, 0) == val && m_board(1, 1) == val && m_board(2, 2) == val){
 		return true;
 	}
-	if(board_(0, 2) == playerValue && board_(1, 1) == playerValue
-		&& board_(2, 0) == playerValue){
+	if(m_board(0, 2) == val && m_board(1, 1) == val && m_board(2, 0) == val){
 		return true;
 	}
 	return false;
@@ -155,15 +164,15 @@ bool TicTacToe::takeTurn(int squareIdentity){
 	}
 
 	//moves holds the list of desired moves in order of preference
-	Matrix moves(1, 9);
+	Matrix moves(1, NUM_OUTPUTS);
 	if(player1){
-		moves = bestMoves(player1_.forward(flattenBoard()));
+		moves = bestMoves(m_player1.forward(flattenBoard()));
 	} else{
-		moves = bestMoves(player2_.forward(flattenBoard()));
+		moves = bestMoves(m_player2.forward(flattenBoard()));
 	}
 
 	//Make the best move from available squares
-	for(int i = 0; i < numSquares_; ++i){
+	for(int i = 0; i < NUM_OUTPUTS; ++i){
 		if(getBoardAtPosition(moves(0, i)) == 0.0){
 			setBoardAtPosition(moves(0, i), squareIdentity);
 			break;
@@ -171,7 +180,7 @@ bool TicTacToe::takeTurn(int squareIdentity){
 	}
 
 	//Diagnostics
-	if(displayStates_){
+	if(m_verbose){
 		if(player1){
 			std::cout << "Player 1's move:" << std::endl;
 		} else{
@@ -183,12 +192,12 @@ bool TicTacToe::takeTurn(int squareIdentity){
 	//Check if the move played was a winning move
 	if(hasWon(squareIdentity)){
 		if(player1){
-			player1_.addToFitness(1.0);
+			m_player1.addToFitness(1.0);
 		} else{
-			player2_.addToFitness(1.0);
+			m_player2.addToFitness(1.0);
 		}
 		
-		if(displayStates_){
+		if(m_verbose){
 			std::cout << "========================" << std::endl;
 		}
 		return true;
@@ -196,9 +205,9 @@ bool TicTacToe::takeTurn(int squareIdentity){
 
 	//Check if the board is now full
 	if(isFull()){
-		player1_.addToFitness(0.5);
-		player2_.addToFitness(0.5);
-		if(displayStates_){
+		m_player1.addToFitness(0.5);
+		m_player2.addToFitness(0.5);
+		if(m_verbose){
 			std::cout << "========================" << std::endl;
 		}
 		return true;

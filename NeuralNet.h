@@ -9,9 +9,9 @@
 
 class NeuralNet {
 public:
-    NeuralNet(const Matrix layerSizes);
+    NeuralNet(const Matrix& layerSizes);
     
-    Matrix forward(const Matrix input) const;
+    Matrix forward(const Matrix& input) const;
     void printWeights() const;
     
     std::vector<Matrix> getWeights() const;
@@ -24,10 +24,11 @@ private:
     Matrix layerSizes_;
     std::vector<Matrix> weights_;
     std::vector<Matrix> biases_;
+
     double fitness_;
 
-    double sigmoid(double x) const;
-    Matrix applyNonlinearity(Matrix a) const;
+    Matrix applyNonlinearity(const Matrix& input, double(*funct)(double)) const;
+    static double sigmoid(double x);
 };
 
 #endif

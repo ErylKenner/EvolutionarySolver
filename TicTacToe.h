@@ -6,6 +6,10 @@
 #include <iostream>
 #include <vector>
 
+#define NUM_INPUTS 9
+#define NUM_OUTPUTS 9
+#define NUM_ROWS 3
+#define NUM_COLS 3
 
 class TicTacToe {
 public:
@@ -21,16 +25,15 @@ private:
     double getBoardAtPosition(const int position) const;
     void setBoardAtPosition(const int position, const int value);
 
-    Matrix bestMoves(const Matrix input) const;
+    Matrix bestMoves(const Matrix& input) const;
     void printBoard() const;
     bool hasWon(const double playerValue) const;
 
-    NeuralNet& player1_;
-    NeuralNet& player2_;
+    NeuralNet& m_player1;
+    NeuralNet& m_player2;
 
-    Matrix board_;
-    int numSquares_;
-    bool displayStates_;
+    Matrix m_board;
+    const bool m_verbose;
 };
 
 #endif

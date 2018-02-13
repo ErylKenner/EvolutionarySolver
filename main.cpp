@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+//#include <cstdlib>
 using namespace std;
 
 #include "Matrix.h"
@@ -9,8 +10,7 @@ using namespace std;
 
 bool compFitness(NeuralNet player1, NeuralNet player2);
 
-#define NUM_INPUTS 9
-#define NUM_OUTPUTS 9
+
 
 
 int main(){
@@ -23,6 +23,7 @@ int main(){
     if(populationSize < 2){
         populationSize = 2;
     }
+    
 
     //Populate layerSizes
     int hiddenLayers;
@@ -60,17 +61,21 @@ int main(){
     //Sorts the players by fitness (ascending)
     sort(population.begin(), population.end(), compFitness);
     
+    /*
     //Print players' fitness
     for(int i = 0; i < populationSize; ++i){
         cout << "Player " << i + 1<< " fitness: " <<
             population[i].getFitness() << endl;
     }
+    */
 
     //Print the max fitness
     double maxVal = population.back().getFitness();
     double minVal = population.front().getFitness();
     cout << "Max fitness: " << maxVal << ", Min fitness: " << minVal;
     cout << ", Highest possible: " << 2 * (populationSize-1) << endl;
+
+    population.back().printWeights();
    
     
     return 0;

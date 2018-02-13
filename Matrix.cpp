@@ -1,50 +1,56 @@
 #include "Matrix.h"
 
 //Size Constructor
-Matrix::Matrix(unsigned rows, unsigned cols)
-    : rows_ (rows)
-    , cols_ (cols){
+Matrix::Matrix(const unsigned rows, const unsigned cols)
+    : m_rows(rows)
+    , m_cols(cols){
+
     if (rows == 0 || cols == 0){
-        throw std::out_of_range("Matrix constructor has 0 size");
+        std::cerr << "Error: Matrix size constructor has 0 size" << std::endl;
+        exit(1);
     }
-    data_ = new double[rows * cols];
+    m_data = new double[rows * cols];
 }
 
 //Copy constructor
 Matrix::Matrix(const Matrix& m)
-    : rows_(m.numRows())
-    , cols_(m.numCols()){
+    : m_rows(m.numRows())
+    , m_cols(m.numCols()){
     
-    data_ = new double[rows_ * cols_];
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            data_[cols_*row + col] = m(row, col);
+    if (m_rows <= 0 || m_cols <= 0){
+        std::cerr << "Error: Matrix copy constructor has 0 size" << std::endl;
+        exit(1);
+    }
+    m_data = new double[m_rows * m_cols];
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            m_data[m_cols * row + col] = m(row, col);
         }
     }
 }
 
 //Sets all matrix elements to 'n'
 void Matrix::initialize(const int n){
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            data_[cols_*row + col] = n;
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            m_data[m_cols * row + col] = n;
         }
     }
 }
 
 int Matrix::numRows() const{
-    return rows_;
+    return m_rows;
 }
 
 int Matrix::numCols() const{
-    return cols_;
+    return m_cols;
 }
 
 //Prints the matrix as a grid to the console
 void Matrix::printData() const{
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            printf("%10.5lf", data_[cols_*row + col]);
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            printf("%10.5lf", m_data[m_cols * row + col]);
         }
         std::cout << std::endl;
     }
@@ -52,10 +58,10 @@ void Matrix::printData() const{
 
 //Returns a copy of itself which is transposed
 Matrix Matrix::transpose() const{
-    Matrix temp(cols_, rows_);
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            temp(col, row) = data_[cols_*row + col];
+    Matrix temp(m_cols, m_rows);
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            temp(col, row) = m_data[m_cols * row + col];
         }
     }
     return temp;
@@ -63,82 +69,87 @@ Matrix Matrix::transpose() const{
 
 //Destructor
 Matrix::~Matrix(){
-    delete[] data_;
+    delete[] m_data;
 }
 
 //Override = operator to copy each element
-Matrix& Matrix::operator= (const Matrix m){
-    if(m.numRows() != rows_ || m.numCols() != cols_){
-        throw std::out_of_range("Matrix sizes are not equivalent. Cannot perform assignment");
+Matrix& Matrix::operator= (const Matrix& m){
+    if(m.numRows() != m_rows || m.numCols() != m_cols){
+        std::cerr << "Error: Matrix sizes are not equivalent. Cannot perform assignment." << std::endl;
+        exit(1);
     }
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            data_[cols_*row + col] = m(row, col);
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            m_data[m_cols * row + col] = m(row, col);
         }
     }
 }
 
 //Override - (unary) operator to negate each element
 Matrix Matrix::operator- (){
-    Matrix temp(rows_, cols_);
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            temp(row, col) = -1*data_[cols_*row + col];
+    Matrix temp(m_rows, m_cols);
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            temp(row, col) = -1*m_data[m_cols * row + col];
         }
     }
     return temp;
 }
 
 //Override + operator to add elementwise
-Matrix Matrix::operator+ (const Matrix a){
-    if(a.numRows() != rows_ || a.numCols() != cols_){
-        throw std::out_of_range("Matrix sizes are not equivalent. Cannot perform addition");
+Matrix Matrix::operator+ (const Matrix& a){
+    if(a.numRows() != m_rows || a.numCols() != m_cols){
+        std::cerr << "Error: Matrix sizes are not equivalent. Cannot perform addition." << std::endl;
+        exit(1);
     }
-    Matrix temp(rows_, cols_);
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            temp(row, col) = a(row, col) + data_[cols_*row + col];
+    Matrix temp(m_rows, m_cols);
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            temp(row, col) = a(row, col) + m_data[m_cols * row + col];
         }
     }
     return temp;
 }
 
 //Override - operator to subtract elementwise
-Matrix Matrix::operator- (const Matrix a){
-    if(a.numRows() != rows_ || a.numCols() != cols_){
-        throw std::out_of_range("Matrix sizes are not equivalent. Cannot perform subtraction");
+Matrix Matrix::operator- (const Matrix& a){
+    if(a.numRows() != m_rows || a.numCols() != m_cols){
+        std::cerr << "Error: Matrix sizes are not equivalent. Cannot perform subtraction." << std::endl;
+        exit(1);
     }
-    Matrix temp(rows_, cols_);
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            temp(row, col) = data_[cols_*row + col] - a(row, col);
+    Matrix temp(m_rows, m_cols);
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            temp(row, col) = m_data[m_cols * row + col] - a(row, col);
         }
     }
     return temp;
 }
 
 //Override * operator to multiply elementwise by a constant
-Matrix Matrix::operator* (int a){
-    Matrix temp(rows_, cols_);
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            temp(row, col) = a * data_[cols_*row + col];
+Matrix Matrix::operator* (const int a){
+    Matrix temp(m_rows, m_cols);
+    for(int row = 0; row < m_rows; ++row){
+        for(int col = 0; col < m_cols; ++col){
+            temp(row, col) = a * m_data[m_cols * row + col];
         }
     }
     return temp;
 }
 
 //Override * operator to perform standard matrix multiplication
-Matrix Matrix::operator* (const Matrix a){
-    if(cols_ != a.numRows()){
-        throw std::out_of_range("Matrix sizes are incompatible. Cannot perform multiplication");
+Matrix Matrix::operator* (const Matrix& a){
+    if(m_cols != a.numRows()){
+        std::cerr << "Error: Matrix sizes are incompatible. Cannoto perform matrix multiplication." << std::endl;
+        exit(1);
     }
-    Matrix temp(rows_, a.numCols());
-    for(int row = 0; row < rows_; ++row){
+    Matrix temp(m_rows, a.numCols());
+    for(int row = 0; row < m_rows; ++row){
         for(int col = 0; col < a.numCols(); ++col){
+            //perform cross product between current row and current column
             temp(row, col) = 0;
-            for(int element = 0; element < cols_; ++element){
-                temp(row, col) += data_[cols_*row + element] * a(element, col);
+            for(int element = 0; element < m_cols; ++element){
+                temp(row, col) += m_data[m_cols * row + element] * a(element, col);
             }
         }
     }
@@ -146,50 +157,51 @@ Matrix Matrix::operator* (const Matrix a){
 }
 
 //Override () operator to allow access at a specific location
-double& Matrix::operator() (unsigned row, unsigned col){
-    if (row >= rows_ || col >= cols_ || row < 0 || col < 0){
-        throw std::out_of_range("Matrix subscript out of bounds");
+double& Matrix::operator() (const unsigned row, const unsigned col){
+    if (row >= m_rows || col >= m_cols ){
+        std::cerr << "Error: Matrix subscript out of bounds (too large)." << std::endl;
+        exit(1);
     }
-    return data_[cols_*row + col];
+    if(row < 0 || col < 0){
+        std::cerr << "Error: Matrix subscript out of bounds (too small)." << std::endl;
+        exit(1);
+    }
+    return m_data[m_cols * row + col];
 }
 
 //Override () operator to allow access at a specific location
 double Matrix::operator() (unsigned row, unsigned col) const{
-    if (row >= rows_ || col >= cols_ || row < 0 || col < 0){
-        throw std::out_of_range("Matrix subscript out of bounds");
+    if (row >= m_rows || col >= m_cols){
+        std::cerr << "Error: Matrix subscript out of bounds (too large)." << std::endl;
+        exit(1);
     }
-    return data_[cols_*row + col];
+    if(row < 0 || col < 0){
+        std::cerr << "Error: Matrix subscript out of bounds (too small)." << std::endl;
+        exit(1);
+    }
+    return m_data[m_cols * row + col];
 }
 
 //Sets each element to a random double in the range [min, max] with specified resolution
-void Matrix::initRand(const double min, const double max, const int resolution){
-    for(int row = 0; row < rows_; ++row){
-            for(int col = 0; col < cols_; ++col){
-                int bound = (int)(max - min);
-                bound *= resolution;
-
-                double randDouble = (double)(rand() % bound);
-
-                randDouble = randDouble / resolution + min;
-
-                data_[cols_*row + col] = randDouble;
-            }
-        }
-}
-
-//Returns the (flattened) index of the max value
-int Matrix::maxVal() const{
-    double maxVal = data_[0];
-    int index = 0;
-    for(int row = 0; row < rows_; ++row){
-        for(int col = 0; col < cols_; ++col){
-            if(data_[cols_ * row + col] > maxVal){
-                maxVal = data_[cols_ * row + col];
-                index = cols_ * row + col;
-            }
-        }
+void Matrix::initRand(const double min, const double max, const unsigned resolution){
+    if(min > max){
+        std::cerr << "Error: initRand(): Min is larger than max." << std::endl;
+        exit(1);
     }
-    return index;
+    if(resolution == 0){
+        std::cerr << "Error: initRand(): Resolution is equal to 0" << std::endl;
+        exit(1);
+    }
+    for(int row = 0; row < m_rows; ++row){
+            for(int col = 0; col < m_cols; ++col){
+                //bound is the range in which to generate an int
+                int bound = (int)(resolution * (max - min));
+                //The double value is converted from bound
+                double randDouble = min + (double)(rand() % bound) / resolution;
+                //Passed into the matrix
+                m_data[m_cols * row + col] = randDouble;
+            }
+        }
 }
 
 
