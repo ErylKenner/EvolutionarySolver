@@ -20,6 +20,8 @@ public:
     void addToFitness(const double a);
     double getFitness() const;
     void resetFitness();
+
+    static bool compFitness(const NeuralNet& player1, const NeuralNet& player2);
 private:
     Matrix layerSizes_;
     std::vector<Matrix> weights_;

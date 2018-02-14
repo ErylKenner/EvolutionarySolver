@@ -8,11 +8,6 @@ using namespace std;
 #include "NeuralNet.h"
 #include "TicTacToe.h"
 
-bool compFitness(NeuralNet player1, NeuralNet player2);
-
-
-
-
 int main(){
     srand(time(NULL));
 
@@ -59,7 +54,7 @@ int main(){
     }
     
     //Sorts the players by fitness (ascending)
-    sort(population.begin(), population.end(), compFitness);
+    sort(population.begin(), population.end(), NeuralNet::compFitness);
     
     /*
     //Print players' fitness
@@ -81,6 +76,3 @@ int main(){
     return 0;
 }
 
-bool compFitness(NeuralNet player1, NeuralNet player2){
-    return player1.getFitness() < player2.getFitness();
-}

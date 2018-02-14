@@ -86,3 +86,8 @@ double NeuralNet::getFitness() const{
     return fitness_;
 }
 
+
+
+bool NeuralNet::compFitness(const NeuralNet& player1, const NeuralNet& player2){
+    return player1.getFitness() < player2.getFitness();
+}
