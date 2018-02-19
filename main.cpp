@@ -1,12 +1,12 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-//#include <cstdlib>
 using namespace std;
 
 #include "Matrix.h"
 #include "NeuralNet.h"
 #include "TicTacToe.h"
+#include "Genetic.h"
 
 int main(){
     srand(time(NULL));
@@ -19,6 +19,13 @@ int main(){
         populationSize = 2;
     }
     
+    //Get number of iterations
+    int iterations;
+    cout << "Iterations: ";
+    cin >> iterations;
+    if(iterations < 1){
+        iterations = 1;
+    }
 
     //Populate layerSizes
     int hiddenLayers;
@@ -40,22 +47,45 @@ int main(){
         NeuralNet player(layerSizes);
         population.push_back(player);
     }
-    
-    //Play games
-    for(int i = 0; i < populationSize; ++i){
-        for(int j = i + 1; j < populationSize; ++j){
-            //Game 1 (play 2 games so both players can start first)
-            TicTacToe game1(population[i], population[j], false);
-            game1.playGame();
-            //Game 2
-            TicTacToe game2(population[j], population[i], false);
-            game2.playGame();
-        }   
+
+    //Instantiate genetic algorithm
+    Genetic ga(0.03);
+
+    for(int generation = 0; generation < iterations; ++generation){
+        bool verbose = (generation % 50) == 0;
+        //Play games
+        for(int i = 0; i < populationSize; ++i){
+            for(int j = i + 1; j < populationSize; ++j){
+                //Game 1 (play 2 games so both players can start first)
+                TicTacToe game1(population[i], population[j], false);
+                game1.playGame();
+                //Game 2
+                TicTacToe game2(population[j], population[i], false);
+                game2.playGame();
+            }   
+        }
+        
+        //Sorts the players by fitness (ascending)
+        sort(population.begin(), population.end(), NeuralNet::compFitness);
+
+        //Print the max fitness
+        double maxVal = population.back().getFitness();
+        double minVal = population.front().getFitness();
+        printf("Max fitness: %4.2f, Min fitness: %4.2f, Highest possible: %4d"
+            , maxVal, minVal, 2 * (populationSize - 1));
+        cout << endl;
+        //cout << "Max fitness: " << maxVal << ", Min fitness: " << minVal;
+        //cout << ", Highest possible: " << 2 * (populationSize-1) << endl;
+
+        if(verbose){
+            population.back().printWeights();
+        }
+        
+        ga.breed(population);
+        ga.mutate(population);
     }
-    
-    //Sorts the players by fitness (ascending)
-    sort(population.begin(), population.end(), NeuralNet::compFitness);
-    
+
+
     /*
     //Print players' fitness
     for(int i = 0; i < populationSize; ++i){
@@ -63,14 +93,6 @@ int main(){
             population[i].getFitness() << endl;
     }
     */
-
-    //Print the max fitness
-    double maxVal = population.back().getFitness();
-    double minVal = population.front().getFitness();
-    cout << "Max fitness: " << maxVal << ", Min fitness: " << minVal;
-    cout << ", Highest possible: " << 2 * (populationSize-1) << endl;
-
-    population.back().printWeights();
    
     
     return 0;

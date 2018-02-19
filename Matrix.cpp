@@ -1,7 +1,7 @@
 #include "Matrix.h"
 
 //Size Constructor
-Matrix::Matrix(const unsigned rows, const unsigned cols)
+Matrix::Matrix(const int rows, const int cols)
     : m_rows(rows)
     , m_cols(cols){
 
@@ -73,7 +73,7 @@ Matrix::~Matrix(){
 }
 
 //Override = operator to copy each element
-Matrix& Matrix::operator= (const Matrix& m){
+void Matrix::operator= (const Matrix& m){
     if(m.numRows() != m_rows || m.numCols() != m_cols){
         std::cerr << "Error: Matrix sizes are not equivalent. Cannot perform assignment." << std::endl;
         exit(1);
@@ -157,7 +157,7 @@ Matrix Matrix::operator* (const Matrix& a){
 }
 
 //Override () operator to allow access at a specific location
-double& Matrix::operator() (const unsigned row, const unsigned col){
+double& Matrix::operator() (const int row, const int col){
     if (row >= m_rows || col >= m_cols ){
         std::cerr << "Error: Matrix subscript out of bounds (too large)." << std::endl;
         exit(1);
@@ -170,7 +170,7 @@ double& Matrix::operator() (const unsigned row, const unsigned col){
 }
 
 //Override () operator to allow access at a specific location
-double Matrix::operator() (unsigned row, unsigned col) const{
+double Matrix::operator() (int row, int col) const{
     if (row >= m_rows || col >= m_cols){
         std::cerr << "Error: Matrix subscript out of bounds (too large)." << std::endl;
         exit(1);

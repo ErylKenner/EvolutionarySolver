@@ -29,10 +29,11 @@ private:
     void printBoard() const;
     bool hasWon(const double playerValue) const;
 
+    Matrix m_board;
+
     NeuralNet& m_player1;
     NeuralNet& m_player2;
 
-    Matrix m_board;
     const bool m_verbose;
 };
 

@@ -23,11 +23,11 @@ public:
 
     static bool compFitness(const NeuralNet& player1, const NeuralNet& player2);
 private:
-    Matrix layerSizes_;
-    std::vector<Matrix> weights_;
-    std::vector<Matrix> biases_;
+    Matrix m_layerSizes;
+    std::vector<Matrix> m_weights;
+    std::vector<Matrix> m_biases;
 
-    double fitness_;
+    double m_fitness;
 
     Matrix applyNonlinearity(const Matrix& input, double(*funct)(double)) const;
     static double sigmoid(double x);

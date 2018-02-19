@@ -9,13 +9,13 @@
 
 class Matrix {
 public:
-    Matrix(const unsigned rows, const unsigned cols);   // Size constructor
+    Matrix(const int rows, const int cols);   // Size constructor
     Matrix(const Matrix& m);                 // Copy constructor
     ~Matrix();                              // Destructor
     
-    double& operator() (const unsigned row, const unsigned col);        // Access operator
-    double  operator() (const unsigned row, const unsigned col) const;  // Access operator
-    Matrix& operator= (const Matrix& m);                    // Assignment operator
+    double& operator() (const int row, const int col);        // Access operator
+    double  operator() (const int row, const int col) const;  // Access operator
+    void operator= (const Matrix& m);                    // Assignment operator
     
     
     int numRows() const;                    // Returns rows_
@@ -33,7 +33,7 @@ public:
     void initRand(const double min, const double max, const unsigned resolution=20);
     
 private:
-    const unsigned m_rows, m_cols;
+    const int m_rows, m_cols;
     double* m_data;
 };
 

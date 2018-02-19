@@ -3,9 +3,9 @@
 
 TicTacToe::TicTacToe(NeuralNet& player1, NeuralNet& player2, bool verbose)
 	: m_board(NUM_ROWS, NUM_COLS)
-	, m_verbose(verbose)
 	, m_player1(player1)
-	, m_player2(player2){
+	, m_player2(player2)
+	, m_verbose(verbose){
 
 	for(int row = 0; row < NUM_ROWS; ++row){
 		for(int col = 0; col < NUM_COLS; ++col){
@@ -205,8 +205,8 @@ bool TicTacToe::takeTurn(int squareIdentity){
 
 	//Check if the board is now full
 	if(isFull()){
-		m_player1.addToFitness(0.5);
-		m_player2.addToFitness(0.5);
+		m_player1.addToFitness(0.0);
+		m_player2.addToFitness(0.0);
 		if(m_verbose){
 			std::cout << "========================" << std::endl;
 		}
