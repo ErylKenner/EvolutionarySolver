@@ -79,7 +79,7 @@ Matrix TicTacToe::bestMoves(const Matrix& input) const{
 		//Stores the index of max in avail[]
 		int availIndex = 0;
 
-		for(int i = 1; i < avail.size(); ++i){
+		for(unsigned int i = 1; i < avail.size(); ++i){
 			if(input(0, avail[i]) > max){
 				max = input(0, avail[i]);
 				index = avail[i];
