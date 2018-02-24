@@ -32,14 +32,17 @@ int main(){
     cout << "Number of hidden layers: ";
     cin >> hiddenLayers;
     
-    Matrix layerSizes(1, hiddenLayers + 2);
-    layerSizes(0, 0) = NUM_INPUTS;
-    layerSizes(0, hiddenLayers + 1) = NUM_OUTPUTS;
-
+    std::vector<unsigned int> layerSizes;
+    layerSizes.push_back(NUM_INPUTS);
+    
     for(int i = 1; i <= hiddenLayers; ++i){
+        unsigned int temp;
         cout << "Number in hidden layer " << i << ": ";
-        cin >> layerSizes(0, i);
+        cin >> temp;
+        layerSizes.push_back(temp);
     }
+    
+    layerSizes.push_back(NUM_OUTPUTS);
 
     //Instantiate the Players
     std::vector<NeuralNet> population;

@@ -30,7 +30,7 @@ public:
     
     Matrix transpose() const;               // Transpose
     void initialize(const int n);
-    void initRand(const double min, const double max, const unsigned resolution=20);
+    void initRand(const double min, const double max, const unsigned int resolution=20);
     
 private:
     const unsigned int m_rows, m_cols;

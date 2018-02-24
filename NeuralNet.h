@@ -9,7 +9,7 @@
 
 class NeuralNet {
 public:
-    NeuralNet(const Matrix& layerSizes);
+    NeuralNet(const std::vector<unsigned int>& layerSizes);
     
     Matrix forward(const Matrix& input) const;
     void printWeights() const;
@@ -23,7 +23,7 @@ public:
 
     static bool compFitness(const NeuralNet& player1, const NeuralNet& player2);
 private:
-    Matrix m_layerSizes;
+    std::vector<unsigned int> m_layerSizes;
     std::vector<Matrix> m_weights;
     std::vector<Matrix> m_biases;
 

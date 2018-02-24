@@ -1,14 +1,16 @@
+
 #include "NeuralNet.h"
 
 
+
 //Constructor takes in the structure of the network as a matrix
-NeuralNet::NeuralNet(const Matrix& layerSizes)
+NeuralNet::NeuralNet(const std::vector<unsigned int>& layerSizes)
     : m_layerSizes(layerSizes){
 
     //Create vectors for weights and biases. Each entry is a matrix for that layer
-    for(unsigned int i = 0; i < layerSizes.numCols() - 1; ++i){
-        Matrix tempWeight(layerSizes(0, i), layerSizes(0, i+1));
-        Matrix tempBias(1, layerSizes(0, i+1));
+    for(unsigned int i = 0; i < layerSizes.size() - 1; ++i){
+        Matrix tempWeight(layerSizes[i], layerSizes[i+1]);
+        Matrix tempBias(1, layerSizes[i+1]);
         
         tempWeight.initRand(-1, 1);
         tempBias.initRand(-1, 1);

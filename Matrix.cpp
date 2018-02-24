@@ -1,4 +1,8 @@
+
 #include "Matrix.h"
+
+
+
 
 //Size Constructor
 Matrix::Matrix(const unsigned int rows, const unsigned int cols)
@@ -50,7 +54,7 @@ unsigned int Matrix::numCols() const{
 void Matrix::printData() const{
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            printf("%10.5lf", m_data[m_cols * row + col]);
+            printf("%9.4lf", m_data[m_cols * row + col]);
         }
         std::cout << std::endl;
     }
@@ -183,7 +187,7 @@ double Matrix::operator() (const unsigned int row, const unsigned int col) const
 }
 
 //Sets each element to a random double in the range [min, max] with specified resolution
-void Matrix::initRand(const double min, const double max, const unsigned resolution){
+void Matrix::initRand(const double min, const double max, const unsigned int resolution){
     if(min > max){
         std::cerr << "Error: initRand(): Min is larger than max." << std::endl;
         exit(1);
@@ -193,15 +197,19 @@ void Matrix::initRand(const double min, const double max, const unsigned resolut
         exit(1);
     }
     for(unsigned int row = 0; row < m_rows; ++row){
-            for(unsigned int col = 0; col < m_cols; ++col){
-                //bound is the range in which to generate an int
-                int bound = (int)(resolution * (max - min));
-                //The double value is converted from bound
-                double randDouble = min + (double)(rand() % bound) / resolution;
-                //Passed into the matrix
-                m_data[m_cols * row + col] = randDouble;
-            }
+        for(unsigned int col = 0; col < m_cols; ++col){
+            /* resolution represents how many pieces each int is broken into.
+             * bound is used because we can generate ints better than doubles.
+             * bound is the product of the total range * resolution.
+             * Afterward, we divide bound by resolution to get a double.
+             */
+            int bound = (int)( (double)resolution * (max - min) );
+            //The double value is created by dividing bound by resolution
+            double randDouble = min + (double)(rand() % bound) / resolution;
+            //Passed into the matrix
+            m_data[m_cols * row + col] = randDouble;
         }
+    }
 }
 
 
