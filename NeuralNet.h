@@ -15,7 +15,7 @@ public:
     void printWeights() const;
     
     std::vector<Matrix> getWeights() const;
-    void setWeights(const std::vector<Matrix> weights);
+    void setWeights(const std::vector<Matrix>& weights);
 
     void addToFitness(const double a);
     double getFitness() const;

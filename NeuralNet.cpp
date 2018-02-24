@@ -25,23 +25,23 @@ NeuralNet::NeuralNet(const std::vector<unsigned int>& layerSizes)
 void NeuralNet::printWeights() const{
     std::cout << "Current weights:" << std::endl;
     for(unsigned int i = 0; i < m_weights.size(); ++i){
-        std::cout << "========================" << std::endl;
+        std::cout << "================================================" << std::endl;
         m_weights[i].printData();
     }
-    std::cout << "========================" << std::endl;
+    std::cout << "================================================" << std::endl;
 }
 
 //Performs forward propagation using m_weights and 'input'
 Matrix NeuralNet::forward(const Matrix& input) const{
 	//Stores the previous layer's output
-    std::vector<Matrix> prev;
-    prev.push_back(input);
+    std::vector<Matrix> layers;
+    layers.push_back(input);
 
     for(unsigned int lay = 0; lay < m_weights.size(); ++lay){
-    	//Cur = f(prev * weights + bias) .... where f(x) is nonlinearity funtion
-        prev.push_back( applyNonlinearity(prev.back() * m_weights[lay] + m_biases[lay], sigmoid) );
+    	//Cur = f(layers * weights + bias) .... where f(x) is nonlinearity funtion
+        layers.push_back( applyNonlinearity(layers.back() * m_weights[lay] + m_biases[lay], sigmoid) );
     }
-    return prev.back();
+    return layers.back();
 }
 
 std::vector<Matrix> NeuralNet::getWeights() const{
@@ -49,7 +49,7 @@ std::vector<Matrix> NeuralNet::getWeights() const{
 }
 
 //Sets the internal weights
-void NeuralNet::setWeights(const std::vector<Matrix> weights){
+void NeuralNet::setWeights(const std::vector<Matrix>& weights){
     if (weights.size() == 0 || weights.size() != m_weights.size()){
     	std::cerr << "Error: setWeights(): Weights have different sizes." << std::endl;
         exit(1);

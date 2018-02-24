@@ -25,7 +25,7 @@ private:
     double getBoardAtPosition(const int position) const;
     void setBoardAtPosition(const int position, const int value);
 
-    Matrix bestMoves(const Matrix& input) const;
+    std::vector<unsigned int> bestMoves(const Matrix& input) const;
     void printBoard() const;
     bool hasWon(const double playerValue) const;
 

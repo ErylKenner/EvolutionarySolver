@@ -7,8 +7,8 @@ TicTacToe::TicTacToe(NeuralNet& player1, NeuralNet& player2, bool verbose)
 	, m_player2(player2)
 	, m_verbose(verbose){
 
-	for(int row = 0; row < NUM_ROWS; ++row){
-		for(int col = 0; col < NUM_COLS; ++col){
+	for(unsigned int row = 0; row < NUM_ROWS; ++row){
+		for(unsigned int col = 0; col < NUM_COLS; ++col){
 			m_board(row, col) = 0;
 		}
 	}
@@ -31,8 +31,8 @@ void TicTacToe::playGame(){
 //Helper method to determine if the board is empty
 bool TicTacToe::isEmpty() const{
 	bool empty = true;
-	for(int row = 0; row < NUM_ROWS; ++row){
-		for(int col = 0; col < NUM_COLS; ++col){
+	for(unsigned int row = 0; row < NUM_ROWS; ++row){
+		for(unsigned int col = 0; col < NUM_COLS; ++col){
 			if(m_board(row, col) != 0.0){
 				empty = false;
 				break;
@@ -45,8 +45,8 @@ bool TicTacToe::isEmpty() const{
 //Helper method to determine if the board is full
 bool TicTacToe::isFull() const{
 	bool full = true;
-	for(int row = 0; row < NUM_ROWS; ++row){
-		for(int col = 0; col < NUM_COLS; ++col){
+	for(unsigned int row = 0; row < NUM_ROWS; ++row){
+		for(unsigned int col = 0; col < NUM_COLS; ++col){
 			if(m_board(row, col) == 0.0){
 				full = false;
 				break;
@@ -57,9 +57,9 @@ bool TicTacToe::isFull() const{
 }
 
 //Returns a matrix of the preferred moves starting with most preffered
-Matrix TicTacToe::bestMoves(const Matrix& input) const{
+std::vector<unsigned int> TicTacToe::bestMoves(const Matrix& input) const{
 	//Stores the list of preferred moves
-	Matrix maxIndexes(1, NUM_OUTPUTS);
+	std::vector<unsigned int> maxIndexes(NUM_OUTPUTS, 0);
 
 	//After each iteration below, this stores the squares still available
 	std::vector<int> avail(NUM_OUTPUTS, 0);
@@ -68,7 +68,7 @@ Matrix TicTacToe::bestMoves(const Matrix& input) const{
 	}
 
 	/* Loops over avail[] (the remaining items), finding the max item left.
-	 * It adds the index of that value to maxIndexes, removes it from
+	 * It adds the index of that value to maxIndexes[], removes it from
 	 * avail[], and repeats. Ends when avail[] is gone.
 	 */
 	for(int choice = 0; choice < NUM_OUTPUTS; ++choice){
@@ -86,8 +86,8 @@ Matrix TicTacToe::bestMoves(const Matrix& input) const{
 				availIndex = i;
 			}
 		}
-		//Adds the index of max in m_board to maxIndexes
-		maxIndexes(0, choice) = index;
+		//Adds the index of max in m_board to maxIndexes[]
+		maxIndexes[choice] = index;
 		//Removes max from avail[]
 		avail.erase(avail.begin() + availIndex);
 	}
@@ -164,7 +164,7 @@ bool TicTacToe::takeTurn(int squareIdentity){
 	}
 
 	//moves holds the list of desired moves in order of preference
-	Matrix moves(1, NUM_OUTPUTS);
+	std::vector<unsigned int> moves;
 	if(player1){
 		moves = bestMoves(m_player1.forward(flattenBoard()));
 	} else{
@@ -173,8 +173,8 @@ bool TicTacToe::takeTurn(int squareIdentity){
 
 	//Make the best move from available squares
 	for(int i = 0; i < NUM_OUTPUTS; ++i){
-		if(getBoardAtPosition(moves(0, i)) == 0.0){
-			setBoardAtPosition(moves(0, i), squareIdentity);
+		if(getBoardAtPosition(moves[i]) == 0.0){
+			setBoardAtPosition(moves[i], squareIdentity);
 			break;
 		}
 	}
