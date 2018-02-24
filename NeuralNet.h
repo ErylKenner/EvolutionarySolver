@@ -30,7 +30,7 @@ private:
     double m_fitness;
 
     Matrix applyNonlinearity(const Matrix& input, double(*funct)(double)) const;
-    static double sigmoid(double x);
+    static double sigmoid(const double x);
 };
 
 #endif

@@ -6,7 +6,7 @@ NeuralNet::NeuralNet(const Matrix& layerSizes)
     : m_layerSizes(layerSizes){
 
     //Create vectors for weights and biases. Each entry is a matrix for that layer
-    for(int i = 0; i < layerSizes.numCols() - 1; ++i){
+    for(unsigned int i = 0; i < layerSizes.numCols() - 1; ++i){
         Matrix tempWeight(layerSizes(0, i), layerSizes(0, i+1));
         Matrix tempBias(1, layerSizes(0, i+1));
         
@@ -60,8 +60,8 @@ void NeuralNet::setWeights(const std::vector<Matrix> weights){
 //Applies the nonlinearity function (sigmoid) elementwise
 Matrix NeuralNet::applyNonlinearity(const Matrix& input, double(*callback)(double)) const{
     Matrix temp(input);
-    for(int row = 0; row < input.numRows(); ++row){
-        for(int col = 0; col < input.numCols(); ++col){
+    for(unsigned int row = 0; row < input.numRows(); ++row){
+        for(unsigned int col = 0; col < input.numCols(); ++col){
         	//Applies the callback to each element of input
             temp(row, col) = callback(input(row, col));
         }
@@ -70,7 +70,7 @@ Matrix NeuralNet::applyNonlinearity(const Matrix& input, double(*callback)(doubl
 }
 
 //Sigmoid function. Returns a double between (0, 1)
-double NeuralNet::sigmoid(double x){
+double NeuralNet::sigmoid(const double x){
     return 1 / (1 + exp(-x));
 }
 
@@ -85,8 +85,6 @@ void NeuralNet::addToFitness(const double a){
 double NeuralNet::getFitness() const{
     return m_fitness;
 }
-
-
 
 bool NeuralNet::compFitness(const NeuralNet& player1, const NeuralNet& player2){
     return player1.getFitness() < player2.getFitness();

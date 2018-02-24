@@ -9,31 +9,31 @@
 
 class Matrix {
 public:
-    Matrix(const int rows, const int cols);   // Size constructor
-    Matrix(const Matrix& m);                 // Copy constructor
+    Matrix(const unsigned int rows, const unsigned int cols); // Size constructor
+    Matrix(const Matrix& m);                // Copy constructor
     ~Matrix();                              // Destructor
     
-    double& operator() (const int row, const int col);        // Access operator
-    double  operator() (const int row, const int col) const;  // Access operator
-    void operator= (const Matrix& m);                    // Assignment operator
+    double& operator() (const unsigned int row, const unsigned int col);          // Access operator
+    double  operator() (const unsigned int row, const unsigned int col) const;    // Access operator
+    void operator= (const Matrix& m);                           // Assignment operator
     
     
-    int numRows() const;                    // Returns rows_
-    int numCols() const;                    // Returns cols_
+    unsigned int numRows() const;                    // Returns rows_
+    unsigned int numCols() const;                    // Returns cols_
     void printData() const;                 // Prints in a grid
     
-    Matrix operator- ();                    // Negative
-    Matrix operator+ (const Matrix& a);      // Addition
-    Matrix operator- (const Matrix& a);      // Subtraction
-    Matrix operator* (const int a);         // Constant multiplication
-    Matrix operator* (const Matrix& a);      // Matrix multiplication
+    Matrix operator- () const;                    // Negative
+    Matrix operator+ (const Matrix& a) const;     // Addition
+    Matrix operator- (const Matrix& a) const;     // Subtraction
+    Matrix operator* (const int a) const;         // Constant multiplication
+    Matrix operator* (const Matrix& a) const;     // Matrix multiplication
     
     Matrix transpose() const;               // Transpose
     void initialize(const int n);
     void initRand(const double min, const double max, const unsigned resolution=20);
     
 private:
-    const int m_rows, m_cols;
+    const unsigned int m_rows, m_cols;
     double* m_data;
 };
 
