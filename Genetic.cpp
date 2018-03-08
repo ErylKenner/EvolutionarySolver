@@ -5,12 +5,12 @@ Genetic::Genetic(const double mutationRate)
 
 }
 
-void Genetic::breed(std::vector<NeuralNet>& population){
+void Genetic::breed(std::vector<Player>& population){
 	int size = population.size();
 	
-	std::vector<NeuralNet> newPop;
+	std::vector<Player> newPop;
 
-	//Keep the best 10% if last generation
+	//Keep the best 10% of last generation
 	int numToKeep = (int)(0.1 * (double)size);
 	if(numToKeep < 1){
 		numToKeep = 1;
@@ -20,9 +20,9 @@ void Genetic::breed(std::vector<NeuralNet>& population){
 	}
 	
 	for(int child = 0; child < size - numToKeep; ++child){
-		NeuralNet temp = population[child];
+		Player temp = population[child];
 		//New child based on two randomly chosen parents
-		temp.setWeights(crossOver(pickParent(population), pickParent(population)));
+		temp.neural.setWeights(crossOver(pickParent(population), pickParent(population)));
 		//Insert new child
 		newPop.push_back(temp);
 	}
@@ -34,7 +34,7 @@ void Genetic::breed(std::vector<NeuralNet>& population){
 	}
 }
 
-void Genetic::mutate(std::vector<NeuralNet>& population){
+void Genetic::mutate(std::vector<Player>& population){
 	//Intialize random object for gaussian distribution (mean=0, dev=0.1)
 	std::default_random_engine rd;
 	std::normal_distribution<double> distribution(2, 0.05);
@@ -42,7 +42,7 @@ void Genetic::mutate(std::vector<NeuralNet>& population){
 	int popSize = population.size();
 
 	for(int i  = 0; i < popSize; ++i){
-		std::vector<Matrix> weights = population[i].getWeights();
+		std::vector<Matrix> weights = population[i].neural.getWeights();
 		int length = weights.size();
 
 		//For each layer
@@ -60,13 +60,13 @@ void Genetic::mutate(std::vector<NeuralNet>& population){
 				}
 			}
 		}
-		population[i].setWeights(weights);
+		population[i].neural.setWeights(weights);
 	}
 
 	
 }
 
-NeuralNet Genetic::pickParent(const std::vector<NeuralNet>& population) const{
+Player Genetic::pickParent(const std::vector<Player>& population) const{
 	int size = population.size();
 	int totalFitness = size * (size - 1);
 
@@ -85,9 +85,9 @@ NeuralNet Genetic::pickParent(const std::vector<NeuralNet>& population) const{
 	return population.back();
 }
 
-std::vector<Matrix> Genetic::crossOver(NeuralNet parent1, const NeuralNet parent2){
-	std::vector<Matrix> weights1 = parent1.getWeights();
-	std::vector<Matrix> weights2 = parent2.getWeights();
+std::vector<Matrix> Genetic::crossOver(Player parent1, const Player parent2){
+	std::vector<Matrix> weights1 = parent1.neural.getWeights();
+	std::vector<Matrix> weights2 = parent2.neural.getWeights();
 
 	int length = weights1.size();
 	

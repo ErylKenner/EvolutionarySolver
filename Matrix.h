@@ -2,6 +2,7 @@
 #define MATRIX
 
 #include <stdexcept>
+#include <vector>
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
@@ -17,6 +18,7 @@ public:
     double  operator() (const unsigned int row, const unsigned int col) const;    // Access operator
     void operator= (const Matrix& m);                           // Assignment operator
     
+    std::vector<double> toVector() const;
     
     unsigned int numRows() const;                    // Returns rows_
     unsigned int numCols() const;                    // Returns cols_

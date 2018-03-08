@@ -3,20 +3,20 @@
 
 #include <iostream>
 #include <random>
-#include "NeuralNet.h"
 #include "Matrix.h"
-
+#include "NeuralNet.h"
+#include "Player.h"
 
 class Genetic {
 public:
     Genetic(const double mutationRate);
 
-    void breed(std::vector<NeuralNet>& population);
-    void mutate(std::vector<NeuralNet>& population);
+    void breed(std::vector<Player>& population);
+    void mutate(std::vector<Player>& population);
 
 private:
-    std::vector<Matrix> crossOver(NeuralNet parent1, const NeuralNet parent2);
-    NeuralNet pickParent(const std::vector<NeuralNet>& population) const;
+    std::vector<Matrix> crossOver(Player parent1, const Player parent2);
+    Player pickParent(const std::vector<Player>& population) const;
     double m_mutationRate;
 };
 

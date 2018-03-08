@@ -18,7 +18,19 @@ NeuralNet::NeuralNet(const std::vector<unsigned int>& layerSizes)
         m_weights.push_back(tempWeight);
         m_biases.push_back(tempBias);
     }
-    m_fitness = 0;
+}
+
+NeuralNet::NeuralNet(const NeuralNet& nn)
+    : m_layerSizes(nn.m_layerSizes)
+    , m_weights(nn.m_weights)
+    , m_biases(nn.m_biases){
+    
+}
+
+void NeuralNet::operator= (const NeuralNet& nn){
+    m_layerSizes = nn.m_layerSizes;
+    m_weights = nn.m_weights;
+    m_biases = nn.m_biases;
 }
 
 //Prints the current weights to the console
@@ -49,13 +61,22 @@ std::vector<Matrix> NeuralNet::getWeights() const{
 }
 
 //Sets the internal weights
-void NeuralNet::setWeights(const std::vector<Matrix>& weights){
+void NeuralNet::setWeights(const std::vector<Matrix>& weights, const std::vector<Matrix>& biases){
     if (weights.size() == 0 || weights.size() != m_weights.size()){
     	std::cerr << "Error: setWeights(): Weights have different sizes." << std::endl;
         exit(1);
     }
+    if (biases.size() == 0 || biases.size() != m_biases.size()){
+        std::cerr << "Error: setWeights(): Biases have different sizes." << std::endl;
+        exit(1);
+    }
+    //Set weights
     for(unsigned int i = 0; i < m_weights.size(); ++i){
         m_weights[i] = weights[i];
+    }
+    //Set biases
+    for(unsigned int i = 0; i < m_biases.size(); ++i){
+        m_biases[i] = biases[i];
     }
 }
 
@@ -74,20 +95,4 @@ Matrix NeuralNet::applyNonlinearity(const Matrix& input, double(*callback)(doubl
 //Sigmoid function. Returns a double between (0, 1)
 double NeuralNet::sigmoid(const double x){
     return 1 / (1 + exp(-x));
-}
-
-void NeuralNet::resetFitness(){
-    m_fitness = 0.0;
-}
-
-void NeuralNet::addToFitness(const double a){
-    m_fitness += a;
-}
-
-double NeuralNet::getFitness() const{
-    return m_fitness;
-}
-
-bool NeuralNet::compFitness(const NeuralNet& player1, const NeuralNet& player2){
-    return player1.getFitness() < player2.getFitness();
 }

@@ -18,8 +18,8 @@ Matrix::Matrix(const unsigned int rows, const unsigned int cols)
 
 //Copy constructor
 Matrix::Matrix(const Matrix& m)
-    : m_rows(m.numRows())
-    , m_cols(m.numCols()){
+    : m_rows(m.m_rows)
+    , m_cols(m.m_cols){
     
     if (m_rows <= 0 || m_cols <= 0){
         std::cerr << "Error: Matrix copy constructor has 0 size" << std::endl;
@@ -28,7 +28,7 @@ Matrix::Matrix(const Matrix& m)
     m_data = new double[m_rows * m_cols];
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            m_data[m_cols * row + col] = m(row, col);
+            m_data[m_cols * row + col] = m.m_data[m.m_cols * row + col];
         }
     }
 }
@@ -40,6 +40,16 @@ void Matrix::initialize(const int n){
             m_data[m_cols * row + col] = n;
         }
     }
+}
+
+std::vector<double> Matrix::toVector() const{
+    std::vector<double> temp;
+    for(unsigned int row = 0; row < m_rows; ++row){
+        for(unsigned int col = 0; col < m_cols; ++col){
+            temp.push_back(m_data[m_cols * row + col]);
+        }
+    }
+    return temp;
 }
 
 unsigned int Matrix::numRows() const{
@@ -84,7 +94,7 @@ void Matrix::operator= (const Matrix& m){
     }
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            m_data[m_cols * row + col] = m(row, col);
+            m_data[m_cols * row + col] = m.m_data[m.m_cols * row + col];
         }
     }
 }
@@ -94,7 +104,7 @@ Matrix Matrix::operator- () const{
     Matrix temp(m_rows, m_cols);
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            temp(row, col) = -1*m_data[m_cols * row + col];
+            temp(row, col) = -1 * m_data[m_cols * row + col];
         }
     }
     return temp;
@@ -109,7 +119,7 @@ Matrix Matrix::operator+ (const Matrix& a) const{
     Matrix temp(m_rows, m_cols);
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            temp(row, col) = a(row, col) + m_data[m_cols * row + col];
+            temp(row, col) = a.m_data[a.m_cols * row + col] + m_data[m_cols * row + col];
         }
     }
     return temp;
@@ -124,7 +134,7 @@ Matrix Matrix::operator- (const Matrix& a) const{
     Matrix temp(m_rows, m_cols);
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            temp(row, col) = m_data[m_cols * row + col] - a(row, col);
+            temp(row, col) = m_data[m_cols * row + col] - a.m_data[a.m_cols * row + col];
         }
     }
     return temp;
@@ -144,7 +154,7 @@ Matrix Matrix::operator* (const int a) const{
 //Override * operator to perform standard matrix multiplication
 Matrix Matrix::operator* (const Matrix& a) const{
     if(m_cols != a.numRows()){
-        std::cerr << "Error: Matrix sizes are incompatible. Cannoto perform matrix multiplication." << std::endl;
+        std::cerr << "Error: Matrix sizes are incompatible. Cannot perform matrix multiplication." << std::endl;
         exit(1);
     }
     Matrix temp(m_rows, a.numCols());
@@ -166,10 +176,6 @@ double& Matrix::operator() (const unsigned int row, const unsigned int col){
         std::cerr << "Error: Matrix subscript out of bounds (too large)." << std::endl;
         exit(1);
     }
-    if(row < 0 || col < 0){
-        std::cerr << "Error: Matrix subscript out of bounds (too small)." << std::endl;
-        exit(1);
-    }
     return m_data[m_cols * row + col];
 }
 
@@ -177,10 +183,6 @@ double& Matrix::operator() (const unsigned int row, const unsigned int col){
 double Matrix::operator() (const unsigned int row, const unsigned int col) const{
     if (row >= m_rows || col >= m_cols){
         std::cerr << "Error: Matrix subscript out of bounds (too large)." << std::endl;
-        exit(1);
-    }
-    if(row < 0 || col < 0){
-        std::cerr << "Error: Matrix subscript out of bounds (too small)." << std::endl;
         exit(1);
     }
     return m_data[m_cols * row + col];

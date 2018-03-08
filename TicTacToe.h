@@ -3,8 +3,11 @@
 
 #include "Matrix.h"
 #include "NeuralNet.h"
+#include "Player.h"
+
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #define NUM_INPUTS 9
 #define NUM_OUTPUTS 9
@@ -13,7 +16,7 @@
 
 class TicTacToe {
 public:
-    TicTacToe(NeuralNet& player1, NeuralNet& player2, bool displayStates=false);
+    TicTacToe(Player *player1, Player *player2, bool verbose=false);
     void playGame();
     
 private:
@@ -25,16 +28,16 @@ private:
     double getBoardAtPosition(const int position) const;
     void setBoardAtPosition(const int position, const int value);
 
-    std::vector<unsigned int> bestMoves(const Matrix& input) const;
+    std::vector<unsigned int> bestMoves(const std::vector<double>& input) const;
     void printBoard() const;
-    bool hasWon(const double playerValue) const;
+    bool hasWon(const int playerValue) const;
 
     Matrix m_board;
 
-    NeuralNet& m_player1;
-    NeuralNet& m_player2;
+    Player *m_player1;
+    Player *m_player2;
 
-    const bool m_verbose;
+    bool m_verbose;
 };
 
 #endif

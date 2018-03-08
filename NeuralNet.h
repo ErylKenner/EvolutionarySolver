@@ -10,24 +10,20 @@
 class NeuralNet {
 public:
     NeuralNet(const std::vector<unsigned int>& layerSizes);
+    NeuralNet(const NeuralNet& nn);
     
     Matrix forward(const Matrix& input) const;
+    
     void printWeights() const;
     
+    void operator= (const NeuralNet& nn);
+    
     std::vector<Matrix> getWeights() const;
-    void setWeights(const std::vector<Matrix>& weights);
-
-    void addToFitness(const double a);
-    double getFitness() const;
-    void resetFitness();
-
-    static bool compFitness(const NeuralNet& player1, const NeuralNet& player2);
+    void setWeights(const std::vector<Matrix>& weights, const std::vector<Matrix>& biases);
 private:
     std::vector<unsigned int> m_layerSizes;
     std::vector<Matrix> m_weights;
     std::vector<Matrix> m_biases;
-
-    double m_fitness;
 
     Matrix applyNonlinearity(const Matrix& input, double(*funct)(double)) const;
     static double sigmoid(const double x);
