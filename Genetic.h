@@ -1,11 +1,16 @@
-#ifndef GENETIC
-#define GENETIC
+#ifndef GENETIC_H
+#define GENETIC_H
 
 #include <iostream>
 #include <random>
 #include "Matrix.h"
 #include "NeuralNet.h"
 #include "Player.h"
+
+using std::cout;
+using std::cin;
+using std::endl;
+using std::vector;
 
 class Genetic {
 public:

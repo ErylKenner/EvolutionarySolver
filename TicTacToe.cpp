@@ -55,16 +55,16 @@ bool TicTacToe::isFull() const{
 }
 
 //Returns a vector of the preferred moves starting with most preffered
-std::vector<unsigned int> TicTacToe::bestMoves(const std::vector<double>& input) const{
-	std::vector<unsigned int> temp;
-	std::vector< std::pair<double, unsigned int> > inputPair;
+vector<unsigned int> TicTacToe::bestMoves(const vector<double>& input) const{
+	vector<unsigned int> temp;
+	vector< pair<double, unsigned int> > inputPair;
 	
 	//Populate inputPair
 	for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
-		inputPair.push_back( std::make_pair(input[i], i) );
+		inputPair.push_back( make_pair(input[i], i) );
 	}
 	
-	std::sort(inputPair.begin(), inputPair.end());
+	sort(inputPair.begin(), inputPair.end());
 	
 	//Populate temp
 	for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
@@ -72,13 +72,13 @@ std::vector<unsigned int> TicTacToe::bestMoves(const std::vector<double>& input)
 	}
 	
 	//Reverse temp
-	std::reverse(temp.begin(), temp.end());
+	reverse(temp.begin(), temp.end());
 	return temp;
 }
 
 //Prints the current board to the console
 void TicTacToe::printBoard() const{
-	std::cout << "Board:" << std::endl;
+	cout << "Board:" << endl;
 	m_board.printData();
 }
 
@@ -150,7 +150,7 @@ bool TicTacToe::takeTurn(int squareIdentity){
 	}
 
 	//moves holds the list of desired moves in order of preference
-	std::vector<unsigned int> moves;
+	vector<unsigned int> moves;
 	if(player1){
 		moves = bestMoves( m_player1->getMove(flattenBoard()) );
 	} else{
@@ -168,9 +168,9 @@ bool TicTacToe::takeTurn(int squareIdentity){
 	//Diagnostics
 	if(m_verbose){
 		if(player1){
-			std::cout << "Player 1's move:" << std::endl;
+			cout << "Player 1's move:" << endl;
 		} else{
-			std::cout << "Player 2's move:" << std::endl;
+			cout << "Player 2's move:" << endl;
 		}
 		printBoard();
 	}
@@ -184,7 +184,7 @@ bool TicTacToe::takeTurn(int squareIdentity){
 		}
 		
 		if(m_verbose){
-			std::cout << "========================" << std::endl;
+			cout << "========================" << endl;
 		}
 		return true;
 	}
@@ -194,7 +194,7 @@ bool TicTacToe::takeTurn(int squareIdentity){
 		m_player1->addToFitness(0.5);
 		m_player2->addToFitness(0.5);
 		if(m_verbose){
-			std::cout << "========================" << std::endl;
+			cout << "========================" << endl;
 		}
 		return true;
 	}

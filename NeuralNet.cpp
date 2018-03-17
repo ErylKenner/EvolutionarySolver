@@ -4,7 +4,7 @@
 
 
 //Constructor takes in the structure of the network as a matrix
-NeuralNet::NeuralNet(const std::vector<unsigned int>& layerSizes)
+NeuralNet::NeuralNet(const vector<unsigned int>& layerSizes)
     : m_layerSizes(layerSizes){
 
     //Create vectors for weights and biases. Each entry is a matrix for that layer
@@ -35,18 +35,18 @@ void NeuralNet::operator= (const NeuralNet& nn){
 
 //Prints the current weights to the console
 void NeuralNet::printWeights() const{
-    std::cout << "Current weights:" << std::endl;
+    cout << "Current weights:" << endl;
     for(unsigned int i = 0; i < m_weights.size(); ++i){
-        std::cout << "================================================" << std::endl;
+        cout << "================================================" << endl;
         m_weights[i].printData();
     }
-    std::cout << "================================================" << std::endl;
+    cout << "================================================" << endl;
 }
 
 //Performs forward propagation using m_weights and 'input'
 Matrix NeuralNet::forward(const Matrix& input) const{
 	//Stores the previous layer's output
-    std::vector<Matrix> layers;
+    vector<Matrix> layers;
     layers.push_back(input);
 
     for(unsigned int lay = 0; lay < m_weights.size(); ++lay){
@@ -56,18 +56,18 @@ Matrix NeuralNet::forward(const Matrix& input) const{
     return layers.back();
 }
 
-std::vector<Matrix> NeuralNet::getWeights() const{
+vector<Matrix> NeuralNet::getWeights() const{
     return m_weights;
 }
 
 //Sets the internal weights
-void NeuralNet::setWeights(const std::vector<Matrix>& weights, const std::vector<Matrix>& biases){
+void NeuralNet::setWeights(const vector<Matrix>& weights, const vector<Matrix>& biases){
     if (weights.size() == 0 || weights.size() != m_weights.size()){
-    	std::cerr << "Error: setWeights(): Weights have different sizes." << std::endl;
+    	cerr << "Error: setWeights(): Weights have different sizes." << endl;
         exit(1);
     }
     if (biases.size() == 0 || biases.size() != m_biases.size()){
-        std::cerr << "Error: setWeights(): Biases have different sizes." << std::endl;
+        cerr << "Error: setWeights(): Biases have different sizes." << endl;
         exit(1);
     }
     //Set weights

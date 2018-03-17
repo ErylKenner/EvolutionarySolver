@@ -1,32 +1,49 @@
 
 #include "Player.h"
 
+
+
+//----------Friend Functions-------------
 bool comparePlayerContainer(const playerContainer& left, const playerContainer& right){
     return left.player->getFitness() < right.player->getFitness();
 }
 
 void swap(playerContainer& left, playerContainer& right){
-    Player *temp;
-    temp = left.player;
+    Player *tempPlayer = left.player;
     left.player = right.player;
-    right.player = temp;
+    right.player = tempPlayer;
     
-    int tempIndex;
-    tempIndex = left.index;
+    unsigned int tempIndex = left.index;
     left.index = right.index;
     right.index = tempIndex;
 }
 
-playerContainer::playerContainer(){}
 
-playerContainer::playerContainer(const playerContainer& other){
-    player = other.player;
-    index = other.index;
+
+
+
+
+//-------------playerContainer------------
+unsigned int playerContainer::count = 0;
+
+playerContainer::playerContainer()
+    : index(playerContainer::count++){
+    
+    //cout << "default playerContainer constructor" << endl;
 }
 
-playerContainer::playerContainer(Player *p, const int i){
+playerContainer::playerContainer(const playerContainer& other)
+    : index(other.index){
+    
+    player = other.player;
+    //cout << "copy playerContainer constructor" << endl;
+}
+
+playerContainer::playerContainer(Player *p)
+    : index(playerContainer::count++){
+    
     player = p;
-    index = i;
+    //cout << "player playerContainer constructor" << endl;
 }
 
 bool playerContainer::operator< (const playerContainer& right) const{
@@ -36,6 +53,7 @@ bool playerContainer::operator< (const playerContainer& right) const{
 void playerContainer::operator= (const playerContainer& right){
     player = right.player;
     index = right.index;
+    //cout << "playerContainer assignment operator" << endl;
 }
 
 
@@ -44,8 +62,8 @@ void playerContainer::operator= (const playerContainer& right){
 
 
 
-
-Player::Player(const std::vector<unsigned int>& layerSizes)
+//---------------Player---------------
+Player::Player(const vector<unsigned int>& layerSizes)
     : neural(layerSizes){
     m_fitness = 0;
 }
@@ -65,13 +83,13 @@ void Player::operator= (const Player& right){
     neural = right.neural;
 }
 
-std::vector<double> Player::getMove() const{
+vector<double> Player::getMove() const{
     Matrix temp(1, 9);
     temp.initRand(-1, 1);
     return temp.toVector();
 }
 
-std::vector<double> Player::getMove(const Matrix& input) const{
+vector<double> Player::getMove(const Matrix& input) const{
     Matrix temp(neural.forward(input));
     return temp.toVector();
 }

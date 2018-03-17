@@ -9,10 +9,18 @@
 #include <vector>
 #include <algorithm>
 
+using std::cout;
+using std::cin;
+using std::endl;
+using std::vector;
+using std::pair;
+using std::make_pair;
+
 #define NUM_INPUTS 9
 #define NUM_OUTPUTS 9
 #define NUM_ROWS 3
 #define NUM_COLS 3
+
 
 class TicTacToe {
 public:
@@ -28,7 +36,7 @@ private:
     double getBoardAtPosition(const int position) const;
     void setBoardAtPosition(const int position, const int value);
 
-    std::vector<unsigned int> bestMoves(const std::vector<double>& input) const;
+    vector<unsigned int> bestMoves(const vector<double>& input) const;
     void printBoard() const;
     bool hasWon(const int playerValue) const;
 

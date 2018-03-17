@@ -5,10 +5,10 @@ Genetic::Genetic(const double mutationRate)
 
 }
 
-void Genetic::breed(std::vector<Player>& population){
+void Genetic::breed(vector<Player>& population){
 	int size = population.size();
 	
-	std::vector<Player> newPop;
+	vector<Player> newPop;
 
 	//Keep the best 10% of last generation
 	int numToKeep = (int)(0.1 * (double)size);
@@ -34,15 +34,15 @@ void Genetic::breed(std::vector<Player>& population){
 	}
 }
 
-void Genetic::mutate(std::vector<Player>& population){
+void Genetic::mutate(vector<Player>& population){
 	//Intialize random object for gaussian distribution (mean=0, dev=0.1)
-	std::default_random_engine rd;
-	std::normal_distribution<double> distribution(2, 0.05);
+	default_random_engine rd;
+	normal_distribution<double> distribution(2, 0.05);
 
 	int popSize = population.size();
 
 	for(int i  = 0; i < popSize; ++i){
-		std::vector<Matrix> weights = population[i].neural.getWeights();
+		vector<Matrix> weights = population[i].neural.getWeights();
 		int length = weights.size();
 
 		//For each layer
@@ -66,7 +66,7 @@ void Genetic::mutate(std::vector<Player>& population){
 	
 }
 
-Player Genetic::pickParent(const std::vector<Player>& population) const{
+Player Genetic::pickParent(const vector<Player>& population) const{
 	int size = population.size();
 	int totalFitness = size * (size - 1);
 
@@ -75,7 +75,7 @@ Player Genetic::pickParent(const std::vector<Player>& population) const{
 	for(int i = size - 1; i >= 0; --i){
 		double normFitness = population[i].getFitness() / (double)totalFitness;
 		normFitness = 1000 * normFitness * normFitness * normFitness;
-		//std::cout << " " << normFitness << std::endl;
+		//cout << " " << normFitness << endl;
 		//total += population[i].getFitness();
 		total += normFitness;
 		if(result <= total){
@@ -85,9 +85,9 @@ Player Genetic::pickParent(const std::vector<Player>& population) const{
 	return population.back();
 }
 
-std::vector<Matrix> Genetic::crossOver(Player parent1, const Player parent2){
-	std::vector<Matrix> weights1 = parent1.neural.getWeights();
-	std::vector<Matrix> weights2 = parent2.neural.getWeights();
+vector<Matrix> Genetic::crossOver(Player parent1, const Player parent2){
+	vector<Matrix> weights1 = parent1.neural.getWeights();
+	vector<Matrix> weights2 = parent2.neural.getWeights();
 
 	int length = weights1.size();
 	

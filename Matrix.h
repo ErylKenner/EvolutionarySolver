@@ -8,6 +8,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+using std::cout;
+using std::cin;
+using std::cerr;
+using std::endl;
+using std::vector;
+
 class Matrix {
 public:
     Matrix(const unsigned int rows, const unsigned int cols); // Size constructor

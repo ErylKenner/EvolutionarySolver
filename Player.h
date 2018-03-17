@@ -5,18 +5,21 @@
 #include "Matrix.h"
 #include "NeuralNet.h"
 
-
+using std::cout;
+using std::cin;
+using std::endl;
+using std::vector;
 
 class Player {
 public:
-    Player(const std::vector<unsigned int>& layerSizes);
+    Player(const vector<unsigned int>& layerSizes);
     Player(const Player& p);
     
     void operator= (const Player& right);
     bool operator< (const Player& right) const;
     
-    std::vector<double> getMove() const;
-    std::vector<double> getMove(const Matrix& input) const;
+    vector<double> getMove() const;
+    vector<double> getMove(const Matrix& input) const;
     
     void addToFitness(const double a);
     double getFitness() const;
@@ -33,11 +36,12 @@ private:
 class playerContainer{
 public:
     playerContainer();
-    playerContainer(Player *p, const int i);
+    playerContainer(Player *p);
     playerContainer(const playerContainer& other);
     
     Player *player;
-    int index;
+    unsigned int index;
+    static unsigned int count;
     
     void operator= (const playerContainer& right);
     bool operator< (const playerContainer& right) const;

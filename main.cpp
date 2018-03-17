@@ -1,59 +1,21 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
-using namespace std;
 
-#include "Matrix.h"
-#include "NeuralNet.h"
-#include "Player.h"
-#include "TicTacToe.h"
-//#include "Genetic.h"
+
+#include "main.h"
+
+
 
 int main(){
     int populationSize;
     int iterations;
     int hiddenLayers;
-    std::vector<unsigned int> layerSizes;
-    std::vector<playerContainer> population;
+    vector<unsigned int> layerSizes;
+    vector<playerContainer> population;
     //Genetic ga(0.03);
     
-    srand(time(NULL));
-
-    //Get population size
-    cout << "Population size: ";
-    cin >> populationSize;
-    if(populationSize < 2){
-        populationSize = 2;
-    }
+    //srand(time(NULL));
+    srand(1);
+    init(cin, cout, populationSize, iterations, hiddenLayers, layerSizes, population);
     
-    //Get number of iterations
-    cout << "Iterations: ";
-    cin >> iterations;
-    if(iterations < 1){
-        iterations = 1;
-    }
-
-    //Get number of layers
-    cout << "Number of hidden layers: ";
-    cin >> hiddenLayers;
-    
-    //Populate layerSizes
-    layerSizes.push_back(NUM_INPUTS);
-    for(int i = 1; i <= hiddenLayers; ++i){
-        unsigned int temp;
-        cout << "Number in hidden layer " << i << ": ";
-        cin >> temp;
-        layerSizes.push_back(temp);
-    }
-    layerSizes.push_back(NUM_OUTPUTS);
-
-    //Instantiate the Players
-    for(int i = 0; i < populationSize; ++i){
-        Player *temp = new Player(layerSizes);
-        playerContainer tempContainer(temp, i);
-        population.push_back(tempContainer);
-    }
-
     
     for(int generation = 0; generation < iterations; ++generation){
         bool verbose = (generation % 50) == 0;
@@ -75,9 +37,9 @@ int main(){
         
         //Sorts the players by fitness (ascending)
         sort(population.begin(), population.end(), comparePlayerContainer);
-        /*
+        
         //Print fitness values
-        for(int i = 0; i < populationSize; ++i){
+        /*for(int i = 0; i < populationSize; ++i){
             cout << "Population[" << population[i].index << "] fitness: " << population[i].player->getFitness() << endl;
         }*/
         
@@ -107,4 +69,54 @@ int main(){
     
     return 0;
 }
+
+
+
+void init(istream& is, ostream& os, int& populationSize, int& iterations, int& hiddenLayers,
+    vector<unsigned int>& layerSizes, vector<playerContainer>& population){
+    
+    //Get population size
+    os << "Population size: ";
+    is >> populationSize;
+    if(populationSize < 2){
+        populationSize = 2;
+    }
+    
+    //Get number of iterations
+    os << "Iterations: ";
+    is >> iterations;
+    if(iterations < 1){
+        iterations = 1;
+    }
+    
+    //Get number of layers
+    os << "Number of hidden layers: ";
+    is >> hiddenLayers;
+    
+    //Populate layerSizes
+    layerSizes.push_back(NUM_INPUTS);
+    for(int i = 1; i <= hiddenLayers; ++i){
+        os << "Number in hidden layer " << i << ": ";
+        unsigned int temp;
+        is >> temp;
+        layerSizes.push_back(temp);
+    }
+    layerSizes.push_back(NUM_OUTPUTS);
+    
+    //Instantiate the Players
+    for(int i = 0; i < populationSize; ++i){
+        Player *temp = new Player(layerSizes);
+        //playerContainer tempContainer(temp);
+        population.push_back(playerContainer(temp));
+    }
+}
+
+
+
+
+
+
+    
+
+
 
