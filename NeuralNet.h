@@ -1,5 +1,5 @@
-#ifndef NN
-#define NN
+#ifndef NN_H
+#define NN_H
 
 #include "Matrix.h"
 #include <iostream>

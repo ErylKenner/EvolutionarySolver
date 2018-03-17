@@ -1,5 +1,5 @@
-#ifndef TTT
-#define TTT
+#ifndef TTT_H
+#define TTT_H
 
 #include "Matrix.h"
 #include "NeuralNet.h"
