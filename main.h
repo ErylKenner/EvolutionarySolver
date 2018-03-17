@@ -22,4 +22,7 @@ using std::vector;
 void init(istream& is, ostream& os, int& populationSize, int& iterations, int& hiddenLayers,
     vector<unsigned int>& layerSizes, vector<playerContainer>& population);
 
+void roundRobin(vector<playerContainer>& population, int populationSize);
+void printSummary(vector<playerContainer>& population, int populationSize);
+
 #endif

@@ -21,36 +21,20 @@ int main(){
         bool verbose = (generation % 50) == 0;
         
         //Play games with every permutaiton of players
-        for(int i = 0; i < populationSize - 1; ++i){
-            for(int j = i + 1; j < populationSize; ++j){
-                //Game 1
-                //cout << "Game between [" << population[i].second << "] and [" << population[j].second << "]" << endl;
-                TicTacToe game1(population[i].player, population[j].player, false);
-                game1.playGame();
-                
-                //Game 2 (play 2 games so both players can start first)
-                //cout << "Game between [" << population[j].second << "] and [" << population[i].second << "]" << endl;
-                TicTacToe game2(population[j].player, population[i].player, false);
-                game2.playGame();
-            }   
-        }
+        roundRobin(population, populationSize);
         
         //Sorts the players by fitness (ascending)
         sort(population.begin(), population.end(), comparePlayerContainer);
         
+        /*
         //Print fitness values
-        /*for(int i = 0; i < populationSize; ++i){
+        for(int i = 0; i < populationSize; ++i){
             cout << "Population[" << population[i].index << "] fitness: " << population[i].player->getFitness() << endl;
-        }*/
+        }
+        */
         
-        //Print the max fitness
-        double maxVal = population.back().player->getFitness();
-        double minVal = population.front().player->getFitness();
-        int maxPossible = 2 * (populationSize - 1);
-        
-        printf("Max fitness: %4.2f [%d], Min fitness: %4.2f [%d], Highest possible: %4d",
-            maxVal, (population.back()).index, minVal, (population.front()).index, maxPossible);
-        cout << endl;
+        //Print epoch summary
+        printSummary(population, populationSize);
         
         //Print board
         if(verbose){
@@ -111,7 +95,35 @@ void init(istream& is, ostream& os, int& populationSize, int& iterations, int& h
     }
 }
 
+//Play games with every permutaiton of players
+void roundRobin(vector<playerContainer>& population, int populationSize){
+    for(int i = 0; i < populationSize - 1; ++i){
+        for(int j = i + 1; j < populationSize; ++j){
+            //Game 1
+            //cout << "Game between [" << population[i].second << "] and [" << population[j].second << "]" << endl;
+            TicTacToe game1(population[i].player, population[j].player, false);
+            game1.playGame();
+            
+            //Game 2 (play 2 games so both players can start first)
+            //cout << "Game between [" << population[j].second << "] and [" << population[i].second << "]" << endl;
+            TicTacToe game2(population[j].player, population[i].player, false);
+            game2.playGame();
+        }   
+    }
+}
 
+//Print epoch summary
+void printSummary(vector<playerContainer>& population, int populationSize){
+    double maxVal = population.back().player->getFitness();
+    double minVal = population.front().player->getFitness();
+    int maxPossible = 2 * (populationSize - 1);
+    
+    
+    printf("Max fitness: %4.2f [%d], Min fitness: %4.2f [%d], Highest possible: %4d",
+        maxVal, (population.back()).index, minVal, (population.front()).index, maxPossible);
+    
+    cout << endl;
+}
 
 
 
