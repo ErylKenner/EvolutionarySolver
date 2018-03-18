@@ -40,8 +40,10 @@ public:
     void initialize(const int n);
     void initRand(const double min, const double max, const unsigned int resolution=20);
     
+    Matrix addRowsCols(unsigned int extraRows, unsigned int extraCols, const double value);
+    
 private:
-    const unsigned int m_rows, m_cols;
+    unsigned int m_rows, m_cols;
     double* m_data;
 };
 

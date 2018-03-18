@@ -23,11 +23,10 @@ public:
     void operator= (const NeuralNet& nn);
     
     vector<Matrix> getWeights() const;
-    void setWeights(const vector<Matrix>& weights, const vector<Matrix>& biases);
+    void setWeights(const vector<Matrix>& weights);
 private:
     vector<unsigned int> m_layerSizes;
     vector<Matrix> m_weights;
-    vector<Matrix> m_biases;
 
     Matrix applyNonlinearity(const Matrix& input, double(*funct)(double)) const;
     static double sigmoid(const double x);

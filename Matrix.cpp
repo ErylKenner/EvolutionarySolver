@@ -200,7 +200,7 @@ void Matrix::initRand(const double min, const double max, const unsigned int res
     }
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            /* resolution represents how many pieces each int is broken into.
+            /* resolution represents how many pieces each (int) is broken into.
              * bound is used because we can generate ints better than doubles.
              * bound is the product of the total range * resolution.
              * Afterward, we divide bound by resolution to get a double.
@@ -212,6 +212,23 @@ void Matrix::initRand(const double min, const double max, const unsigned int res
             m_data[m_cols * row + col] = randDouble;
         }
     }
+}
+
+Matrix Matrix::addRowsCols(unsigned int extraRows, unsigned int extraCols, const double value){
+    unsigned int newRows = m_rows + extraRows;
+    unsigned int newCols = m_cols + extraCols;
+    Matrix temp(newRows, newCols);
+    
+    for(unsigned int row = 0; row < newRows; ++row){
+        for(unsigned int col = 0; col < newCols; ++col){
+            if(row < m_rows && col < m_cols){
+                temp(row, col) = m_data[m_cols * row + col];
+            } else{
+                temp(row, col) = value;
+            }
+        }
+    }
+    return temp;
 }
 
 

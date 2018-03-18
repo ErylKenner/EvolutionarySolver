@@ -9,7 +9,7 @@
 #include "NeuralNet.h"
 #include "Player.h"
 #include "TicTacToe.h"
-//#include "Genetic.h"
+#include "Genetic.h"
 
 using std::cout;
 using std::cin;
@@ -20,9 +20,10 @@ using std::vector;
 
 
 void init(istream& is, ostream& os, int& populationSize, int& iterations, int& hiddenLayers,
-    vector<unsigned int>& layerSizes, vector<playerContainer>& population);
+    vector<unsigned int>& layerSizes, vector<playerContainer>& population, Genetic& ga);
 
 void roundRobin(vector<playerContainer>& population, int populationSize);
-void printSummary(vector<playerContainer>& population, int populationSize);
+void printPopulationFrom(unsigned int start, unsigned int end, vector<playerContainer>& population);
+void printSummary(int generation, vector<playerContainer>& population, int populationSize);
 
 #endif

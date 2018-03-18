@@ -1,93 +1,136 @@
+
 #include "Genetic.h"
 
-Genetic::Genetic(const double mutationRate)
-	: m_mutationRate(mutationRate){
-
+float Genetic::bound(float value, float min, float max){
+	if(value > max){
+		value = max;
+	}
+	if(value < min){
+		value = min;
+	}
+	return value;
 }
 
-void Genetic::breed(vector<Player>& population){
-	int size = population.size();
-	
-	vector<Player> newPop;
+//mutationRate is in the range [0, 1], greedyPercent is in the range [0, 1]
+Genetic::Genetic(const float mutationRate, const float greedyPercent)
+	: m_mutationRate(Genetic::bound(mutationRate, 0.0f, 1.0f))
+	, m_greedyPercent(Genetic::bound(greedyPercent, 0.0f, 1.0f)){
+		
+}
 
-	//Keep the best 10% of last generation
-	int numToKeep = (int)(0.1 * (double)size);
+void Genetic::setPopulationSize(int populationSize){
+	m_populationSize = populationSize;
+}
+
+//Make new players based on how successful the current ones are
+void Genetic::breed(vector<playerContainer>& population){
+	vector<playerContainer> newPop;
+
+	//Keep the best greedyPercent of last generation
+	int numToKeep = (int)(m_greedyPercent * (float)m_populationSize);
 	if(numToKeep < 1){
 		numToKeep = 1;
 	}
-	for(int i = size - 1; i > size - 1 - numToKeep; --i){
-		newPop.push_back(population[i]);
+	
+	//Copy the players which are being kept from greedyPercent
+	for(int i = 0; i < numToKeep; ++i){
+		playerContainer temp(population[m_populationSize - 1 - i]);
+		
+		//Make a deep copy of the *player member
+		temp.player = new Player(*(temp.player));
+		newPop.push_back(temp);
 	}
 	
-	for(int child = 0; child < size - numToKeep; ++child){
-		Player temp = population[child];
-		//New child based on two randomly chosen parents
-		temp.neural.setWeights(crossOver(pickParent(population), pickParent(population)));
+	//Iterates over the remaining number of necessary child elements
+	for(int i = 0; i < m_populationSize - numToKeep; ++i){
+		//New weights to be set, based on random parents
+		vector<Matrix> newWeights = crossOver(pickParent(population), pickParent(population));
+		
+		//Make a deep copy of playerContainer
+		playerContainer temp(population[i]);
+		temp.player = new Player(*(temp.player));
+
+		//Set its weights to the newly created ones
+		(*(temp.player)).neural.setWeights(newWeights);
+		
 		//Insert new child
 		newPop.push_back(temp);
 	}
 	
-	population = newPop;
+	//Deep copy of newPop to population
+	for(int i = 0; i < m_populationSize; ++i){
+		population[i].index = newPop[i].index;
+		
+		vector<Matrix> newWeights = (*(newPop[i].player)).neural.getWeights();
+		(*(population[i].player)).neural.setWeights(newWeights);
+		
+		delete newPop[i].player;
+	}
 	
-	for(int i = 0; i < size; ++i){
-		population[i].resetFitness();
+	for(int i = 0; i < m_populationSize; ++i){
+		(*(population[i].player)).resetFitness();
 	}
 }
 
-void Genetic::mutate(vector<Player>& population){
+void Genetic::mutate(vector<playerContainer>& population){
 	//Intialize random object for gaussian distribution (mean=0, dev=0.1)
 	default_random_engine rd;
 	normal_distribution<double> distribution(2, 0.05);
 
-	int popSize = population.size();
-
-	for(int i  = 0; i < popSize; ++i){
-		vector<Matrix> weights = population[i].neural.getWeights();
-		int length = weights.size();
+	for(int i  = 0; i < m_populationSize; ++i){
+		vector<Matrix> weights = (*(population[i].player)).neural.getWeights();
+		int layers = weights.size();
 
 		//For each layer
-		for(int layer = 0; layer < length; ++layer){
-			int rows = weights[layer].numRows();
-			int cols = weights[layer].numCols();
+		for(int lay = 0; lay < layers; ++lay){
+			int rows = weights[lay].numRows();
+			int cols = weights[lay].numCols();
 
 			//Randomly mutate each element
 			for(int row = 0; row < rows; ++row){
 				for(int col = 0; col < cols; ++col){
-					double guess = rand() / double(RAND_MAX);
-					if(guess <= m_mutationRate){
-						(weights[layer])(row, col) += distribution(rd) - 2;
+					//Mutate with a certain chance
+					float guess = (float)rand() / float(RAND_MAX);
+					if(guess < m_mutationRate){
+						(weights[lay])(row, col) += distribution(rd) - 2;
 					}
 				}
 			}
 		}
-		population[i].neural.setWeights(weights);
+		(*(population[i].player)).neural.setWeights(weights);
 	}
 
 	
 }
 
-Player Genetic::pickParent(const vector<Player>& population) const{
-	int size = population.size();
-	int totalFitness = size * (size - 1);
-
-	double total = 0;
-	int result = rand() % totalFitness;
-	for(int i = size - 1; i >= 0; --i){
-		double normFitness = population[i].getFitness() / (double)totalFitness;
-		normFitness = 1000 * normFitness * normFitness * normFitness;
-		//cout << " " << normFitness << endl;
-		//total += population[i].getFitness();
-		total += normFitness;
-		if(result <= total){
+playerContainer Genetic::pickParent(const vector<playerContainer>& population) const{
+	//The sum of all player's fitness within the population
+	double totalPopulationFitness = 0;
+	for(int i = 0; i < m_populationSize; ++i){
+		double cur = (*(population[i].player)).getFitness();
+		totalPopulationFitness += cur * cur;
+	}
+	
+	//A random number in the range [0, totalPopulationFitness - 1]
+	int threshold = rand() % (int)totalPopulationFitness;
+	
+	double sum = 0;
+	for(int i = m_populationSize - 1; i >= 0; --i){
+		double curFitness = (population[i].player)->getFitness();
+		
+		//Keep adding the current player's fitness until it reaches the threshold
+		sum += curFitness * curFitness;
+		if(sum >= threshold){
 			return population[i];
 		}
 	}
+	//Default, return the highest fitness player
 	return population.back();
 }
 
-vector<Matrix> Genetic::crossOver(Player parent1, const Player parent2){
-	vector<Matrix> weights1 = parent1.neural.getWeights();
-	vector<Matrix> weights2 = parent2.neural.getWeights();
+vector<Matrix> Genetic::crossOver(const playerContainer parent1, const playerContainer parent2){
+	vector<Matrix> weights1 = (*(parent1.player)).neural.getWeights();
+	vector<Matrix> weights2 = (*(parent2.player)).neural.getWeights();
 
 	int length = weights1.size();
 	
@@ -95,6 +138,7 @@ vector<Matrix> Genetic::crossOver(Player parent1, const Player parent2){
 	for(int i = 0; i < length; ++i){
 		int rows = weights1[i].numRows();
 		int cols = weights1[i].numCols();
+		
 		//Cross breed matrix
 		for(int row = 0; row < rows; ++row){
 			for(int col = 0; col < cols; ++col){
@@ -104,6 +148,7 @@ vector<Matrix> Genetic::crossOver(Player parent1, const Player parent2){
 				}
 			}
 		}
+		
 	}
 	return weights1;
 }

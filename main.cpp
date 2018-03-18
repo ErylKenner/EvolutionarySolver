@@ -10,15 +10,17 @@ int main(){
     int hiddenLayers;
     vector<unsigned int> layerSizes;
     vector<playerContainer> population;
-    //Genetic ga(0.03);
+    Genetic ga(0.03f, 0.1f);
+    srand(time(NULL));
     
-    //srand(time(NULL));
-    srand(1);
-    init(cin, cout, populationSize, iterations, hiddenLayers, layerSizes, population);
+    //Genetic ga(0.0f, 1.0f);
+    //srand(1);
     
+    init(cin, cout, populationSize, iterations, hiddenLayers, layerSizes, population, ga);
     
+    //Training loop
     for(int generation = 0; generation < iterations; ++generation){
-        bool verbose = (generation % 50) == 0;
+        bool verbose = false/*(generation % 50) == 0*/;
         
         //Play games with every permutaiton of players
         roundRobin(population, populationSize);
@@ -26,29 +28,29 @@ int main(){
         //Sorts the players by fitness (ascending)
         sort(population.begin(), population.end(), comparePlayerContainer);
         
-        /*
-        //Print fitness values
-        for(int i = 0; i < populationSize; ++i){
-            cout << "Population[" << population[i].index << "] fitness: " << population[i].player->getFitness() << endl;
-        }
-        */
+        //printPopulationFrom(0, 10, population);
+        //printPopulationFrom(populationSize - 10, populationSize, population);
         
         //Print epoch summary
-        printSummary(population, populationSize);
+        printSummary(generation, population, populationSize);
         
         //Print board
         if(verbose){
             (population.back()).player->neural.printWeights();
         }
         
-        //ga.breed(population);
-        //ga.mutate(population);
+        //Make new players based on how successful the current ones are
+        ga.breed(population);
+        
+        //Each weight has a small chance to change by some random value
+        ga.mutate(population);
         
         //Reset fitness values for next generation
         for(int i = 0; i < populationSize; ++i){
             population[i].player->resetFitness();
         }
     }
+    (population.back()).player->neural.printWeights();
    
     
     return 0;
@@ -57,7 +59,7 @@ int main(){
 
 
 void init(istream& is, ostream& os, int& populationSize, int& iterations, int& hiddenLayers,
-    vector<unsigned int>& layerSizes, vector<playerContainer>& population){
+    vector<unsigned int>& layerSizes, vector<playerContainer>& population, Genetic& ga){
     
     //Get population size
     os << "Population size: ";
@@ -93,6 +95,8 @@ void init(istream& is, ostream& os, int& populationSize, int& iterations, int& h
         //playerContainer tempContainer(temp);
         population.push_back(playerContainer(temp));
     }
+    
+    ga.setPopulationSize(populationSize);
 }
 
 //Play games with every permutaiton of players
@@ -113,18 +117,32 @@ void roundRobin(vector<playerContainer>& population, int populationSize){
 }
 
 //Print epoch summary
-void printSummary(vector<playerContainer>& population, int populationSize){
+void printSummary(int generation, vector<playerContainer>& population, int populationSize){
     double maxVal = population.back().player->getFitness();
     double minVal = population.front().player->getFitness();
     int maxPossible = 2 * (populationSize - 1);
     
     
-    printf("Max fitness: %4.2f [%d], Min fitness: %4.2f [%d], Highest possible: %4d",
-        maxVal, (population.back()).index, minVal, (population.front()).index, maxPossible);
+    printf("Gen: %3d,   Max fitness: %-6.1f [i=%-3d],   Min fitness: %-6.1f [i=%-3d],   Highest possible: %4d"
+        , generation, maxVal, (population.back()).index, minVal, (population.front()).index, maxPossible);
     
     cout << endl;
 }
 
+void printPopulationFrom(unsigned int start, unsigned int end, vector<playerContainer>& population){
+    if (start > end){
+        cerr << "Error: printPopulationFrom start is greater than end" << endl;
+        exit(1);
+    }
+    if (end > population.size()){
+        cerr << "Error: printPopulationFrom end is larger than populationSize" << endl;
+        exit(1);
+    }
+    for(unsigned int i = start; i < end; ++i){
+        cout << "Population[" << population[i].index << "] fitness: ";
+        printf("%5.1f\n", population[i].player->getFitness());
+    }
+}
 
 
 
