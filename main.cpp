@@ -11,7 +11,7 @@ int main(){
     vector<unsigned int> layerSizes;
     vector<playerContainer> population;
     Genetic ga(0.03f, 0.1f);
-    srand(time(NULL));
+    srand( (unsigned int)time(NULL) );
     
     //Genetic ga(0.0f, 1.0f);
     //srand(1);
