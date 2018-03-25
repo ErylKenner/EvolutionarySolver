@@ -51,7 +51,7 @@ void Genetic::breed(vector<playerContainer>& population){
 		temp.player = new Player(*(temp.player));
 
 		//Set its weights to the newly created ones
-		(*(temp.player)).neural.setWeights(newWeights);
+		(temp.player)->neural.setWeights(newWeights);
 		
 		//Insert new child
 		newPop.push_back(temp);
@@ -61,14 +61,14 @@ void Genetic::breed(vector<playerContainer>& population){
 	for(int i = 0; i < m_populationSize; ++i){
 		population[i].index = newPop[i].index;
 		
-		vector<Matrix> newWeights = (*(newPop[i].player)).neural.getWeights();
-		(*(population[i].player)).neural.setWeights(newWeights);
+		vector<Matrix> newWeights = (newPop[i].player)->neural.getWeights();
+		(population[i].player)->neural.setWeights(newWeights);
 		
 		delete newPop[i].player;
 	}
 	
 	for(int i = 0; i < m_populationSize; ++i){
-		(*(population[i].player)).resetFitness();
+		(population[i].player)->resetFitness();
 	}
 }
 
@@ -78,11 +78,11 @@ void Genetic::mutate(vector<playerContainer>& population){
 	normal_distribution<double> distribution(2, 0.05);
 
 	for(int i  = 0; i < m_populationSize; ++i){
-		vector<Matrix> weights = (*(population[i].player)).neural.getWeights();
-		int layers = weights.size();
+		vector<Matrix> weights = (population[i].player)->neural.getWeights();
+		size_t layers = weights.size();
 
 		//For each layer
-		for(int lay = 0; lay < layers; ++lay){
+		for(size_t lay = 0; lay < layers; ++lay){
 			int rows = weights[lay].numRows();
 			int cols = weights[lay].numCols();
 
@@ -97,7 +97,7 @@ void Genetic::mutate(vector<playerContainer>& population){
 				}
 			}
 		}
-		(*(population[i].player)).neural.setWeights(weights);
+		(population[i].player)->neural.setWeights(weights);
 	}
 
 	
@@ -107,7 +107,7 @@ playerContainer Genetic::pickParent(const vector<playerContainer>& population) c
 	//The sum of all player's fitness within the population
 	double totalPopulationFitness = 0;
 	for(int i = 0; i < m_populationSize; ++i){
-		double cur = (*(population[i].player)).getFitness();
+		double cur = (population[i].player)->getFitness();
 		totalPopulationFitness += cur * cur;
 	}
 	
@@ -129,13 +129,13 @@ playerContainer Genetic::pickParent(const vector<playerContainer>& population) c
 }
 
 vector<Matrix> Genetic::crossOver(const playerContainer parent1, const playerContainer parent2){
-	vector<Matrix> weights1 = (*(parent1.player)).neural.getWeights();
-	vector<Matrix> weights2 = (*(parent2.player)).neural.getWeights();
+	vector<Matrix> weights1 = (parent1.player)->neural.getWeights();
+	vector<Matrix> weights2 = (parent2.player)->neural.getWeights();
 
-	int length = weights1.size();
+	size_t length = weights1.size();
 	
 	//For each layer
-	for(int i = 0; i < length; ++i){
+	for(size_t i = 0; i < length; ++i){
 		int rows = weights1[i].numRows();
 		int cols = weights1[i].numCols();
 		
