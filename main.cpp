@@ -36,7 +36,7 @@ int main(){
         
         //Print board
         if(verbose){
-            (population.back()).player->neural.printWeights();
+            population.back().player->neural.printWeights();
         }
         
         //Make new players based on how successful the current ones are
@@ -50,7 +50,7 @@ int main(){
             population[i].player->resetFitness();
         }
     }
-    (population.back()).player->neural.printWeights();
+    population.back().player->neural.printWeights();
    
     
     return 0;
