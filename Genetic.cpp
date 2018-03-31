@@ -37,7 +37,9 @@ void Genetic::breed(vector<playerContainer>& population){
 		playerContainer temp(population[m_populationSize - 1 - i]);
 		
 		//Make a deep copy of the *player member
-		temp.player = new Player(*(temp.player));
+		//We are sure temp.player points to a NeuralPlayer (derived from Player) object 
+		NeuralPlayer *tempNeuralPlayer = dynamic_cast<NeuralPlayer*>(temp.player);
+		temp.player = new NeuralPlayer(*tempNeuralPlayer);
 		newPop.push_back(temp);
 	}
 	
@@ -46,12 +48,19 @@ void Genetic::breed(vector<playerContainer>& population){
 		//New weights to be set, based on random parents
 		vector<Matrix> newWeights = crossOver(pickParent(population), pickParent(population));
 		
-		//Make a deep copy of playerContainer
 		playerContainer temp(population[i]);
-		temp.player = new Player(*(temp.player));
+		
+		//Make a deep copy of population[i] to temp
+		NeuralPlayer *tempNeuralPlayer = dynamic_cast<NeuralPlayer*>(temp.player);
+		if(tempNeuralPlayer != NULL){
+			temp.player = new NeuralPlayer(*tempNeuralPlayer);
+		} else{
+	        cerr << "Failed to perform dynamic_cast<>" << endl;
+	        exit(1);
+	    }
 
 		//Set its weights to the newly created ones
-		(temp.player)->neural.setWeights(newWeights);
+		tempNeuralPlayer->neural.setWeights(newWeights);
 		
 		//Insert new child
 		newPop.push_back(temp);
@@ -61,8 +70,25 @@ void Genetic::breed(vector<playerContainer>& population){
 	for(int i = 0; i < m_populationSize; ++i){
 		population[i].index = newPop[i].index;
 		
-		vector<Matrix> newWeights = (newPop[i].player)->neural.getWeights();
-		(population[i].player)->neural.setWeights(newWeights);
+		//Copy newPop[i]'s weights to newWeights
+		vector<Matrix> newWeights;
+		NeuralPlayer *newPopNeural = dynamic_cast<NeuralPlayer*>(newPop[i].player);
+	    if(newPopNeural != NULL){
+	        newWeights = newPopNeural->neural.getWeights();
+	    } else{
+            cerr << "Failed to perform dynamic_cast<>" << endl;
+            exit(1);
+        }
+		
+		//Copy newWeights to population[i]
+		NeuralPlayer *populationNeural = dynamic_cast<NeuralPlayer*>(population[i].player);
+	    if(populationNeural != NULL){
+	        populationNeural->neural.setWeights(newWeights);
+	    } else{
+            cerr << "Failed to perform dynamic_cast<>" << endl;
+            exit(1);
+        }
+		
 		
 		delete newPop[i].player;
 	}
@@ -78,7 +104,17 @@ void Genetic::mutate(vector<playerContainer>& population){
 	normal_distribution<double> distribution(2, 0.05);
 
 	for(int i  = 0; i < m_populationSize; ++i){
-		vector<Matrix> weights = (population[i].player)->neural.getWeights();
+		vector<Matrix> weights;
+		
+		//Copy population[i]'s weights to weights
+		NeuralPlayer *populationNeural = dynamic_cast<NeuralPlayer*>(population[i].player);
+	    if(populationNeural != NULL){
+	        weights = populationNeural->neural.getWeights();
+	    } else{
+            cerr << "Failed to perform dynamic_cast<>" << endl;
+            exit(1);
+        }
+		
 		size_t layers = weights.size();
 
 		//For each layer
@@ -97,7 +133,7 @@ void Genetic::mutate(vector<playerContainer>& population){
 				}
 			}
 		}
-		(population[i].player)->neural.setWeights(weights);
+	    populationNeural->neural.setWeights(weights);
 	}
 
 	
@@ -129,8 +165,26 @@ playerContainer Genetic::pickParent(const vector<playerContainer>& population) c
 }
 
 vector<Matrix> Genetic::crossOver(const playerContainer parent1, const playerContainer parent2){
-	vector<Matrix> weights1 = (parent1.player)->neural.getWeights();
-	vector<Matrix> weights2 = (parent2.player)->neural.getWeights();
+	vector<Matrix> weights1;
+	vector<Matrix> weights2;
+	
+	//Parent 1
+	NeuralPlayer *parent1Neural = dynamic_cast<NeuralPlayer*>(parent1.player);
+    if(parent1Neural != NULL){
+        weights1 = parent1Neural->neural.getWeights();
+    } else{
+        cerr << "Failed to perform dynamic_cast<>" << endl;
+        exit(1);
+    }
+    
+    //Parent 2
+    NeuralPlayer *parent2Neural = dynamic_cast<NeuralPlayer*>(parent2.player);
+    if(parent2Neural != NULL){
+        weights2 = parent2Neural->neural.getWeights();
+    } else{
+        cerr << "Failed to perform dynamic_cast<>" << endl;
+        exit(1);
+    }
 
 	size_t length = weights1.size();
 	
