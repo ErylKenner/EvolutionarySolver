@@ -72,29 +72,95 @@ private:
 
 
 
+template <class T>
+class playerContainer;
 
+template <class T>
+bool comparePlayerContainer(const playerContainer<T>& left, const playerContainer<T>& right);
+
+template <class T>
+void swap(playerContainer<T>& left, playerContainer<T>& right);
 
 //Object to store the player and index
+template <class T>
 class playerContainer{
 public:
     playerContainer();
-    playerContainer(Player *p);
-    playerContainer(const playerContainer& other);
+    playerContainer(T input);
+    playerContainer(const playerContainer<T>& other);
     
-    Player *player;
-    unsigned int index;
     static unsigned int count;
+    unsigned int index;
+    T player;
     
-    void operator= (const playerContainer& right);
-    bool operator< (const playerContainer& right) const;
+    void operator= (const playerContainer<T>& right);
+    bool operator< (const playerContainer<T>& right) const;
     
-    friend bool comparePlayerContainer(const playerContainer& left, const playerContainer& right);
-    friend void swap(playerContainer& left, playerContainer& right);
+    friend bool comparePlayerContainer<>(const playerContainer<T>& left, const playerContainer<T>& right);
+    friend void swap<>(playerContainer<T>& left, playerContainer<T>& right);
 private:
     
 };
 
-void swap(playerContainer& left, playerContainer& right);
-bool comparePlayerContainer(const playerContainer& left, const playerContainer& right);
+//----------Friend Functions-------------
+template <class T>
+bool comparePlayerContainer(const playerContainer<T>& left, const playerContainer<T>& right){
+    return left.player.getFitness() < right.player.getFitness();
+}
+
+template <class T>
+void swap(playerContainer<T>& left, playerContainer<T>& right){
+    T tempPlayer = left.player;
+    left.player = right.player;
+    right.player = tempPlayer;
+    
+    unsigned int tempIndex = left.index;
+    left.index = right.index;
+    right.index = tempIndex;
+}
+
+
+
+
+
+
+//-------------playerContainer------------
+template <class T>
+unsigned int playerContainer<T>::count = 0;
+
+template <class T>
+playerContainer<T>::playerContainer()
+    : index(playerContainer::count++){
+    
+    //cout << "default playerContainer constructor" << endl;
+}
+
+template <class T>
+playerContainer<T>::playerContainer(const playerContainer<T>& other)
+    : index(other.index)
+    , player(other.player){
+    
+    //cout << "copy playerContainer constructor" << endl;
+}
+
+template <class T>
+playerContainer<T>::playerContainer(T input)
+    : index(playerContainer::count++)
+    , player(input){
+    
+    //cout << "player playerContainer constructor" << endl;
+}
+
+template <class T>
+bool playerContainer<T>::operator< (const playerContainer<T>& right) const{
+    return player.getFitness() < right.player.getFitness();
+}
+
+template <class T>
+void playerContainer<T>::operator= (const playerContainer<T>& right){
+    player = right.player;
+    index = right.index;
+    //cout << "playerContainer assignment operator" << endl;
+}
 
 #endif

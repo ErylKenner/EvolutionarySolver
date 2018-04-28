@@ -23,8 +23,8 @@ void Genetic::setPopulationSize(int populationSize){
 }
 
 //Make new players based on how successful the current ones are
-void Genetic::breed(vector<playerContainer>& population){
-	vector<playerContainer> newPop;
+void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population){
+	vector<playerContainer<NeuralPlayer> > newPop;
 
 	//Keep the best greedyPercent of last generation
 	int numToKeep = (int)(m_greedyPercent * (float)m_populationSize);
@@ -34,12 +34,7 @@ void Genetic::breed(vector<playerContainer>& population){
 	
 	//Copy the players which are being kept from greedyPercent
 	for(int i = 0; i < numToKeep; ++i){
-		playerContainer temp(population[m_populationSize - 1 - i]);
-		
-		//Make a deep copy of the *player member
-		//We are sure temp.player points to a NeuralPlayer (derived from Player) object 
-		NeuralPlayer *tempNeuralPlayer = dynamic_cast<NeuralPlayer*>(temp.player);
-		temp.player = new NeuralPlayer(*tempNeuralPlayer);
+		playerContainer<NeuralPlayer> temp(population[m_populationSize - 1 - i]);
 		newPop.push_back(temp);
 	}
 	
@@ -48,19 +43,8 @@ void Genetic::breed(vector<playerContainer>& population){
 		//New weights to be set, based on random parents
 		vector<Matrix> newWeights = crossOver(pickParent(population), pickParent(population));
 		
-		playerContainer temp(population[i]);
-		
-		//Make a deep copy of population[i] to temp
-		NeuralPlayer *tempNeuralPlayer = dynamic_cast<NeuralPlayer*>(temp.player);
-		if(tempNeuralPlayer != NULL){
-			temp.player = new NeuralPlayer(*tempNeuralPlayer);
-		} else{
-	        cerr << "Failed to perform dynamic_cast<>" << endl;
-	        exit(1);
-	    }
-
-		//Set its weights to the newly created ones
-		tempNeuralPlayer->neural.setWeights(newWeights);
+		playerContainer<NeuralPlayer> temp(population[i]);
+		temp.player.neural.setWeights(newWeights);
 		
 		//Insert new child
 		newPop.push_back(temp);
@@ -71,50 +55,24 @@ void Genetic::breed(vector<playerContainer>& population){
 		population[i].index = newPop[i].index;
 		
 		//Copy newPop[i]'s weights to newWeights
-		vector<Matrix> newWeights;
-		NeuralPlayer *newPopNeural = dynamic_cast<NeuralPlayer*>(newPop[i].player);
-	    if(newPopNeural != NULL){
-	        newWeights = newPopNeural->neural.getWeights();
-	    } else{
-            cerr << "Failed to perform dynamic_cast<>" << endl;
-            exit(1);
-        }
+		vector<Matrix> newWeights = newPop[i].player.neural.getWeights();
 		
 		//Copy newWeights to population[i]
-		NeuralPlayer *populationNeural = dynamic_cast<NeuralPlayer*>(population[i].player);
-	    if(populationNeural != NULL){
-	        populationNeural->neural.setWeights(newWeights);
-	    } else{
-            cerr << "Failed to perform dynamic_cast<>" << endl;
-            exit(1);
-        }
-		
-		
-		delete newPop[i].player;
+	    population[i].player.neural.setWeights(newWeights);
 	}
 	
 	for(int i = 0; i < m_populationSize; ++i){
-		(population[i].player)->resetFitness();
+		population[i].player.resetFitness();
 	}
 }
 
-void Genetic::mutate(vector<playerContainer>& population){
+void Genetic::mutate(vector<playerContainer<NeuralPlayer> >& population){
 	//Intialize random object for gaussian distribution (mean=0, dev=0.1)
 	default_random_engine rd;
 	normal_distribution<double> distribution(2, 0.05);
 
 	for(int i  = 0; i < m_populationSize; ++i){
-		vector<Matrix> weights;
-		
-		//Copy population[i]'s weights to weights
-		NeuralPlayer *populationNeural = dynamic_cast<NeuralPlayer*>(population[i].player);
-	    if(populationNeural != NULL){
-	        weights = populationNeural->neural.getWeights();
-	    } else{
-            cerr << "Failed to perform dynamic_cast<>" << endl;
-            exit(1);
-        }
-		
+	    vector<Matrix> weights = population[i].player.neural.getWeights();
 		size_t layers = weights.size();
 
 		//For each layer
@@ -133,17 +91,17 @@ void Genetic::mutate(vector<playerContainer>& population){
 				}
 			}
 		}
-	    populationNeural->neural.setWeights(weights);
+	    population[i].player.neural.setWeights(weights);
 	}
-
-	
 }
 
-playerContainer Genetic::pickParent(const vector<playerContainer>& population) const{
+playerContainer<NeuralPlayer> Genetic::pickParent(
+	const vector<playerContainer<NeuralPlayer> >& population) const{
+	
 	//The sum of all player's fitness within the population
 	double totalPopulationFitness = 0;
 	for(int i = 0; i < m_populationSize; ++i){
-		double cur = (population[i].player)->getFitness();
+		double cur = population[i].player.getFitness();
 		totalPopulationFitness += cur * cur;
 	}
 	
@@ -152,7 +110,7 @@ playerContainer Genetic::pickParent(const vector<playerContainer>& population) c
 	
 	double sum = 0;
 	for(int i = m_populationSize - 1; i >= 0; --i){
-		double curFitness = (population[i].player)->getFitness();
+		double curFitness = population[i].player.getFitness();
 		
 		//Keep adding the current player's fitness until it reaches the threshold
 		sum += curFitness * curFitness;
@@ -164,27 +122,17 @@ playerContainer Genetic::pickParent(const vector<playerContainer>& population) c
 	return population.back();
 }
 
-vector<Matrix> Genetic::crossOver(const playerContainer parent1, const playerContainer parent2){
+vector<Matrix> Genetic::crossOver(const playerContainer<NeuralPlayer> parent1, 
+	const playerContainer<NeuralPlayer> parent2){
+	
 	vector<Matrix> weights1;
 	vector<Matrix> weights2;
 	
 	//Parent 1
-	NeuralPlayer *parent1Neural = dynamic_cast<NeuralPlayer*>(parent1.player);
-    if(parent1Neural != NULL){
-        weights1 = parent1Neural->neural.getWeights();
-    } else{
-        cerr << "Failed to perform dynamic_cast<>" << endl;
-        exit(1);
-    }
+    weights1 = parent1.player.neural.getWeights();
     
     //Parent 2
-    NeuralPlayer *parent2Neural = dynamic_cast<NeuralPlayer*>(parent2.player);
-    if(parent2Neural != NULL){
-        weights2 = parent2Neural->neural.getWeights();
-    } else{
-        cerr << "Failed to perform dynamic_cast<>" << endl;
-        exit(1);
-    }
+    weights2 = parent2.player.neural.getWeights();
 
 	size_t length = weights1.size();
 	

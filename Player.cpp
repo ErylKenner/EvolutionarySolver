@@ -3,58 +3,7 @@
 
 
 
-//----------Friend Functions-------------
-bool comparePlayerContainer(const playerContainer& left, const playerContainer& right){
-    return left.player->getFitness() < right.player->getFitness();
-}
 
-void swap(playerContainer& left, playerContainer& right){
-    Player *tempPlayer = left.player;
-    left.player = right.player;
-    right.player = tempPlayer;
-    
-    unsigned int tempIndex = left.index;
-    left.index = right.index;
-    right.index = tempIndex;
-}
-
-
-
-
-
-
-//-------------playerContainer------------
-unsigned int playerContainer::count = 0;
-
-playerContainer::playerContainer()
-    : index(playerContainer::count++){
-    
-    //cout << "default playerContainer constructor" << endl;
-}
-
-playerContainer::playerContainer(const playerContainer& other)
-    : index(other.index){
-    
-    player = other.player;
-    //cout << "copy playerContainer constructor" << endl;
-}
-
-playerContainer::playerContainer(Player *p)
-    : index(playerContainer::count++){
-    
-    player = p;
-    //cout << "player playerContainer constructor" << endl;
-}
-
-bool playerContainer::operator< (const playerContainer& right) const{
-    return player->getFitness() < right.player->getFitness();
-}
-
-void playerContainer::operator= (const playerContainer& right){
-    player = right.player;
-    index = right.index;
-    //cout << "playerContainer assignment operator" << endl;
-}
 
 
 
