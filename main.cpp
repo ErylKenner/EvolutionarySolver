@@ -2,7 +2,7 @@
 
 #include "main.h"
 
-
+//TODO:Are the GA and NN classes working correctly with the new inheritance system?
 
 int main(){
     int populationSize;
@@ -10,11 +10,11 @@ int main(){
     int hiddenLayers;
     vector<unsigned int> layerSizes;
     vector<playerContainer> population;
-    Genetic ga(0.03f, 0.1f);
-    srand(time(NULL));
+    //Genetic ga(0.03f, 0.1f);
+    //srand( (unsigned int)time(NULL) );
     
-    //Genetic ga(0.0f, 1.0f);
-    //srand(1);
+    Genetic ga(0.0f, 1.0f);
+    srand(1);
     
     init(cin, cout, populationSize, iterations, hiddenLayers, layerSizes, population, ga);
     
@@ -36,7 +36,13 @@ int main(){
         
         //Print board
         if(verbose){
-            (population.back()).player->neural.printWeights();
+            NeuralPlayer *best = dynamic_cast<NeuralPlayer*>(population.back().player);
+            if(best != NULL){
+                best->neural.printWeights();
+            } else{
+                cerr << "Failed to perform dynamic_cast<>" << endl;
+                exit(1);
+            }
         }
         
         //Make new players based on how successful the current ones are
@@ -50,8 +56,20 @@ int main(){
             population[i].player->resetFitness();
         }
     }
-    (population.back()).player->neural.printWeights();
-   
+    
+    //Print the best one
+    NeuralPlayer *best = dynamic_cast<NeuralPlayer*>(population.back().player);
+    if(best != NULL){
+        best->neural.printWeights();
+    } else{
+        cerr << "Failed to perform dynamic_cast<>" << endl;
+        exit(1);
+    }
+    
+    
+    ManualPlayer *human = new ManualPlayer(cin, cout);
+    TicTacToe testGame(population.back().player, human, true);
+   testGame.playGame();
     
     return 0;
 }
@@ -85,14 +103,16 @@ void init(istream& is, ostream& os, int& populationSize, int& iterations, int& h
         os << "Number in hidden layer " << i << ": ";
         unsigned int temp;
         is >> temp;
+        if(temp < 1){
+            temp = 1;
+        }
         layerSizes.push_back(temp);
     }
     layerSizes.push_back(NUM_OUTPUTS);
     
     //Instantiate the Players
     for(int i = 0; i < populationSize; ++i){
-        Player *temp = new Player(layerSizes);
-        //playerContainer tempContainer(temp);
+        Player *temp = new NeuralPlayer(layerSizes);
         population.push_back(playerContainer(temp));
     }
     
