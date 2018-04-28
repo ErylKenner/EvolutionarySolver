@@ -21,12 +21,14 @@ public:
 
     void setPopulationSize(int populationSize);
     
-    void breed(vector<playerContainer>& population);
-    void mutate(vector<playerContainer>& population);
+    void breed(vector<playerContainer<NeuralPlayer> >& population);
+    void mutate(vector<playerContainer<NeuralPlayer> >& population);
 
 private:
-    vector<Matrix> crossOver(const playerContainer parent1, const playerContainer parent2);
-    playerContainer pickParent(const vector<playerContainer>& population) const;
+    vector<Matrix> crossOver(const playerContainer<NeuralPlayer> parent1, 
+        const playerContainer<NeuralPlayer> parent2);
+    
+    playerContainer<NeuralPlayer> pickParent(const vector<playerContainer<NeuralPlayer> >& population) const;
     static float bound(float value, float min, float max);
     
     const float m_mutationRate;

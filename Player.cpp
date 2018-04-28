@@ -1,67 +1,6 @@
 
 #include "Player.h"
 
-
-
-//----------Friend Functions-------------
-bool comparePlayerContainer(const playerContainer& left, const playerContainer& right){
-    return left.player->getFitness() < right.player->getFitness();
-}
-
-void swap(playerContainer& left, playerContainer& right){
-    Player *tempPlayer = left.player;
-    left.player = right.player;
-    right.player = tempPlayer;
-    
-    unsigned int tempIndex = left.index;
-    left.index = right.index;
-    right.index = tempIndex;
-}
-
-
-
-
-
-
-//-------------playerContainer------------
-unsigned int playerContainer::count = 0;
-
-playerContainer::playerContainer()
-    : index(playerContainer::count++){
-    
-    //cout << "default playerContainer constructor" << endl;
-}
-
-playerContainer::playerContainer(const playerContainer& other)
-    : index(other.index){
-    
-    player = other.player;
-    //cout << "copy playerContainer constructor" << endl;
-}
-
-playerContainer::playerContainer(Player *p)
-    : index(playerContainer::count++){
-    
-    player = p;
-    //cout << "player playerContainer constructor" << endl;
-}
-
-bool playerContainer::operator< (const playerContainer& right) const{
-    return player->getFitness() < right.player->getFitness();
-}
-
-void playerContainer::operator= (const playerContainer& right){
-    player = right.player;
-    index = right.index;
-    //cout << "playerContainer assignment operator" << endl;
-}
-
-
-
-
-
-
-
 //---------------Player---------------
 Player::Player(){
     m_fitness = 0;
@@ -126,8 +65,12 @@ void NeuralPlayer::operator= (const NeuralPlayer& right){
     neural = right.neural;
 }
 
-vector<double> NeuralPlayer::getMove(const Matrix& input) const{
-    Matrix temp(neural.forward(input));
+vector<double> NeuralPlayer::getMove(const Matrix& input, int squareIdentity) const{
+    //Append squareIdentity to the input so it knows which player it is
+    Matrix appendedInput(input);
+    appendedInput.addRowsCols(1, 0, (double)squareIdentity);
+    
+    Matrix temp(neural.forward(appendedInput));
     return temp.toVector();
 }
 
@@ -154,10 +97,11 @@ void ManualPlayer::operator= (const ManualPlayer& right){
     Player::operator=(right);
 }
 
-vector<double> ManualPlayer::getMove(const Matrix& input) const{
+vector<double> ManualPlayer::getMove(const Matrix& input, int squareIdentity) const{
     unsigned int row, col;
     do{
         char eater;
+        m_os << "You control \"" << squareIdentity << "\" squares" << endl;
         m_os << "Your move, in the range 1-3, of the form \"row, col\": ";
         m_is >> row >> eater >> col;
         row --;
@@ -176,9 +120,66 @@ vector<double> ManualPlayer::getMove(const Matrix& input) const{
     return temp.toVector();
 }
 
+//----------PerfectPlayer--------------
+/*
+PerfectPlayer::PerfectPlayer()
+    : Player(){
+    
+}
 
+PerfectPlayer::PerfectPlayer(const PerfectPlayer& p)
+    : Player(p){
+    
+}
 
+PerfectPlayer::~PerfectPlayer(){
+    
+}
 
+void PerfectPlayer::operator= (const PerfectPlayer& right){
+    
+}
+
+vector<double> PerfectPlayer::getMove(const Matrix& input, int squareIdentity) const{
+    Matrix board(3, 3);
+    for(int i = 0; i < 3; ++i){
+        for(int j = 0; j < 3; ++j){
+            board(i, j) = input(3 * i + j, 0);
+        }
+    }
+    
+    double nextMove = -1;
+    
+    //First check if you can win immediately
+    nextMove = winningMove();
+    if(nextMove >= 0){
+        vector<double> ret;
+        ret.push_back(nextMove);
+        return ret;
+    }
+    
+    nextMove = opponentWinningMove();
+    if(nextMove >= 0){
+        vector<double> ret;
+        ret.push_back(nextMove);
+        for(int i = 0; i < 8; ++i){
+            ret.push_back(0);
+        }
+        return ret;
+    }
+    
+    
+    ret vector<double>;
+}
+
+double PerfectPlayer::winningMove() const{
+    return 0;
+}
+
+double PerfectPlayer::opponentWinningMove() const{
+    return 0;
+}
+*/
 
 
 
