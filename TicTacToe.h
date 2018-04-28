@@ -24,7 +24,7 @@ using std::make_pair;
 template <class T1, class T2>
 class TicTacToe {
 public:
-    TicTacToe(T1 player1, T2 player2, bool verbose=false);
+    TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose=false);
     void playGame();
     
 private:
@@ -42,15 +42,15 @@ private:
 
     Matrix m_board;
 
-    T1 m_player1;
-    T2 m_player2;
+    playerContainer<T1>& m_player1;
+    playerContainer<T2>& m_player2;
 
     bool m_verbose;
 };
 
 //TODO: Rewrite with bitwise representation.
 template <class T1, class T2>
-TicTacToe<T1, T2>::TicTacToe(T1 player1, T2 player2, bool verbose)
+TicTacToe<T1, T2>::TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose)
     : m_board(NUM_ROWS, NUM_COLS)
     , m_player1(player1)
     , m_player2(player2)
@@ -209,9 +209,9 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
     //moves holds the list of desired moves in order of preference
     vector<unsigned int> moves;
     if(player1){
-        moves = bestMoves( m_player1.getMove(flattenBoard()) );
+        moves = bestMoves( m_player1.player.getMove(flattenBoard(), squareIdentity) );
     } else{
-        moves = bestMoves( m_player2.getMove(flattenBoard()) );
+        moves = bestMoves( m_player2.player.getMove(flattenBoard(), squareIdentity) );
     }
 
     //Make the best move from available squares
@@ -235,9 +235,9 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
     //Check if the move played was a winning move
     if(hasWon(squareIdentity)){
         if(player1){
-            m_player1.addToFitness(1.0);
+            m_player1.player.addToFitness(1.0);
         } else{
-            m_player2.addToFitness(1.0);
+            m_player2.player.addToFitness(1.0);
         }
         
         if(m_verbose){
@@ -248,8 +248,8 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
 
     //Check if the board is now full
     if(isFull()){
-        m_player1.addToFitness(0.5);
-        m_player2.addToFitness(0.5);
+        m_player1.player.addToFitness(0.5);
+        m_player2.player.addToFitness(0.5);
         if(m_verbose){
             cout << "========================" << endl;
         }

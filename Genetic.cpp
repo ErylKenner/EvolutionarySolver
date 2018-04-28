@@ -38,31 +38,24 @@ void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population){
 		newPop.push_back(temp);
 	}
 	
-	//Iterates over the remaining number of necessary child elements
+	//Iterates over the remaining child elements
 	for(int i = 0; i < m_populationSize - numToKeep; ++i){
-		//New weights to be set, based on random parents
+		/* Make a new player with weights from randomly selected parents.
+		 * players with higher fitness scores have a higher chance of being picked.
+		 */
 		vector<Matrix> newWeights = crossOver(pickParent(population), pickParent(population));
-		
 		playerContainer<NeuralPlayer> temp(population[i]);
 		temp.player.neural.setWeights(newWeights);
-		
-		//Insert new child
 		newPop.push_back(temp);
 	}
 	
-	//Deep copy of newPop to population
+	//Copy newPop to population
 	for(int i = 0; i < m_populationSize; ++i){
 		population[i].index = newPop[i].index;
 		
-		//Copy newPop[i]'s weights to newWeights
+		//Copy newPop[i]'s weights to population[i]
 		vector<Matrix> newWeights = newPop[i].player.neural.getWeights();
-		
-		//Copy newWeights to population[i]
 	    population[i].player.neural.setWeights(newWeights);
-	}
-	
-	for(int i = 0; i < m_populationSize; ++i){
-		population[i].player.resetFitness();
 	}
 }
 
@@ -71,7 +64,7 @@ void Genetic::mutate(vector<playerContainer<NeuralPlayer> >& population){
 	default_random_engine rd;
 	normal_distribution<double> distribution(2, 0.05);
 
-	for(int i  = 0; i < m_populationSize; ++i){
+	for(int i = 0; i < m_populationSize; ++i){
 	    vector<Matrix> weights = population[i].player.neural.getWeights();
 		size_t layers = weights.size();
 

@@ -2,34 +2,35 @@
 
 #include "main.h"
 
-//TODO:Are the GA and NN classes working correctly with the new inheritance system?
-
 int main(){
     int populationSize;
     int iterations;
     int hiddenLayers;
     vector<unsigned int> layerSizes;
     vector<playerContainer<NeuralPlayer> > population;
-    //Genetic ga(0.03f, 0.1f);
-    //srand( (unsigned int)time(NULL) );
+    vector<playerContainer<NeuralPlayer> > hallOfFame;
+    Genetic ga(0.03f, 0.1f);
+    srand( (unsigned int)time(NULL) );
     
-    Genetic ga(0.0f, 1.0f);
-    srand(1);
+    //Genetic ga(0.0f, 1.0f);
+    //srand(1);
     
     init(cin, cout, populationSize, iterations, hiddenLayers, layerSizes, population, ga);
     
-    //Training loop
+    //--------Training loop-----------
     for(int generation = 0; generation < iterations; ++generation){
         bool verbose = false/*(generation % 50) == 0*/;
         
         //Play games with every permutaiton of players
-        roundRobin<NeuralPlayer>(population, populationSize);
+        roundRobin(population, populationSize);
         
         //Sorts the players by fitness (ascending)
         sort(population.begin(), population.end(), comparePlayerContainer<NeuralPlayer>);
         
+        hallOfFame.push_back(population.back());
+        
         //printPopulationFrom(0, 10, population);
-        //printPopulationFrom(populationSize - 10, populationSize, population);
+        //printPopulationFrom(0, populationSize, population);
         
         //Print epoch summary
         printSummary(generation, population, populationSize);
@@ -46,19 +47,34 @@ int main(){
         //Each weight has a small chance to change by some random value
         ga.mutate(population);
         
+        
+        //-------Clean up and benchmark---------
+        
         //Reset fitness values for next generation
         for(int i = 0; i < populationSize; ++i){
             population[i].player.resetFitness();
         }
+        
+        //Test the current best vs. the best from each previous generation
+        double HOF_percent = playHallOfFame(hallOfFame, population.back());
+        printf(",  Vs. Hall of Fame: %.2lf", HOF_percent);
+        cout << "%" << endl;
+        
+        //Reset fitness values for next generation
+        for(int i = 0; i < populationSize; ++i){
+            population[i].player.resetFitness();
+        }
+        
+        
     }
     
     //Print the best one
     NeuralPlayer best = population.back().player;
     best.neural.printWeights();
     
-    
-    ManualPlayer *human = new ManualPlayer(cin, cout);
-    TicTacToe<NeuralPlayer, ManualPlayer> testGame(population.back().player, *human, true);
+    ManualPlayer tempHuman(cin, cout);
+    playerContainer<ManualPlayer> human(tempHuman);
+    TicTacToe<NeuralPlayer, ManualPlayer> testGame(population.back(), human, true);
     testGame.playGame();
     
     return 0;
@@ -110,9 +126,37 @@ void init(istream& is, ostream& os, int& populationSize, int& iterations, int& h
     ga.setPopulationSize(populationSize);
 }
 
+//Play games with every permutaiton of players
+void roundRobin(vector<playerContainer<NeuralPlayer> >& population, int populationSize){
+    for(int i = 0; i < populationSize - 1; ++i){
+        for(int j = i + 1; j < populationSize; ++j){
+            //Game 1
+            //cout << "Game between [" << population[i].second << "] and [" << population[j].second << "]" << endl;
+            TicTacToe<NeuralPlayer, NeuralPlayer> game1(population[i], population[j], false);
+            game1.playGame();
+            
+            //Game 2 (play 2 games so both players can start first)
+            //cout << "Game between [" << population[j].second << "] and [" << population[i].second << "]" << endl;
+            TicTacToe<NeuralPlayer, NeuralPlayer> game2(population[j], population[i], false);
+            game2.playGame();
+        }   
+    }
+}
 
-
-
+double playHallOfFame(vector<playerContainer<NeuralPlayer> >& hallOfFame, playerContainer<NeuralPlayer>& best){
+    int numOpponents = hallOfFame.size() - 1;
+    for(int i = 0; i < numOpponents; ++i){
+        //Game 1
+        TicTacToe<NeuralPlayer, NeuralPlayer> game1(hallOfFame[i], best, false);
+        game1.playGame();
+        
+        //Game 2 (play 2 games so both players can start first)
+        TicTacToe<NeuralPlayer, NeuralPlayer> game2(best, hallOfFame[i], false);
+        game2.playGame();
+    }
+    double fractionOfWins = best.player.getFitness() / (2 * numOpponents);
+    return 100 * fractionOfWins;
+}
 
     
 

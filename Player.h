@@ -22,7 +22,7 @@ public:
     void operator= (const Player& right);
     bool operator< (const Player& right) const;
     
-    virtual vector<double> getMove(const Matrix& input) const = 0;
+    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const = 0;
     
     void addToFitness(const double a);
     double getFitness() const;
@@ -43,7 +43,7 @@ public:
     
     void operator= (const NeuralPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input) const override;
+    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const override;
     
     NeuralNet neural;
 private:
@@ -60,13 +60,29 @@ public:
     
     void operator= (const ManualPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input) const override;
+    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const override;
     
 private:
     istream& m_is;
     ostream& m_os;
 };
-
+/*
+//A player with a theoretically perfect brain
+class PerfectPlayer : public Player{
+public:
+    PerfectPlayer();
+    PerfectPlayer(const PerfectPlayer& p);
+    virtual ~PerfectPlayer();
+    
+    void operator= (const PerfectPlayer& right);
+    
+    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const override;
+    
+private:
+    double winningMove() const;
+    double opponentWinningMove() const;
+};
+*/
 
 
 
@@ -110,7 +126,7 @@ bool comparePlayerContainer(const playerContainer<T>& left, const playerContaine
 
 template <class T>
 void swap(playerContainer<T>& left, playerContainer<T>& right){
-    T tempPlayer = left.player;
+    T tempPlayer(left.player);
     left.player = right.player;
     right.player = tempPlayer;
     
