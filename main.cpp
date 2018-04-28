@@ -2,7 +2,7 @@
 
 #include "main.h"
 
-
+//TODO:Are the GA and NN classes working correctly with the new inheritance system?
 
 int main(){
     int populationSize;
@@ -10,11 +10,11 @@ int main(){
     int hiddenLayers;
     vector<unsigned int> layerSizes;
     vector<playerContainer> population;
-    Genetic ga(0.03f, 0.1f);
-    srand( (unsigned int)time(NULL) );
+    //Genetic ga(0.03f, 0.1f);
+    //srand( (unsigned int)time(NULL) );
     
-    //Genetic ga(0.0f, 1.0f);
-    //srand(1);
+    Genetic ga(0.0f, 1.0f);
+    srand(1);
     
     init(cin, cout, populationSize, iterations, hiddenLayers, layerSizes, population, ga);
     
@@ -28,8 +28,8 @@ int main(){
         //Sorts the players by fitness (ascending)
         sort(population.begin(), population.end(), comparePlayerContainer);
         
-        printPopulationFrom(0, 10, population);
-        printPopulationFrom(populationSize - 10, populationSize, population);
+        //printPopulationFrom(0, 10, population);
+        //printPopulationFrom(populationSize - 10, populationSize, population);
         
         //Print epoch summary
         printSummary(generation, population, populationSize);
