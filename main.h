@@ -28,14 +28,29 @@ double playHallOfFame(vector<playerContainer<NeuralPlayer> >& hallOfFame, player
 
 //Print epoch summary
 template <class T>
-void printSummary(int generation, vector<playerContainer<T> >& population, int populationSize){
-    double maxVal = population.back().player.getFitness();
-    double minVal = population.front().player.getFitness();
+void printSummary(int generation, vector<playerContainer<T> >& population, 
+    int populationSize, double HOF_percent){
+    
+    playerContainer<T> maxPlayer = population.back();
+    playerContainer<T> minPlayer = population.front();
+    playerContainer<T> medianPlayer = population[populationSize / 2];
+    
     int maxPossible = 2 * (populationSize - 1);
     
     
-    printf("Gen: %3d,   Max fitness: %-6.1f [i=%-3d],   Min fitness: %-6.1f [i=%-3d],   Max possible: %4d"
-        , generation, maxVal, (population.back()).index, minVal, (population.front()).index, maxPossible);
+    printf("Gen: %3d", generation);
+    printf(",   Min: %-6.1f [i=%-3d]", 
+        minPlayer.player.getFitness(), minPlayer.index);
+    
+    printf(",   Median: %-6.1f [i=%-3d]", 
+        medianPlayer.player.getFitness(), medianPlayer.index);
+    
+    printf(",   Max: %-6.1f [i=%-3d]", 
+        maxPlayer.player.getFitness(), maxPlayer.index);
+    
+    printf(",   Max possible: %4d", maxPossible);
+    printf(",   Win vs HOF: %.2lf%%", HOF_percent);
+    cout << endl;
 }
 
 template <class T>
