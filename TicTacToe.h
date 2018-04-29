@@ -215,6 +215,13 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
 
     //moves holds the list of desired moves in order of preference
     vector<unsigned int> moves;
+    
+    //Diagnostics
+    if(m_verbose){
+        printBoard();
+        cout << endl;
+    }
+    
     if(player1){
         moves = bestMoves( m_player1.player.getMove(flattenBoard(), squareIdentity) );
     } else{
@@ -227,17 +234,6 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
             setBoardAtPosition(moves[i], squareIdentity);
             break;
         }
-    }
-
-    //Diagnostics
-    if(m_verbose){/*
-        if(player1){
-            cout << "Player 1's move:" << endl;
-        } else{
-            cout << "Player 2's move:" << endl;
-        }*/
-        printBoard();
-        cout << endl;
     }
 
     //Check if the move played was a winning move
@@ -255,6 +251,7 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
             } else{
                 player = 2;
             }
+            printBoard();
             cout << "Player " << player << " has won the game!" << endl;
             cout << "========================" << endl;
         }
@@ -266,6 +263,7 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
         m_player1.player.addToFitness(0.5);
         m_player2.player.addToFitness(0.5);
         if(m_verbose){
+            printBoard();
             cout << "Tie game" << endl;
             cout << "========================" << endl;
         }

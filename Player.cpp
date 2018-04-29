@@ -44,6 +44,12 @@ void Player::resetFitness(){
 
 
 //----------NeuralPlayer--------------
+NeuralPlayer::NeuralPlayer()
+    : Player()
+    , neural(){
+    
+}
+
 NeuralPlayer::NeuralPlayer(const vector<unsigned int>& layerSizes)
     : Player()
     , neural(layerSizes){

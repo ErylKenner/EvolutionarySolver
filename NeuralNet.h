@@ -3,6 +3,7 @@
 
 #include "Matrix.h"
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <math.h>
 
@@ -10,9 +11,12 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::vector;
+using std::ofstream;
+using std::ifstream;
 
 class NeuralNet {
 public:
+    NeuralNet();
     NeuralNet(const vector<unsigned int>& layerSizes);
     NeuralNet(const NeuralNet& nn);
     
@@ -24,6 +28,9 @@ public:
     
     vector<Matrix> getWeights() const;
     void setWeights(const vector<Matrix>& weights);
+    
+    void saveToFile(const char fileName[]) const;
+    void loadFromFile(const char fileName[]);
 private:
     vector<unsigned int> m_layerSizes;
     vector<Matrix> m_weights;
