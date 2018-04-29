@@ -37,6 +37,7 @@ protected:
 //A player with a neural network brain
 class NeuralPlayer : public Player{
 public:
+    NeuralPlayer();
     NeuralPlayer(const vector<unsigned int>& layerSizes);
     NeuralPlayer(const NeuralPlayer& p);
     virtual ~NeuralPlayer();

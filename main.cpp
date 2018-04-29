@@ -3,6 +3,33 @@
 #include "main.h"
 
 int main(){
+    
+    char loadPlayer;
+    cout << "Do you want to load a trained player? (y/n): ";
+    cin >> loadPlayer;
+    if(loadPlayer == 'y' || loadPlayer == 'Y'){
+        char fileName[255];
+        cout << "Player datafile name: " << endl;
+        scanf("%s", fileName);
+        
+        //Load the trained player
+        NeuralPlayer tempLoadedPlayer;
+        tempLoadedPlayer.neural.loadFromFile(fileName);
+        playerContainer<NeuralPlayer> loadedPlayer(tempLoadedPlayer);
+        loadedPlayer.player.neural.printWeights();
+        
+        //Set up a human-input player
+        ManualPlayer tempHuman(cin, cout);
+        playerContainer<ManualPlayer> human(tempHuman);
+        
+        //Play each other
+        TicTacToe<ManualPlayer, NeuralPlayer> testGame(human, loadedPlayer, true);
+        testGame.playGame();
+        
+        return 0;
+    }
+    
+    
     int populationSize;
     int iterations;
     int hiddenLayers;
@@ -58,14 +85,14 @@ int main(){
         
     }
     
-    //Print the best one
+    //Print and save the best one
     NeuralPlayer best = population.back().player;
     best.neural.printWeights();
     
-    ManualPlayer tempHuman(cin, cout);
-    playerContainer<ManualPlayer> human(tempHuman);
-    TicTacToe<NeuralPlayer, ManualPlayer> testGame(population.back(), human, true);
-    testGame.playGame();
+    char fileName[255];
+    cout << "Player datafile name: " << endl;
+    scanf("%s", fileName);
+    best.neural.saveToFile(fileName);
     
     return 0;
 }

@@ -2,6 +2,9 @@
 #include "NeuralNet.h"
 
 
+NeuralNet::NeuralNet(){
+    
+}
 
 //Constructor takes in the structure of the network as a matrix
 NeuralNet::NeuralNet(const vector<unsigned int>& layerSizes)
@@ -34,6 +37,72 @@ void NeuralNet::printWeights() const{
         m_weights[i].printData();
     }
     cout << "================================================" << endl;
+}
+
+void NeuralNet::saveToFile(const char fileName[]) const{
+    ofstream outputFile;
+    outputFile.open(fileName);
+    
+    //Outuput number of layer
+    outputFile << m_layerSizes.size() << "\n";
+    
+    //Ouput layerSizes
+    for(unsigned int i = 0; i < m_layerSizes.size(); ++i){
+        outputFile << m_layerSizes[i] << " ";
+    }
+    outputFile << "\n";
+    
+    for(unsigned int lay = 0; lay < m_weights.size(); ++lay){
+        unsigned int numRows = m_weights[lay].numRows();
+        unsigned int numCols = m_weights[lay].numCols();
+        
+        for(unsigned int i = 0; i < numRows; ++i){
+            for(unsigned int j = 0; j < numCols; ++j){
+                Matrix cur = m_weights[lay];
+                outputFile << cur(i, j) << " ";
+            }
+        }
+    }
+    
+    outputFile << "D\n";
+    outputFile.close();
+}
+
+void NeuralNet::loadFromFile(const char fileName[]){
+    ifstream inputFile;
+    inputFile.open(fileName);
+    
+    unsigned int numLayers;
+    inputFile >> numLayers;
+    
+    m_layerSizes.clear();
+    for(unsigned int i = 0; i < numLayers; ++i){
+        unsigned int cur;
+        inputFile >> cur;
+        m_layerSizes.push_back(cur);
+    }
+    
+    for(unsigned int lay = 0; lay < numLayers - 1; ++lay){
+        Matrix cur(m_layerSizes[lay] + 1, m_layerSizes[lay + 1]);
+        for(unsigned int i = 0; i < cur.numRows(); ++i){
+            for(unsigned int j = 0; j < cur.numCols(); ++j){
+                double temp;
+                inputFile >> temp;
+                cur(i, j) = temp;
+            }
+        }
+        m_weights.push_back(cur);
+    }
+    
+    char check;
+    inputFile >> check;
+    if(check != 'D'){
+        cerr << "Error: Check at the end of input file was incorrect" << endl;
+        exit(1);
+    }
+    
+    
+    inputFile.close();
 }
 
 //Performs forward propagation using m_weights and 'input'
