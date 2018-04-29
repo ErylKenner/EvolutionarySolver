@@ -24,7 +24,9 @@ using std::make_pair;
 template <class T1, class T2>
 class TicTacToe {
 public:
-    TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose=false);
+    TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, 
+        bool verbose=false);
+    
     void playGame();
     
 private:
@@ -131,7 +133,12 @@ vector<unsigned int> TicTacToe<T1, T2>::bestMoves(const vector<double>& input) c
 template <class T1, class T2>
 void TicTacToe<T1, T2>::printBoard() const{
     cout << "Board:" << endl;
-    m_board.printData();
+    for (int i = 0; i < 3; ++i){
+        for(int j = 0; j < 3; ++j){
+            printf("%2d  ", (int)m_board(i, j));
+        }
+        cout << endl;
+    }
 }
 
 /* The board is stored as a 3x3 matrix.
@@ -223,13 +230,14 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
     }
 
     //Diagnostics
-    if(m_verbose){
+    if(m_verbose){/*
         if(player1){
             cout << "Player 1's move:" << endl;
         } else{
             cout << "Player 2's move:" << endl;
-        }
+        }*/
         printBoard();
+        cout << endl;
     }
 
     //Check if the move played was a winning move
@@ -241,6 +249,13 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
         }
         
         if(m_verbose){
+            int player;
+            if(player1){
+                player = 1;
+            } else{
+                player = 2;
+            }
+            cout << "Player " << player << " has won the game!" << endl;
             cout << "========================" << endl;
         }
         return true;
@@ -251,6 +266,7 @@ bool TicTacToe<T1, T2>::takeTurn(int squareIdentity){
         m_player1.player.addToFitness(0.5);
         m_player2.player.addToFitness(0.5);
         if(m_verbose){
+            cout << "Tie game" << endl;
             cout << "========================" << endl;
         }
         return true;

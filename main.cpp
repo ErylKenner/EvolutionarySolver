@@ -32,33 +32,23 @@ int main(){
         //printPopulationFrom(0, 10, population);
         //printPopulationFrom(0, populationSize, population);
         
-        //Print epoch summary
-        printSummary(generation, population, populationSize);
-        
         //Print board
         if(verbose){
             NeuralPlayer best = population.back().player;
             best.neural.printWeights();
         }
         
+        //Test the current best vs. the best from each previous generation
+        double HOF_percent = playHallOfFame(hallOfFame, population.back());
+        
+        //Print epoch summary
+        printSummary(generation, population, populationSize, HOF_percent);
+        
         //Make new players based on how successful the current ones are
         ga.breed(population);
         
         //Each weight has a small chance to change by some random value
         ga.mutate(population);
-        
-        
-        //-------Clean up and benchmark---------
-        
-        //Reset fitness values for next generation
-        for(int i = 0; i < populationSize; ++i){
-            population[i].player.resetFitness();
-        }
-        
-        //Test the current best vs. the best from each previous generation
-        double HOF_percent = playHallOfFame(hallOfFame, population.back());
-        printf(",  Vs. Hall of Fame: %.2lf", HOF_percent);
-        cout << "%" << endl;
         
         //Reset fitness values for next generation
         for(int i = 0; i < populationSize; ++i){
@@ -145,6 +135,11 @@ void roundRobin(vector<playerContainer<NeuralPlayer> >& population, int populati
 
 double playHallOfFame(vector<playerContainer<NeuralPlayer> >& hallOfFame, playerContainer<NeuralPlayer>& best){
     int numOpponents = hallOfFame.size() - 1;
+    double initialFitness = best.player.getFitness();
+    
+    //Reset the best players' fitness to 0
+    best.player.resetFitness();
+    
     for(int i = 0; i < numOpponents; ++i){
         //Game 1
         TicTacToe<NeuralPlayer, NeuralPlayer> game1(hallOfFame[i], best, false);
@@ -155,6 +150,11 @@ double playHallOfFame(vector<playerContainer<NeuralPlayer> >& hallOfFame, player
         game2.playGame();
     }
     double fractionOfWins = best.player.getFitness() / (2 * numOpponents);
+    
+    //Set the best player's fitness to what it was before this function
+    best.player.resetFitness();
+    best.player.addToFitness(initialFitness);
+    
     return 100 * fractionOfWins;
 }
 
