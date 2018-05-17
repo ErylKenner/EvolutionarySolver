@@ -3,19 +3,15 @@
 #include "main.h"
 
 int main(){
+    string path = "data/";
+    
     
     char loadPlayer;
     cout << "Do you want to load a trained player? (y/n): ";
     cin >> loadPlayer;
     if(loadPlayer == 'y' || loadPlayer == 'Y'){
-        char fileName[255];
-        cout << "Player datafile name: " << endl;
-        scanf("%s", fileName);
-        
-        //Load the trained player
-        NeuralPlayer tempLoadedPlayer;
-        tempLoadedPlayer.neural.loadFromFile(fileName);
-        playerContainer<NeuralPlayer> loadedPlayer(tempLoadedPlayer);
+        //Load player
+        playerContainer<NeuralPlayer> loadedPlayer = loadPlayerFromFile(path);
         loadedPlayer.player.neural.printWeights();
         
         //Set up a human-input player
@@ -88,11 +84,8 @@ int main(){
     //Print and save the best one
     NeuralPlayer best = population.back().player;
     best.neural.printWeights();
+    savePlayerToFile(best, path);
     
-    char fileName[255];
-    cout << "Player datafile name: " << endl;
-    scanf("%s", fileName);
-    best.neural.saveToFile(fileName);
     
     return 0;
 }
@@ -185,7 +178,38 @@ double playHallOfFame(vector<playerContainer<NeuralPlayer> >& hallOfFame, player
     return 100 * fractionOfWins;
 }
 
+
+playerContainer<NeuralPlayer> loadPlayerFromFile(string path){
+    string fileName;
+    NeuralPlayer tempLoadedPlayer;
     
+    cout << "Player datafile name (located in '" << path << "'): " << endl;
+    cin >> fileName;
+    
+    //Load the trained player
+    while(!tempLoadedPlayer.neural.loadFromFile(path + fileName)){
+        cout << "  Invalid file name or path. Please try again." << endl;
+        cout << "Player datafile name (located in '" << path << "'): " << endl;
+        cin >> fileName;
+    }
+    
+    playerContainer<NeuralPlayer> loadedPlayer(tempLoadedPlayer);
+    return loadedPlayer;
+}
+
+void savePlayerToFile(NeuralPlayer best, string path){
+    string fileName;
+    
+    cout << "Player datafile name (saved to '" << path << "'): " << endl;
+    cin >> fileName;
+    
+    //Load the trained player
+    while(!best.neural.saveToFile(path + fileName)){
+        cout << "  Invalid file name or path. Please try again." << endl;
+        cout << "Player datafile name (saved to '" << path << "'): " << endl;
+        cin >> fileName;
+    }
+}    
 
 
 

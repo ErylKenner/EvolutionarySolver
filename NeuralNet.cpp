@@ -39,9 +39,12 @@ void NeuralNet::printWeights() const{
     cout << "================================================" << endl;
 }
 
-void NeuralNet::saveToFile(const char fileName[]) const{
+bool NeuralNet::saveToFile(string fileName) const{
     ofstream outputFile;
-    outputFile.open(fileName);
+    outputFile.open(fileName.c_str());
+    if(!outputFile.is_open()){
+        return false;
+    }
     
     //Outuput number of layer
     outputFile << m_layerSizes.size() << "\n";
@@ -66,11 +69,15 @@ void NeuralNet::saveToFile(const char fileName[]) const{
     
     outputFile << "D\n";
     outputFile.close();
+    return true;
 }
 
-void NeuralNet::loadFromFile(const char fileName[]){
+bool NeuralNet::loadFromFile(string fileName){
     ifstream inputFile;
-    inputFile.open(fileName);
+    inputFile.open(fileName.c_str());
+    if(!inputFile.is_open()){
+        return false;
+    }
     
     unsigned int numLayers;
     inputFile >> numLayers;
@@ -98,11 +105,12 @@ void NeuralNet::loadFromFile(const char fileName[]){
     inputFile >> check;
     if(check != 'D'){
         cerr << "Error: Check at the end of input file was incorrect" << endl;
-        exit(1);
+        return false;
     }
     
     
     inputFile.close();
+    return true;
 }
 
 //Performs forward propagation using m_weights and 'input'

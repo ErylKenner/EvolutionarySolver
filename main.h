@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 #include "Matrix.h"
 #include "NeuralNet.h"
@@ -17,7 +18,10 @@ using std::endl;
 using std::ostream;
 using std::istream;
 using std::vector;
+using std::string;
 
+playerContainer<NeuralPlayer> loadPlayerFromFile(string path);
+void savePlayerToFile(NeuralPlayer best, string path);
 
 void init(istream& is, ostream& os, int& populationSize, int& iterations, int& hiddenLayers,
     vector<unsigned int>& layerSizes, vector<playerContainer<NeuralPlayer> >& population, Genetic& ga);

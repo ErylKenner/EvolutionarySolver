@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <math.h>
+#include <string>
 
 using std::cout;
 using std::cin;
@@ -13,6 +14,7 @@ using std::endl;
 using std::vector;
 using std::ofstream;
 using std::ifstream;
+using std::string;
 
 class NeuralNet {
 public:
@@ -29,8 +31,8 @@ public:
     vector<Matrix> getWeights() const;
     void setWeights(const vector<Matrix>& weights);
     
-    void saveToFile(const char fileName[]) const;
-    void loadFromFile(const char fileName[]);
+    bool saveToFile(string fileName) const;
+    bool loadFromFile(string fileName);
 private:
     vector<unsigned int> m_layerSizes;
     vector<Matrix> m_weights;
