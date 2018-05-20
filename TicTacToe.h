@@ -9,7 +9,6 @@
 #include <vector>
 #include <algorithm>
 #include <cstdint>
-#include <bitset>
 
 using std::cout;
 using std::cin;
@@ -32,7 +31,7 @@ public:
     void playGame();
     
 private:
-    bool takeTurn(const States state);
+    bool takeTurn(const States state, const int turns);
     bool isEmpty() const;
     bool isFull() const;
 
@@ -71,11 +70,14 @@ TicTacToe<T1, T2>::TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& 
  */
 template <class T1, class T2>
 void TicTacToe<T1, T2>::playGame(){
+    int turns = 0;
     while(true){
-        if(takeTurn(States::playerX)){
+        turns++;
+        if(takeTurn(States::playerX, turns)){
             break;
         }
-        if(takeTurn(States::playerO)){
+        turns++;
+        if(takeTurn(States::playerO, turns)){
             break;
         }
     }
@@ -224,32 +226,32 @@ void TicTacToe<T1, T2>::setBoardAtPosition(const int position, const States stat
 //Helper function to determine if a player has won
 template <class T1, class T2>
 bool TicTacToe<T1, T2>::hasWon() const{
-    
+    //The order is to minimize the number of average checks necessary
     States pos0 = getBoardAtPosition(0);
     States pos1 = getBoardAtPosition(1);
     States pos2 = getBoardAtPosition(2);
-    States pos3 = getBoardAtPosition(3);
-    States pos4 = getBoardAtPosition(4);
-    States pos5 = getBoardAtPosition(5);
-    States pos6 = getBoardAtPosition(6);
-    States pos7 = getBoardAtPosition(7);
-    States pos8 = getBoardAtPosition(8);
-    
-    if(pos0 == pos4 && pos4 == pos8 && pos8 != States::empty){ return true;}
-    if(pos2 == pos4 && pos4 == pos6 && pos6 != States::empty){ return true;}
     if(pos0 == pos1 && pos1 == pos2 && pos2 != States::empty){ return true;}
-    if(pos3 == pos4 && pos4 == pos5 && pos5 != States::empty){ return true;}
-    if(pos6 == pos7 && pos7 == pos8 && pos8 != States::empty){ return true;}
+    States pos4 = getBoardAtPosition(4);
+    States pos8 = getBoardAtPosition(8);
+    if(pos0 == pos4 && pos4 == pos8 && pos8 != States::empty){ return true;}
+    States pos6 = getBoardAtPosition(6);
+    if(pos2 == pos4 && pos4 == pos6 && pos6 != States::empty){ return true;}
+    States pos3 = getBoardAtPosition(3);
     if(pos0 == pos3 && pos3 == pos6 && pos6 != States::empty){ return true;}
-    if(pos1 == pos4 && pos4 == pos7 && pos7 != States::empty){ return true;}
+    States pos5 = getBoardAtPosition(5);
     if(pos2 == pos5 && pos5 == pos8 && pos8 != States::empty){ return true;}
+    if(pos3 == pos4 && pos4 == pos5 && pos5 != States::empty){ return true;}
+    States pos7 = getBoardAtPosition(7);
+    if(pos6 == pos7 && pos7 == pos8 && pos8 != States::empty){ return true;}
+    if(pos1 == pos4 && pos4 == pos7 && pos7 != States::empty){ return true;}
+    
     
     return false;
 }
 
 //helper function to handle the steps required to take a turn
 template <class T1, class T2>
-bool TicTacToe<T1, T2>::takeTurn(const States state){
+bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
     //holds the list of desired moves in order of preference
     vector<unsigned int> moves;
     
@@ -276,9 +278,9 @@ bool TicTacToe<T1, T2>::takeTurn(const States state){
     //Check if the move played was a winning move
     if(hasWon()){
         if(state == States::playerX){
-            m_player1.player.addToFitness(1.0);
+            m_player1.player.addToFitness(1.0 + (9.0 - turn) / 12.0);
         } else{
-            m_player2.player.addToFitness(1.0);
+            m_player2.player.addToFitness(1.0 + (9.0 -  turn) / 12.0);
         }
         
         if(m_verbose){

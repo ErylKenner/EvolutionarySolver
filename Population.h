@@ -238,7 +238,7 @@ double Population<T>::playHallOfFame(playerContainer<NeuralPlayer>& best){
         T<NeuralPlayer, NeuralPlayer> game2(best, m_hallOfFame[i], false);
         game2.playGame();
     }
-    double fractionOfWins = best.player.getFitness() / (2 * numOpponents);
+    double fractionOfWins = best.player.getFitness() / (3 * numOpponents);
     
     //Set the best player's fitness to what it was before this function
     best.player.resetFitness();
@@ -254,7 +254,7 @@ void Population<T>::printSummary(int generation, double HOF_percent){
     playerContainer<NeuralPlayer> minPlayer = m_population.front();
     playerContainer<NeuralPlayer> medianPlayer = m_population[m_populationSize / 2];
     
-    int maxPossible = 2 * (m_populationSize - 1);
+    int maxPossible = 3 * (m_populationSize - 1);
     
     
     printf("Gen: %3d", generation);

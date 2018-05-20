@@ -18,7 +18,14 @@ int main(){
     } else{
         pop.init();
         pop.train(false);
-        pop.saveBest(path);
+        
+        char savePlayer;
+        cout << "Do you want to save the best player? (y/n): ";
+        cin >> savePlayer;
+        
+        if(savePlayer == 'y' || savePlayer == 'Y'){
+            pop.saveBest(path);
+        }
     }
     
     return 0;
