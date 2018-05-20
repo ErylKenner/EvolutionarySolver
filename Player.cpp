@@ -71,13 +71,8 @@ void NeuralPlayer::operator= (const NeuralPlayer& right){
     neural = right.neural;
 }
 
-vector<double> NeuralPlayer::getMove(const Matrix& input, int squareIdentity) const{
-    //Append squareIdentity to the input so it knows which player it is
-    Matrix appendedInput(input);
-    appendedInput.addRowsCols(1, 0, (double)squareIdentity);
-    
-    Matrix temp(neural.forward(appendedInput));
-    return temp.toVector();
+vector<double> NeuralPlayer::getMove(const Matrix& input) const{
+    return neural.forward(input).toVector();
 }
 
 //----------ManualPlayer--------------
@@ -103,11 +98,10 @@ void ManualPlayer::operator= (const ManualPlayer& right){
     Player::operator=(right);
 }
 
-vector<double> ManualPlayer::getMove(const Matrix& input, int squareIdentity) const{
+vector<double> ManualPlayer::getMove(const Matrix& input) const{
     unsigned int row, col;
     do{
         char eater;
-        m_os << "You control \"" << squareIdentity << "\" squares" << endl;
         m_os << "Your move, in the range 1-3, of the form \"row, col\": ";
         m_is >> row >> eater >> col;
         row --;

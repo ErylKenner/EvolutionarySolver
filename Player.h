@@ -22,7 +22,7 @@ public:
     void operator= (const Player& right);
     bool operator< (const Player& right) const;
     
-    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const = 0;
+    virtual vector<double> getMove(const Matrix& input) const = 0;
     
     void addToFitness(const double a);
     double getFitness() const;
@@ -44,7 +44,7 @@ public:
     
     void operator= (const NeuralPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const override;
+    virtual vector<double> getMove(const Matrix& input) const override;
     
     NeuralNet neural;
 private:
@@ -61,7 +61,7 @@ public:
     
     void operator= (const ManualPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const override;
+    virtual vector<double> getMove(const Matrix& input) const override;
     
 private:
     istream& m_is;
