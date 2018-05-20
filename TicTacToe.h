@@ -226,25 +226,25 @@ void TicTacToe<T1, T2>::setBoardAtPosition(const int position, const States stat
 //Helper function to determine if a player has won
 template <class T1, class T2>
 bool TicTacToe<T1, T2>::hasWon() const{
-    //The order is to minimize the number of average checks necessary
-    States pos0 = getBoardAtPosition(0);
-    States pos1 = getBoardAtPosition(1);
-    States pos2 = getBoardAtPosition(2);
-    if(pos0 == pos1 && pos1 == pos2 && pos2 != States::empty){ return true;}
-    States pos4 = getBoardAtPosition(4);
-    States pos8 = getBoardAtPosition(8);
-    if(pos0 == pos4 && pos4 == pos8 && pos8 != States::empty){ return true;}
-    States pos6 = getBoardAtPosition(6);
-    if(pos2 == pos4 && pos4 == pos6 && pos6 != States::empty){ return true;}
-    States pos3 = getBoardAtPosition(3);
-    if(pos0 == pos3 && pos3 == pos6 && pos6 != States::empty){ return true;}
-    States pos5 = getBoardAtPosition(5);
-    if(pos2 == pos5 && pos5 == pos8 && pos8 != States::empty){ return true;}
-    if(pos3 == pos4 && pos4 == pos5 && pos5 != States::empty){ return true;}
-    States pos7 = getBoardAtPosition(7);
-    if(pos6 == pos7 && pos7 == pos8 && pos8 != States::empty){ return true;}
-    if(pos1 == pos4 && pos4 == pos7 && pos7 != States::empty){ return true;}
+    //PlayerX
+    if((m_board & (uint32_t)65793 ) == (uint32_t)65793){ return true;}
+    if((m_board & (uint32_t)4368  ) == (uint32_t)4368 ){ return true;}
+    if((m_board & (uint32_t)86016 ) == (uint32_t)86016){ return true;}
+    if((m_board & (uint32_t)1344  ) == (uint32_t)1344 ){ return true;}
+    if((m_board & (uint32_t)21    ) == (uint32_t)21   ){ return true;}
+    if((m_board & (uint32_t)66576 ) == (uint32_t)66576){ return true;}
+    if((m_board & (uint32_t)16644 ) == (uint32_t)16644){ return true;}
+    if((m_board & (uint32_t)4161  ) == (uint32_t)4161 ){ return true;}
     
+    //PlayerO
+    if((m_board & (uint32_t)131586) == (uint32_t)131586){ return true;}
+    if((m_board & (uint32_t)8736  ) == (uint32_t)8736  ){ return true;}
+    if((m_board & (uint32_t)172032) == (uint32_t)172032){ return true;}
+    if((m_board & (uint32_t)2688  ) == (uint32_t)2688  ){ return true;}
+    if((m_board & (uint32_t)42    ) == (uint32_t)42    ){ return true;}
+    if((m_board & (uint32_t)133152) == (uint32_t)133152){ return true;}
+    if((m_board & (uint32_t)33288 ) == (uint32_t)33288 ){ return true;}
+    if((m_board & (uint32_t)8322  ) == (uint32_t)8322  ){ return true;}
     
     return false;
 }
@@ -276,40 +276,46 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
     }
 
     //Check if the move played was a winning move
-    if(hasWon()){
-        if(state == States::playerX){
-            m_player1.player.addToFitness(1.0 + (9.0 - turn) / 12.0);
-        } else{
-            m_player2.player.addToFitness(1.0 + (9.0 -  turn) / 12.0);
-        }
-        
-        if(m_verbose){
-            printBoard();
-            
-            char symbol;
+    if(turn >= 5){
+        if(hasWon()){
             if(state == States::playerX){
-                symbol = 'X';
+                m_player1.player.addToFitness(1.0 + (9.0 - turn) / 8.0);
             } else{
-                symbol = 'O';
+                m_player2.player.addToFitness(1.0 + (9.0 -  turn) / 8.0);
             }
             
-            cout << "Player " << symbol << " has won the game!" << endl;
-            cout << "=============" << endl;
+            if(m_verbose){
+                printBoard();
+                
+                char symbol;
+                if(state == States::playerX){
+                    symbol = 'X';
+                } else{
+                    symbol = 'O';
+                }
+                
+                cout << "Player " << symbol << " has won the game!" << endl;
+                cout << "=============" << endl;
+            }
+            return true;
         }
-        return true;
     }
+    
 
     //Check if the board is now full
-    if(isFull()){
-        m_player1.player.addToFitness(0.5);
-        m_player2.player.addToFitness(0.5);
-        if(m_verbose){
-            printBoard();
-            cout << "Tie game" << endl;
-            cout << "=============" << endl;
+    if(turn == 9){
+        if(isFull()){
+            m_player1.player.addToFitness(0.5);
+            m_player2.player.addToFitness(0.5);
+            if(m_verbose){
+                printBoard();
+                cout << "Tie game" << endl;
+                cout << "=============" << endl;
+            }
+            return true;
         }
-        return true;
     }
+    
 
     //If the game is not over, return false
     return false;
