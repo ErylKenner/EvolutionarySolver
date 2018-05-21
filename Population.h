@@ -29,8 +29,8 @@ public:
     
     void init(unsigned int seed = 1, istream& is = cin, ostream& os = cout);
     void train(bool verbose);
-    void saveBest(string path);
-    void loadBest(string path);
+    string saveBest(string path);
+    void loadBest(string path, string name = "");
     
 private:
     int m_populationSize;
@@ -43,9 +43,9 @@ private:
     
     Genetic m_ga;
     
-    void savePlayerToFile(const NeuralPlayer best, const string path) const;
+    string savePlayerToFile(const NeuralPlayer best, const string path) const;
     
-    playerContainer<NeuralPlayer> loadPlayerFromFile(const string path);
+    playerContainer<NeuralPlayer> loadPlayerFromFile(const string path, string name = "");
     
     void roundRobin();
     
@@ -61,7 +61,7 @@ private:
 
 
 template <template <class, class> class Game>
-void Population<Game>::savePlayerToFile(const NeuralPlayer best, const string path) const{
+string Population<Game>::savePlayerToFile(const NeuralPlayer best, const string path) const{
     string fileName;
     
     while(true){
@@ -71,23 +71,28 @@ void Population<Game>::savePlayerToFile(const NeuralPlayer best, const string pa
         if(best.neural.saveToFile(path + fileName)){
             break;
         }
-        cout << "  Invalid file name or path. Please try again." << endl;
+        cout << "Invalid file name or path. Please try again." << endl;
     }
+    return fileName;
 }
 
 template <template <class, class> class Game>
-playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(const string path){
-    string fileName;
+playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(const string path, string name){
     NeuralPlayer tempLoadedPlayer;
     
-    while(true){
-        cout << "Player datafile name (located in '" << path << "'): " << endl;
-        cin >> fileName;
-        
-        if(tempLoadedPlayer.neural.loadFromFile(path + fileName)){
-            break;
+    if(name == ""){
+        string fileName;
+        while(true){
+            cout << "Player datafile name (located in '" << path << "'): " << endl;
+            cin >> fileName;
+            
+            if(tempLoadedPlayer.neural.loadFromFile(path + fileName)){
+                break;
+            }
+            cout << "Invalid file name or path. Please try again." << endl;
         }
-        cout << "  Invalid file name or path. Please try again." << endl;
+    } else{
+        tempLoadedPlayer.neural.loadFromFile(path + name);
     }
     
     playerContainer<NeuralPlayer> loadedPlayer(tempLoadedPlayer);
@@ -96,9 +101,15 @@ playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(const string 
 
 
 template <template <class, class> class Game>
-void Population<Game>::loadBest(string path){
-    //Load player
-    playerContainer<NeuralPlayer> loadedPlayer = loadPlayerFromFile(path);
+void Population<Game>::loadBest(string path, string name){
+    playerContainer<NeuralPlayer> loadedPlayer;
+    
+    if(name == ""){
+        loadedPlayer = m_population.back();
+    } else{
+        loadedPlayer = loadPlayerFromFile(path, name);
+    }
+    
     loadedPlayer.player.neural.printWeights();
     
     //Set up a human-input player
@@ -114,10 +125,11 @@ void Population<Game>::loadBest(string path){
 }
 
 template <template <class, class> class Game>
-void Population<Game>::saveBest(string path){
+string Population<Game>::saveBest(string path){
     NeuralPlayer best = m_population.back().player;
     best.neural.printWeights();
-    savePlayerToFile(best, path);
+    string name = savePlayerToFile(best, path);
+    return name;
 }
 
 
@@ -191,7 +203,7 @@ void Population<Game>::init(unsigned int seed, istream& is, ostream& os){
     is >> m_hiddenLayers;
     
     //Populate m_layerSizes
-    m_layerSizes.push_back(NUM_INPUTS);
+    m_layerSizes.push_back(Game<NeuralPlayer, NeuralPlayer>::NUM_INPUTS);
     for(int i = 1; i <= m_hiddenLayers; ++i){
         os << "Number in hidden layer " << i << ": ";
         unsigned int temp;
@@ -201,7 +213,7 @@ void Population<Game>::init(unsigned int seed, istream& is, ostream& os){
         }
         m_layerSizes.push_back(temp);
     }
-    m_layerSizes.push_back(NUM_OUTPUTS);
+    m_layerSizes.push_back(Game<NeuralPlayer, NeuralPlayer>::NUM_OUTPUTS);
     
     //Instantiate the Players
     for(int i = 0; i < m_populationSize; ++i){

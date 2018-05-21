@@ -17,9 +17,6 @@ using std::vector;
 using std::pair;
 using std::make_pair;
 
-#define NUM_INPUTS 9
-#define NUM_OUTPUTS 9
-
 enum States {empty = 0, playerX = 1, playerO = 2, invalid = 3};
 
 
@@ -30,6 +27,8 @@ public:
     TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose=false);
     void playGame();
     
+    const static int NUM_INPUTS = 9;
+    const static int NUM_OUTPUTS = 9;
 private:
     bool takeTurn(const States state, const int turns);
     bool isEmpty() const;
@@ -51,6 +50,8 @@ private:
     playerContainer<T2>& m_player2;
 
     bool m_verbose;
+    
+    
 };
 
 

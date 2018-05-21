@@ -22,9 +22,18 @@ int main(){
         char savePlayer;
         cout << "Do you want to save the best player? (y/n): ";
         cin >> savePlayer;
+        string name = "";
         
         if(savePlayer == 'y' || savePlayer == 'Y'){
-            pop.saveBest(path);
+            name = pop.saveBest(path);
+        }
+        
+        char playBest;
+        cout << "Do you want to play the best player? (y/n): ";
+        cin >> playBest;
+        
+        if(playBest == 'y' || playBest == 'Y'){
+            pop.loadBest(path, name);
         }
     }
     
