@@ -16,7 +16,7 @@ int main(){
     if(loadPlayer == 'y' || loadPlayer == 'Y'){
         pop.loadBest(path);
     } else{
-        pop.init();
+        pop.init(time(NULL));
         pop.train(false);
         
         char savePlayer;

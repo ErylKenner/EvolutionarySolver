@@ -15,7 +15,8 @@ float Genetic::bound(float value, float min, float max){
 Genetic::Genetic(const float mutationRate, const float greedyPercent)
 	: m_mutationRate(Genetic::bound(mutationRate, 0.0f, 1.0f))
 	, m_greedyPercent(Genetic::bound(greedyPercent, 0.0f, 1.0f)){
-		
+	
+	m_populationSize = 0;
 }
 
 void Genetic::setPopulationSize(int populationSize){
@@ -25,6 +26,7 @@ void Genetic::setPopulationSize(int populationSize){
 //Make new players based on how successful the current ones are
 void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population){
 	vector<playerContainer<NeuralPlayer> > newPop;
+	newPop.resize(m_populationSize);
 
 	//Keep the best greedyPercent of last generation
 	int numToKeep = (int)(m_greedyPercent * (float)m_populationSize);
@@ -34,37 +36,28 @@ void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population){
 	
 	//Copy the players which are being kept from greedyPercent
 	for(int i = 0; i < numToKeep; ++i){
-		playerContainer<NeuralPlayer> temp(population[m_populationSize - 1 - i]);
-		newPop.push_back(temp);
+		newPop[i] = population[m_populationSize - 1 - i];
 	}
 	
 	//Iterates over the remaining child elements
-	for(int i = 0; i < m_populationSize - numToKeep; ++i){
-		/* Make a new player with weights from randomly selected parents.
-		 * players with higher fitness scores have a higher chance of being picked.
-		 */
+	for(int i = numToKeep; i < m_populationSize; ++i){
 		vector<Matrix> newWeights = crossOver(pickParent(population), pickParent(population));
-		playerContainer<NeuralPlayer> temp(population[i]);
+		playerContainer<NeuralPlayer> temp(population[m_populationSize - 1 - i]);
 		temp.player.neural.setWeights(newWeights);
-		newPop.push_back(temp);
+		newPop[i] = temp;
 	}
-	
-	//Copy newPop to population
-	for(int i = 0; i < m_populationSize; ++i){
-		population[i].index = newPop[i].index;
-		
-		//Copy newPop[i]'s weights to population[i]
-		vector<Matrix> newWeights = newPop[i].player.neural.getWeights();
-	    population[i].player.neural.setWeights(newWeights);
-	}
+	population = newPop;
 }
 
 void Genetic::mutate(vector<playerContainer<NeuralPlayer> >& population){
 	//Intialize random object for gaussian distribution (mean=0, dev=0.1)
-	default_random_engine rd;
-	normal_distribution<double> distribution(2, 0.05);
-
-	for(int i = 0; i < m_populationSize; ++i){
+	std::random_device rd{};
+    std::mt19937 gen{rd()};
+	std::normal_distribution<double> distribution(0, 0.1);
+	
+	int numToKeep = (int)(m_greedyPercent * (float)m_populationSize);
+	
+	for(int i = numToKeep; i < m_populationSize; ++i){
 	    vector<Matrix> weights = population[i].player.neural.getWeights();
 		size_t layers = weights.size();
 
@@ -77,9 +70,8 @@ void Genetic::mutate(vector<playerContainer<NeuralPlayer> >& population){
 			for(int row = 0; row < rows; ++row){
 				for(int col = 0; col < cols; ++col){
 					//Mutate with a certain chance
-					float guess = (float)rand() / float(RAND_MAX);
-					if(guess < m_mutationRate){
-						(weights[lay])(row, col) += distribution(rd) - 2;
+					if( ((float)rand() / float(RAND_MAX)) < m_mutationRate){
+						weights[lay](row, col) += distribution(gen);
 					}
 				}
 			}
@@ -95,7 +87,7 @@ playerContainer<NeuralPlayer> Genetic::pickParent(
 	double totalPopulationFitness = 0;
 	for(int i = 0; i < m_populationSize; ++i){
 		double cur = population[i].player.getFitness();
-		totalPopulationFitness += cur * cur;
+		totalPopulationFitness += cur;
 	}
 	
 	//A random number in the range [0, totalPopulationFitness - 1]
@@ -106,7 +98,7 @@ playerContainer<NeuralPlayer> Genetic::pickParent(
 		double curFitness = population[i].player.getFitness();
 		
 		//Keep adding the current player's fitness until it reaches the threshold
-		sum += curFitness * curFitness;
+		sum += curFitness;
 		if(sum >= threshold){
 			return population[i];
 		}
@@ -123,8 +115,6 @@ vector<Matrix> Genetic::crossOver(const playerContainer<NeuralPlayer> parent1,
 	
 	//Parent 1
     weights1 = parent1.player.neural.getWeights();
-    
-    //Parent 2
     weights2 = parent2.player.neural.getWeights();
 
 	size_t length = weights1.size();
@@ -139,7 +129,7 @@ vector<Matrix> Genetic::crossOver(const playerContainer<NeuralPlayer> parent1,
 			for(int col = 0; col < cols; ++col){
 				//50% chance of being from parent1 or parent2
 				if(rand() % 2 == 0){
-					(weights1[i])(row, col) = (weights2[i])(row, col);
+					weights1[i](row, col) = weights2[i](row, col);
 				}
 			}
 		}

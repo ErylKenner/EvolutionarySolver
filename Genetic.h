@@ -12,8 +12,6 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::vector;
-using std::default_random_engine;
-using std::normal_distribution;
 
 class Genetic {
 public:

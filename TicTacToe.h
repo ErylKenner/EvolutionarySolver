@@ -145,7 +145,6 @@ void TicTacToe<T1, T2>::printBoard() const{
         cout << endl << "+---+---+---+" << endl;
     }
     cout << endl;
-    
 }
 
 /* The board is stored as a 3x3 matrix.
@@ -279,9 +278,9 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
     if(turn >= 5){
         if(hasWon()){
             if(state == States::playerX){
-                m_player1.player.addToFitness(1.0 + (9.0 - turn) / 8.0);
+                m_player1.player.addToFitness(1.0 + (10.0 - turn) / 10.0);
             } else{
-                m_player2.player.addToFitness(1.0 + (9.0 -  turn) / 8.0);
+                m_player2.player.addToFitness(1.0 + (10.0 -  turn) / 10.0);
             }
             
             if(m_verbose){
@@ -305,8 +304,8 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
     //Check if the board is now full
     if(turn == 9){
         if(isFull()){
-            m_player1.player.addToFitness(0.5);
-            m_player2.player.addToFitness(0.5);
+            m_player1.player.addToFitness(1.0);
+            m_player2.player.addToFitness(1.0);
             if(m_verbose){
                 printBoard();
                 cout << "Tie game" << endl;
