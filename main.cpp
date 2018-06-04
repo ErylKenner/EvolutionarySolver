@@ -8,6 +8,14 @@ int main(){
     Population<TicTacToe> pop;
     
     
+    ManualPlayer tempHuman1(cin, cout);
+    playerContainer<ManualPlayer> human1(tempHuman1);
+    ManualPlayer tempHuman2(cin, cout);
+    playerContainer<ManualPlayer> human2(tempHuman2);
+    
+    UltimateTTT<ManualPlayer, ManualPlayer> ttt(human1, human2, true);
+    ttt.printBoard();
+    
     char loadPlayer;
     cout << "Do you want to load a trained player? (y/n): ";
     cin >> loadPlayer;

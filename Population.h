@@ -13,6 +13,7 @@
 #include "Player.h"
 #include "TicTacToe.h"
 #include "Genetic.h"
+#include "UltimateTTT.h"
 
 using std::cout;
 using std::cin;

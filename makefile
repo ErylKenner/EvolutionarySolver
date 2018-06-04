@@ -1,13 +1,16 @@
 #Makefile
-CFlags = -std=c++11 -g -I. -static-libgcc -static-libstdc++
-Warnings = -Wall -Wextra -Wdouble-promotion -Wswitch-default -Wfloat-equal -Wconversion -Wuseless-cast
+CompilerFlags = -std=c++11 -I. -static-libgcc -static-libstdc++
+Warnings = -Wall -Wextra -Wdouble-promotion -Wswitch-default -Wfloat-equal -Wconversion -Wuseless-cast -Wshadow -fsanitize=address -fsanitize=undefined
+TestingFlags = -g
+ReleaseFlags = -O3
 Targets = main.cpp Matrix.cpp NeuralNet.cpp Player.cpp Genetic.cpp
+
 
 all: $(Targets)
 	$(RM) a
-	g++ $(CFlags) $(Warnings) $(Targets)
+	g++ $(CompilerFlags) $(Warnings) $(TestingFlags) $(Targets)
 fast: $(Targets)
 	$(RM) a
-	g++ $(CFlags) $(Warnings) -O3 $(Targets)
+	g++ $(CompilerFlags) $(Warnings) $(ReleaseFlags) $(Targets)
 clean: 
 	$(RM) a
