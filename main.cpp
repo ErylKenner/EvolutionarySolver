@@ -28,7 +28,7 @@ int main(){
         pop.train(false);
         
         char savePlayer;
-        cout << "Do you want to save the best player? (y/n): ";
+        cout << "Do you want to save the best player to a file? (y/n): ";
         cin >> savePlayer;
         string name = "";
         
@@ -37,7 +37,7 @@ int main(){
         }
         
         char playBest;
-        cout << "Do you want to play the best player? (y/n): ";
+        cout << "Do you want to play against the best player? (y/n): ";
         cin >> playBest;
         
         if(playBest == 'y' || playBest == 'Y'){

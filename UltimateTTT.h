@@ -140,55 +140,59 @@ vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(const vector<double>& input)
 //Prints the current board to the console
 template <class T1, class T2>
 void UltimateTTT<T1, T2>::printBoard() const{
-    for(int metaRow = 0; metaRow < 3; ++metaRow){
-        cout << "+---+---+---+   +---+---+---+   +---+---+---+" << endl;
-        for(int row = 0; row < 5; ++row){
-            
-            for(int metaCol = 0; metaCol < 3; ++metaCol){
-                States curMeta = getBoardAtPosition(-1, 3 * metaRow + metaCol);
-                
-                if(row == 0 || row == 2 || row == 4){
-                    cout << "|";
-                    for(int col = 0; col < 3; ++col){
-                        
-                        if(curMeta == States::empty){
-                            States cur = getBoardAtPosition(3 * metaRow + metaCol, 3 * (row / 2) + col);
-                            if(cur == States::playerX){
-                                cout << " X |"; 
-                            } else if(cur == States::playerO){
-                                cout << " O |";
-                            } else{
-                                cout << "   |";
-                            }
-                        } else if(row == 2 && col == 1){
-                            if(curMeta == States::playerX){
-                                cout << " X  ";
-                            } else if(curMeta == States::playerO){
-                                cout << " O  ";
-                            } else{
-                                cout << " ?  ";
-                            }
-                        } else if(col == 2){
-                            cout << "   |";
-                        } else{
-                            cout << "    ";
-                        }
-                    }
-                    cout << "   ";
+    for(int i = 0; i < 23; ++i){
+        for(int j = 0; j < 45; ++j){
+            char cur = ' ';
+
+            int x = (j-2)/4 - (j-2)/16;
+            int y = (i-1)/2 - (i-1)/8;
+
+            int subBoard = x / 3 + 3 * (int)(y / 3);
+            int subPostion = x % 3 + 3 * (y % 3);
+            bool metaOccupied = getBoardAtPosition(-1, subBoard) != States::empty;
+
+            bool insideMetaBox_x = (j / 4) % 4 == 1 || (j / 4) % 4 == 2;
+            bool insideMetaBox_y = (i / 2) % 4 == 1 || (i / 2) % 4 == 2;
+
+            if(i % 2 == 0 && j % 4 == 0){
+                if(metaOccupied && insideMetaBox_x && insideMetaBox_y){
+                    cur = ' ';
                 } else{
-                    if(curMeta == States::empty){
-                        cout << "+---+---+---+   ";
-                    } else{
-                        cout << "+           +   ";
-                    }
+                    cur = '+';
+                }
+            } else if(i % 2 == 0 && (j % 16 != 13) && (j % 16 != 14) && (j % 16 != 15)){
+                if(metaOccupied && insideMetaBox_y){
+                    cur = ' ';
+                } else{
+                    cur = '-';
+                }
+            } else if(j % 4 == 0 && (i % 8 != 7)){
+                if(metaOccupied && insideMetaBox_x){
+                    cur = ' ';
+                } else{
+                    cur = '|';
+                }
+            } else if(i % 2 == 1 && (i % 8 != 7) && j % 4 == 2 && (j % 16 != 14)){
+                States curState = States::empty;
+                if(metaOccupied && subPostion == 4){
+                    curState = getBoardAtPosition(-1, subBoard);
+                } else{
+                    curState = getBoardAtPosition(subBoard, subPostion);
+                }
+
+                if(curState == States::playerX){
+                    cur = 'X';
+                } else if(curState == States::playerO){
+                    cur = 'O';
+                } else{
+                    cur = ' ';
                 }
             }
-            cout << endl;
+            cout << cur;
         }
-        cout << "+---+---+---+   +---+---+---+   +---+---+---+" << endl;
         cout << endl;
-        
     }
+
     toMatrix().printData();
 }
 
@@ -199,7 +203,7 @@ void UltimateTTT<T1, T2>::printBoard() const{
 template <class T1, class T2>
 Matrix UltimateTTT<T1, T2>::toMatrix() const{
     Matrix temp(1, NUM_OUTPUTS);
-    
+    /*
     for(int metaRow = 0; metaRow < 3; ++metaRow){
         for(int row = 0; row < 3; ++row){
             for(int metaCol = 0; metaCol < 3; ++metaCol){
@@ -208,6 +212,12 @@ Matrix UltimateTTT<T1, T2>::toMatrix() const{
                 }
             }
         }
+    }*/
+
+    for(int i = 0; i < NUM_OUTPUTS; ++i){
+        int x = i % 9;
+        int y = i / 9;
+        temp(0, i) = (float)getBoardAtPosition(x / 3 + 3 * (int)(y / 3), x % 3 + 3 * (y % 3));
     }
     return temp;
 }
@@ -243,32 +253,25 @@ States UltimateTTT<T1, T2>::getBoardAtPosition(const int subBoard, const int pos
         cerr << "Invalid position in getBoardAtPosition" << endl;
         exit(1);
     }
+
+    uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
+    uint32_t ret;
     if(subBoard < 0){
-        uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
-        uint32_t ret = m_metaBoard >> shiftAmount;
-        ret &= (uint32_t)3;
-        if(ret == (uint32_t)0){
-            return States::empty;
-        } else if(ret == (uint32_t)1){
-            return States::playerX;
-        } else if(ret == (uint32_t)2){
-            return States::playerO;
-        } else{
-            return States::invalid;
-        }
+        ret = m_metaBoard;
     } else{
-        uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
-        uint32_t ret = m_board[subBoard] >> shiftAmount;
-        ret &= (uint32_t)3;
-        if(ret == (uint32_t)0){
-            return States::empty;
-        } else if(ret == (uint32_t)1){
-            return States::playerX;
-        } else if(ret == (uint32_t)2){
-            return States::playerO;
-        } else{
-            return States::invalid;
-        }
+        ret = m_board[subBoard];
+    }
+
+    ret = (uint32_t)3 & (ret >> shiftAmount);
+
+    if(ret == (uint32_t)0){
+        return States::empty;
+    } else if(ret == (uint32_t)1){
+        return States::playerX;
+    } else if(ret == (uint32_t)2){
+        return States::playerO;
+    } else{
+        return States::invalid;
     }
     
 }
@@ -288,11 +291,11 @@ void UltimateTTT<T1, T2>::setBoardAtPosition(const int subBoard, const int posit
         m_metaBoard |= (val << shiftAmount);
     } else{
         //Clear the 2-bit-wode field
-        m_board[position] &= ~((uint32_t)3 << shiftAmount);
+        m_board[subBoard] &= ~((uint32_t)3 << shiftAmount);
         
         //Set the new state at the 2-bit-wide field
         uint32_t val = (uint32_t)state;
-        m_board[position] |= (val << shiftAmount);
+        m_board[subBoard] |= (val << shiftAmount);
     }
     
 }
