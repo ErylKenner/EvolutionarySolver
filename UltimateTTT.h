@@ -192,8 +192,6 @@ void UltimateTTT<T1, T2>::printBoard() const{
         }
         cout << endl;
     }
-
-    toMatrix().printData();
 }
 
 /* The board is stored as a 3x3 matrix.
@@ -203,16 +201,6 @@ void UltimateTTT<T1, T2>::printBoard() const{
 template <class T1, class T2>
 Matrix UltimateTTT<T1, T2>::toMatrix() const{
     Matrix temp(1, NUM_OUTPUTS);
-    /*
-    for(int metaRow = 0; metaRow < 3; ++metaRow){
-        for(int row = 0; row < 3; ++row){
-            for(int metaCol = 0; metaCol < 3; ++metaCol){
-                for(int col = 0; col < 3; ++col){
-                    temp(0, 27 * metaRow + 9 * row + 3 * metaCol + col) = (float)getBoardAtPosition(3 * metaRow + metaCol, 3 * (row / 2) + col);
-                }
-            }
-        }
-    }*/
 
     for(int i = 0; i < NUM_OUTPUTS; ++i){
         int x = i % 9;
