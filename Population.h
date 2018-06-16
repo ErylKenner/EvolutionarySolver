@@ -188,20 +188,29 @@ void Population<Game>::init(unsigned int seed, istream& is, ostream& os){
     //Get population size
     os << "Population size: ";
     is >> m_populationSize;
-    if(m_populationSize < 2){
+    if(m_populationSize < 2 || cin.fail()){
+        cin.clear();
+        cin.ignore();
         m_populationSize = 2;
     }
     
     //Get number of iterations
     os << "Iterations: ";
     is >> m_iterations;
-    if(m_iterations < 1){
+    if(m_iterations < 1 || cin.fail()){
+        cin.clear();
+        cin.ignore();
         m_iterations = 1;
     }
     
     //Get number of layers
     os << "Number of hidden layers: ";
     is >> m_hiddenLayers;
+    if(cin.fail()){
+        cin.clear();
+        cin.ignore();
+        m_hiddenLayers = 0;
+    }
     
     //Populate m_layerSizes
     m_layerSizes.push_back(Game<NeuralPlayer, NeuralPlayer>::NUM_INPUTS);
@@ -209,7 +218,9 @@ void Population<Game>::init(unsigned int seed, istream& is, ostream& os){
         os << "Number in hidden layer " << i << ": ";
         unsigned int temp;
         is >> temp;
-        if(temp < 1){
+        if(temp < 1 || cin.fail()){
+            cin.clear();
+            cin.ignore();
             temp = 1;
         }
         m_layerSizes.push_back(temp);
