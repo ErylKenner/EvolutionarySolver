@@ -1,0 +1,21 @@
+﻿The hierarchy and contents of the project's main classes.
+
+┬→ MAIN
+└─┬→ population<Game>
+  └─┬→ Genetic
+    ├→ vector< playerContainer >
+    └──→ Player
+
+
+┬→ Game (Group of classes, not inherited)
+└─┬→ TicTacToe
+  └→ UltimateTTT
+
+
+
+┬→ Player (Abstract Class)
+└─┬→ ManualPlayer
+  ├→ PerfectPlayer
+  ├→ NeuralPlayer
+  └──→ NeuralNet
+

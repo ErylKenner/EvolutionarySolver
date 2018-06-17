@@ -25,11 +25,13 @@ public:
     UltimateTTT(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose=false);
     void playGame();
     
+    //TODO: put this back into private
     void printBoard() const;
+
     const static int NUM_INPUTS = 9;
     const static int NUM_OUTPUTS = 81;
 private:
-    //bool takeTurn(const States state, const int turns);
+    bool takeTurn(const States state, const int turns);
     bool isEmpty() const;
     bool isFull() const;
 
@@ -37,18 +39,22 @@ private:
     Matrix toPlayerPerspective(const States state) const;
     
     States getBoardAtPosition(const int subBoard, const int position) const;
+    States getBoardAtPosition(const int i) const;
     void setBoardAtPosition(const int subBoard, const int position, const States state);
+    void setBoardAtPosition(const int i, const States state);
 
     vector<unsigned int> bestMoves(const vector<double>& input) const;
     //void printBoard() const;
-    //bool hasWon() const;
+    bool hasWon() const;
 
     vector<uint32_t> m_board;
     uint32_t m_metaBoard;
-    
+    int activeBoard;
+
     playerContainer<T1>& m_player1;
     playerContainer<T2>& m_player2;
 
+    bool blockWonSquares;
     bool m_verbose;
     
     
@@ -60,16 +66,20 @@ private:
 template <class T1, class T2>
 UltimateTTT<T1, T2>::UltimateTTT(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose)
     : m_board(9, (uint32_t)0)
+    , activeBoard(0)
     , m_player1(player1)
     , m_player2(player2)
+    , blockWonSquares(true)
     , m_verbose(verbose){
     
+
     m_metaBoard = (uint32_t)0;
-    setBoardAtPosition(-1, 5, States::playerX);
     setBoardAtPosition(-1, 0, States::playerO);
+    setBoardAtPosition(-1, 5, States::playerX);
     setBoardAtPosition(-1, 8, States::playerX);
     setBoardAtPosition(1, 7, States::playerX);
     setBoardAtPosition(6, 4, States::playerX);
+    
 }
 
 /* Plays until a player wins or the board is full.
@@ -77,9 +87,9 @@ UltimateTTT<T1, T2>::UltimateTTT(playerContainer<T1>& player1, playerContainer<T
  */
 template <class T1, class T2>
 void UltimateTTT<T1, T2>::playGame(){
-    int turns = 0;/*
+    int turns = 0;
     while(true){
-        turns++;/
+        turns++;
         if(takeTurn(States::playerX, turns)){
             break;
         }
@@ -87,7 +97,7 @@ void UltimateTTT<T1, T2>::playGame(){
         if(takeTurn(States::playerO, turns)){
             break;
         }
-    }*/
+    }
 }
 
 //Helper method to determine if the board is empty
@@ -116,19 +126,19 @@ bool UltimateTTT<T1, T2>::isFull() const{
 template <class T1, class T2>
 vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(const vector<double>& input) const{
     vector<unsigned int> temp;
-    temp.resize(NUM_INPUTS, -1);
+    temp.resize(NUM_OUTPUTS, -1);
     
     vector< pair<double, unsigned int> > inputPair;
     
     //Populate inputPair
-    for(unsigned int i = 0; i < NUM_INPUTS; ++i){
+    for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
         inputPair.push_back(make_pair(input[i], i));
     }
     
     sort(inputPair.begin(), inputPair.end());
     
     //Populate temp
-    for(unsigned int i = 0; i < NUM_INPUTS; ++i){
+    for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
         temp[i] = inputPair[i].second;
     }
     
@@ -140,41 +150,45 @@ vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(const vector<double>& input)
 //Prints the current board to the console
 template <class T1, class T2>
 void UltimateTTT<T1, T2>::printBoard() const{
-    for(int i = 0; i < 23; ++i){
-        for(int j = 0; j < 45; ++j){
+    for(int i = 0; i < 25; ++i){
+        if(i == 0 || i == 24){
+            cout << endl;
+            continue;
+        }
+        for(int j = 0; j < 47; ++j){
             char cur = ' ';
 
-            int x = (j-2)/4 - (j-2)/16;
-            int y = (i-1)/2 - (i-1)/8;
+            int x = (j-3)/4 - (j-3)/16;
+            int y = (i-2)/2 - (i-2)/8;
 
             int subBoard = x / 3 + 3 * (int)(y / 3);
             int subPostion = x % 3 + 3 * (y % 3);
-            bool metaOccupied = getBoardAtPosition(-1, subBoard) != States::empty;
+            bool metaOccupied = (getBoardAtPosition(-1, subBoard) != States::empty);
 
             bool insideMetaBox_x = (j / 4) % 4 == 1 || (j / 4) % 4 == 2;
             bool insideMetaBox_y = (i / 2) % 4 == 1 || (i / 2) % 4 == 2;
-
-            if(i % 2 == 0 && j % 4 == 0){
-                if(metaOccupied && insideMetaBox_x && insideMetaBox_y){
+            
+            if(i % 2 == 1 && j % 4 == 1){
+                if(metaOccupied && blockWonSquares && insideMetaBox_x && insideMetaBox_y){
                     cur = ' ';
                 } else{
                     cur = '+';
                 }
-            } else if(i % 2 == 0 && (j % 16 != 13) && (j % 16 != 14) && (j % 16 != 15)){
-                if(metaOccupied && insideMetaBox_y){
+            } else if(i % 2 == 1 && (j % 16 != 0) && (j % 16 != 14) && (j % 16 != 15)){
+                if(metaOccupied && blockWonSquares && insideMetaBox_y){
                     cur = ' ';
                 } else{
                     cur = '-';
                 }
-            } else if(j % 4 == 0 && (i % 8 != 7)){
-                if(metaOccupied && insideMetaBox_x){
+            } else if(j % 4 == 1 && (i % 8 != 0)){
+                if(metaOccupied && blockWonSquares && insideMetaBox_x){
                     cur = ' ';
                 } else{
                     cur = '|';
                 }
-            } else if(i % 2 == 1 && (i % 8 != 7) && j % 4 == 2 && (j % 16 != 14)){
+            } else if(i % 2 == 0 && (i % 8 != 0) && j % 4 == 3 && (j % 16 != 15)){
                 States curState = States::empty;
-                if(metaOccupied && subPostion == 4){
+                if(metaOccupied && blockWonSquares && subPostion == 4){
                     curState = getBoardAtPosition(-1, subBoard);
                 } else{
                     curState = getBoardAtPosition(subBoard, subPostion);
@@ -203,9 +217,7 @@ Matrix UltimateTTT<T1, T2>::toMatrix() const{
     Matrix temp(1, NUM_OUTPUTS);
 
     for(int i = 0; i < NUM_OUTPUTS; ++i){
-        int x = i % 9;
-        int y = i / 9;
-        temp(0, i) = (float)getBoardAtPosition(x / 3 + 3 * (int)(y / 3), x % 3 + 3 * (y % 3));
+        temp(0, i) = (float)getBoardAtPosition(i);
     }
     return temp;
 }
@@ -241,6 +253,42 @@ States UltimateTTT<T1, T2>::getBoardAtPosition(const int subBoard, const int pos
         cerr << "Invalid position in getBoardAtPosition" << endl;
         exit(1);
     }
+    
+    uint32_t ret;
+    if(subBoard < 0){
+        ret = m_metaBoard;
+    } else{
+        ret = m_board[subBoard];
+    }
+
+    uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
+    ret = (uint32_t)3 & (ret >> shiftAmount);
+
+    if(ret == (uint32_t)0){
+        return States::empty;
+    } else if(ret == (uint32_t)1){
+        return States::playerX;
+    } else if(ret == (uint32_t)2){
+        return States::playerO;
+    } else{
+        return States::invalid;
+    }
+    
+}
+
+template <class T1, class T2>
+States UltimateTTT<T1, T2>::getBoardAtPosition(const int i) const{
+    if(i < 0 || i > 81){
+        cerr << "Invalid position in getBoardAtPosition" << endl;
+        exit(1);
+    }
+
+    int x = i % 9;
+    int y = i / 9;
+
+    int subBoard = x / 3 + 3 * (int)(y / 3);
+    int position = x % 3 + 3 * (y % 3);
+
 
     uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
     uint32_t ret;
@@ -268,6 +316,44 @@ States UltimateTTT<T1, T2>::getBoardAtPosition(const int subBoard, const int pos
  */
 template <class T1, class T2>
 void UltimateTTT<T1, T2>::setBoardAtPosition(const int subBoard, const int position, const States state){
+    if(position < 0 || position > 8){
+        cerr << "Invalid position in getBoardAtPosition" << endl;
+        exit(1);
+    }
+
+    uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
+    
+    if(subBoard < 0){
+        //Clear the 2-bit-wide field
+        m_metaBoard &= ~((uint32_t)3 << shiftAmount);
+        
+        //Set the new state at the 2-bit-wide field
+        uint32_t val = (uint32_t)state;
+        m_metaBoard |= (val << shiftAmount);
+    } else{
+        //Clear the 2-bit-wide field
+        m_board[subBoard] &= ~((uint32_t)3 << shiftAmount);
+        
+        //Set the new state at the 2-bit-wide field
+        uint32_t val = (uint32_t)state;
+        m_board[subBoard] |= (val << shiftAmount);
+    }
+    
+}
+
+template <class T1, class T2>
+void UltimateTTT<T1, T2>::setBoardAtPosition(const int i, const States state){
+    if(i < 0 || i > 81){
+        cerr << "Invalid position in getBoardAtPosition" << endl;
+        exit(1);
+    }
+
+    int x = i % 9;
+    int y = i / 9;
+
+    int subBoard = x / 3 + 3 * (int)(y / 3);
+    int position = x % 3 + 3 * (y % 3);
+
     uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
     
     if(subBoard < 0){
@@ -287,29 +373,29 @@ void UltimateTTT<T1, T2>::setBoardAtPosition(const int subBoard, const int posit
     }
     
 }
-/*
+
 //Helper function to determine if a player has won
 template <class T1, class T2>
 bool UltimateTTT<T1, T2>::hasWon() const{
     //PlayerX
-    if((m_board & (uint32_t)65793 ) == (uint32_t)65793){ return true;}
-    if((m_board & (uint32_t)4368  ) == (uint32_t)4368 ){ return true;}
-    if((m_board & (uint32_t)86016 ) == (uint32_t)86016){ return true;}
-    if((m_board & (uint32_t)1344  ) == (uint32_t)1344 ){ return true;}
-    if((m_board & (uint32_t)21    ) == (uint32_t)21   ){ return true;}
-    if((m_board & (uint32_t)66576 ) == (uint32_t)66576){ return true;}
-    if((m_board & (uint32_t)16644 ) == (uint32_t)16644){ return true;}
-    if((m_board & (uint32_t)4161  ) == (uint32_t)4161 ){ return true;}
+    if((m_metaBoard & (uint32_t)65793 ) == (uint32_t)65793){ return true;}
+    if((m_metaBoard & (uint32_t)4368  ) == (uint32_t)4368 ){ return true;}
+    if((m_metaBoard & (uint32_t)86016 ) == (uint32_t)86016){ return true;}
+    if((m_metaBoard & (uint32_t)1344  ) == (uint32_t)1344 ){ return true;}
+    if((m_metaBoard & (uint32_t)21    ) == (uint32_t)21   ){ return true;}
+    if((m_metaBoard & (uint32_t)66576 ) == (uint32_t)66576){ return true;}
+    if((m_metaBoard & (uint32_t)16644 ) == (uint32_t)16644){ return true;}
+    if((m_metaBoard & (uint32_t)4161  ) == (uint32_t)4161 ){ return true;}
     
     //PlayerO
-    if((m_board & (uint32_t)131586) == (uint32_t)131586){ return true;}
-    if((m_board & (uint32_t)8736  ) == (uint32_t)8736  ){ return true;}
-    if((m_board & (uint32_t)172032) == (uint32_t)172032){ return true;}
-    if((m_board & (uint32_t)2688  ) == (uint32_t)2688  ){ return true;}
-    if((m_board & (uint32_t)42    ) == (uint32_t)42    ){ return true;}
-    if((m_board & (uint32_t)133152) == (uint32_t)133152){ return true;}
-    if((m_board & (uint32_t)33288 ) == (uint32_t)33288 ){ return true;}
-    if((m_board & (uint32_t)8322  ) == (uint32_t)8322  ){ return true;}
+    if((m_metaBoard & (uint32_t)131586) == (uint32_t)131586){ return true;}
+    if((m_metaBoard & (uint32_t)8736  ) == (uint32_t)8736  ){ return true;}
+    if((m_metaBoard & (uint32_t)172032) == (uint32_t)172032){ return true;}
+    if((m_metaBoard & (uint32_t)2688  ) == (uint32_t)2688  ){ return true;}
+    if((m_metaBoard & (uint32_t)42    ) == (uint32_t)42    ){ return true;}
+    if((m_metaBoard & (uint32_t)133152) == (uint32_t)133152){ return true;}
+    if((m_metaBoard & (uint32_t)33288 ) == (uint32_t)33288 ){ return true;}
+    if((m_metaBoard & (uint32_t)8322  ) == (uint32_t)8322  ){ return true;}
     
     return false;
 }
@@ -385,5 +471,5 @@ bool UltimateTTT<T1, T2>::takeTurn(const States state, const int turn){
     //If the game is not over, return false
     return false;
 }
-*/
+
 #endif

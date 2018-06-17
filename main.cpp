@@ -16,6 +16,7 @@ int main(){
     UltimateTTT<ManualPlayer, ManualPlayer> ttt(human1, human2, true);
     ttt.printBoard();
     
+    
     char loadPlayer;
     cout << "Do you want to load a trained player? (y/n): ";
     cin >> loadPlayer;
