@@ -1,0 +1,20 @@
+TODO List
+
+- Ultimate Tic Tac Toe
+- Random Player (chooses moves randomly)
+- Timekeeping (execution time)
+- More statistics/metrics
+- Organize codebase (.cpp and .h folders, build folder, more complex makefile, etc.)
+- Prettify/color-code command line output
+- Perfect Player (via minimax)
+- Smarter weight crossover
+- Coevolution
+- Keep population diverse (to prevent sub-optimal strategies)
+- SFML (Simple Fast Media Library) pretty visualization
+- Interactive training/playing in SFML
+- Monte Carlo for predicting moves
+- NEAT (evolve NN topology)
+- Use TensorFlow
+- Multi-threading
+
+
