@@ -7,6 +7,7 @@
 #include "Matrix.h"
 #include "NeuralNet.h"
 #include "Player.h"
+#include "main.h"
 
 using std::cout;
 using std::cin;
@@ -27,7 +28,6 @@ private:
         const playerContainer<NeuralPlayer> parent2);
     
     playerContainer<NeuralPlayer> pickParent(const vector<playerContainer<NeuralPlayer> >& population) const;
-    static float bound(float value, float min, float max);
     
     const float m_mutationRate;
     int m_populationSize;

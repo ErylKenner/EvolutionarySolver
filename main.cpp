@@ -1,6 +1,7 @@
 
 
 #include "main.h"
+#include "Population.h"
 
 int main(){
     //Where your player log files are stored

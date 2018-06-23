@@ -1,20 +1,10 @@
 
 #include "Genetic.h"
 
-float Genetic::bound(float value, float min, float max){
-	if(value > max){
-		value = max;
-	}
-	if(value < min){
-		value = min;
-	}
-	return value;
-}
-
 //mutationRate is in the range [0, 1], greedyPercent is in the range [0, 1]
 Genetic::Genetic(const float mutationRate, const float greedyPercent)
-	: m_mutationRate(Genetic::bound(mutationRate, 0.0f, 1.0f))
-	, m_greedyPercent(Genetic::bound(greedyPercent, 0.0f, 1.0f)){
+	: m_mutationRate(clamp(mutationRate, 0.0f, 1.0f))
+	, m_greedyPercent(clamp(greedyPercent, 0.0f, 1.0f)){
 	
 	m_populationSize = 0;
 }

@@ -177,7 +177,7 @@ void Population<Game>::train(bool verbose){
 
 
 template <template <class, class> class Game>
-Population<Game>::Population() : m_ga(0.1f, 0.1f){
+Population<Game>::Population() : m_ga(0.1f, 0.05f){
     
 }
 
