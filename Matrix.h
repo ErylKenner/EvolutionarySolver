@@ -16,31 +16,33 @@ using std::vector;
 
 class Matrix {
 public:
-    Matrix(const unsigned int rows, const unsigned int cols); // Size constructor
-    Matrix(const Matrix& m);                // Copy constructor
-    ~Matrix();                              // Destructor
+    Matrix(const unsigned int rows, const unsigned int cols);
+    Matrix(const Matrix& m);
+    ~Matrix();
     
-    double& operator() (const unsigned int row, const unsigned int col);          // Access operator
-    double  operator() (const unsigned int row, const unsigned int col) const;    // Access operator
-    void operator= (const Matrix& m);                           // Assignment operator
+    double& operator() (const unsigned int row, const unsigned int col);
+    double  operator() (const unsigned int row, const unsigned int col) const;
+    void operator= (const Matrix& m);
     
     std::vector<double> toVector() const;
     
-    unsigned int numRows() const;                    // Returns rows_
-    unsigned int numCols() const;                    // Returns cols_
-    void printData() const;                 // Prints in a grid
+    unsigned int numRows() const;
+    unsigned int numCols() const;
+    void printData() const;
     
-    Matrix operator- () const;                    // Negative
-    Matrix operator+ (const Matrix& a) const;     // Addition
-    Matrix operator- (const Matrix& a) const;     // Subtraction
-    Matrix operator* (const int a) const;         // Constant multiplication
-    Matrix operator* (const Matrix& a) const;     // Matrix multiplication
+    Matrix operator- () const; 
+    Matrix operator+ (const Matrix& a) const;
+    Matrix operator- (const Matrix& a) const;
+    Matrix operator* (const int a) const;
+    Matrix operator* (const Matrix& a) const;
     
-    Matrix transpose() const;               // Transpose
+    Matrix transpose() const;
     void initialize(const int n);
-    void initRand(const double min, const double max, const unsigned int resolution=20);
+    void initRand(const double min, const double max, 
+                  const unsigned int resolution=20);
     
-    Matrix addRowsCols(unsigned int extraRows, unsigned int extraCols, const double value);
+    Matrix addRowsCols(unsigned int extraRows, unsigned int extraCols, 
+                       const double value);
     
 private:
     unsigned int m_rows, m_cols;

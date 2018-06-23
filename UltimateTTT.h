@@ -22,7 +22,8 @@ using std::make_pair;
 template <class T1, class T2>
 class UltimateTTT {
 public:
-    UltimateTTT(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose=false);
+    UltimateTTT(playerContainer<T1>& player1, playerContainer<T2>& player2, 
+                bool verbose=false);
     void playGame();
     
     //TODO: put this back into private
@@ -38,10 +39,11 @@ private:
     Matrix toMatrix() const;
     Matrix toPlayerPerspective(const States state) const;
     
-    States getBoardAtPosition(const int subBoard, const int position) const;
-    States getBoardAtPosition(const int i) const;
-    void setBoardAtPosition(const int subBoard, const int position, const States state);
-    void setBoardAtPosition(const int i, const States state);
+    States getBoardAtPos(const int subBoard, const int position) const;
+    States getBoardAtPos(const int i) const;
+    void setBoardAtPos(const int subBoard, const int position, 
+                            const States state);
+    void setBoardAtPos(const int i, const States state);
 
     vector<unsigned int> bestMoves(const vector<double>& input) const;
     //void printBoard() const;
@@ -54,7 +56,7 @@ private:
     playerContainer<T1>& m_player1;
     playerContainer<T2>& m_player2;
 
-    bool blockWonSquares;
+    bool dontRevisitSquares;
     bool m_verbose;
     
     
@@ -64,22 +66,20 @@ private:
 
 
 template <class T1, class T2>
-UltimateTTT<T1, T2>::UltimateTTT(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose)
-    : m_board(9, (uint32_t)0)
-    , activeBoard(0)
-    , m_player1(player1)
-    , m_player2(player2)
-    , blockWonSquares(true)
-    , m_verbose(verbose){
-    
-
+UltimateTTT<T1, T2>::UltimateTTT(playerContainer<T1>& player1, 
+                                 playerContainer<T2>& player2, bool verbose)
+        : m_board(9, (uint32_t)0)
+        , activeBoard(0)
+        , m_player1(player1)
+        , m_player2(player2)
+        , dontRevisitSquares(true)
+        , m_verbose(verbose){
     m_metaBoard = (uint32_t)0;
-    setBoardAtPosition(-1, 0, States::playerO);
-    setBoardAtPosition(-1, 5, States::playerX);
-    setBoardAtPosition(-1, 8, States::playerX);
-    setBoardAtPosition(1, 7, States::playerX);
-    setBoardAtPosition(6, 4, States::playerX);
-    
+    setBoardAtPos(-1, 0, States::playerO);
+    setBoardAtPos(-1, 5, States::playerX);
+    setBoardAtPos(-1, 8, States::playerX);
+    setBoardAtPos(1, 7, States::playerX);
+    setBoardAtPos(6, 4, States::playerX);
 }
 
 /* Plays until a player wins or the board is full.
@@ -115,7 +115,7 @@ bool UltimateTTT<T1, T2>::isEmpty() const{
 template <class T1, class T2>
 bool UltimateTTT<T1, T2>::isFull() const{
     for(int i = 0; i < 9; ++i){
-        if(getBoardAtPosition(-1, i) == States::empty){
+        if(getBoardAtPos(-1, i) == States::empty){
             return false;
         }
     }
@@ -124,7 +124,8 @@ bool UltimateTTT<T1, T2>::isFull() const{
 
 //Returns a vector of the preferred moves starting with most preferred
 template <class T1, class T2>
-vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(const vector<double>& input) const{
+vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(
+        const vector<double>& input) const{
     vector<unsigned int> temp;
     temp.resize(NUM_OUTPUTS, -1);
     
@@ -163,35 +164,38 @@ void UltimateTTT<T1, T2>::printBoard() const{
 
             int subBoard = x / 3 + 3 * (int)(y / 3);
             int subPostion = x % 3 + 3 * (y % 3);
-            bool metaOccupied = (getBoardAtPosition(-1, subBoard) != States::empty);
+            bool metaOccupied = getBoardAtPos(-1, subBoard) != States::empty;
 
             bool insideMetaBox_x = (j / 4) % 4 == 1 || (j / 4) % 4 == 2;
             bool insideMetaBox_y = (i / 2) % 4 == 1 || (i / 2) % 4 == 2;
             
             if(i % 2 == 1 && j % 4 == 1){
-                if(metaOccupied && blockWonSquares && insideMetaBox_x && insideMetaBox_y){
+                if(metaOccupied && dontRevisitSquares 
+                        && insideMetaBox_x && insideMetaBox_y){
                     cur = ' ';
                 } else{
                     cur = '+';
                 }
-            } else if(i % 2 == 1 && (j % 16 != 0) && (j % 16 != 14) && (j % 16 != 15)){
-                if(metaOccupied && blockWonSquares && insideMetaBox_y){
+            } else if(i % 2 == 1 && (j % 16 != 0) && (j % 16 != 14) && 
+                       (j % 16 != 15)){
+                if(metaOccupied && dontRevisitSquares && insideMetaBox_y){
                     cur = ' ';
                 } else{
                     cur = '-';
                 }
             } else if(j % 4 == 1 && (i % 8 != 0)){
-                if(metaOccupied && blockWonSquares && insideMetaBox_x){
+                if(metaOccupied && dontRevisitSquares && insideMetaBox_x){
                     cur = ' ';
                 } else{
                     cur = '|';
                 }
-            } else if(i % 2 == 0 && (i % 8 != 0) && j % 4 == 3 && (j % 16 != 15)){
+            } else if(i % 2 == 0 && (i % 8 != 0) && j % 4 == 3 && 
+                       (j % 16 != 15)){
                 States curState = States::empty;
-                if(metaOccupied && blockWonSquares && subPostion == 4){
-                    curState = getBoardAtPosition(-1, subBoard);
+                if(metaOccupied && dontRevisitSquares && subPostion == 4){
+                    curState = getBoardAtPos(-1, subBoard);
                 } else{
-                    curState = getBoardAtPosition(subBoard, subPostion);
+                    curState = getBoardAtPos(subBoard, subPostion);
                 }
 
                 if(curState == States::playerX){
@@ -217,13 +221,16 @@ Matrix UltimateTTT<T1, T2>::toMatrix() const{
     Matrix temp(1, NUM_OUTPUTS);
 
     for(int i = 0; i < NUM_OUTPUTS; ++i){
-        temp(0, i) = (float)getBoardAtPosition(i);
+        temp(0, i) = (float)getBoardAtPos(i);
     }
     return temp;
 }
 
 
-/* Makes the player's own squares a 1, opponent's squares a -1, and empty squares a 0
+/* Copy of the board with:
+    - player's own squares =  1,
+    - opponent's squares   = -1,
+    - empty squares        =  0
  */
 template <class T1, class T2>
 Matrix UltimateTTT<T1, T2>::toPlayerPerspective(const States state) const{
@@ -248,9 +255,10 @@ Matrix UltimateTTT<T1, T2>::toPlayerPerspective(const States state) const{
  * This method returns the board position at that position. 
  */
 template <class T1, class T2>
-States UltimateTTT<T1, T2>::getBoardAtPosition(const int subBoard, const int position) const{
+States UltimateTTT<T1, T2>::getBoardAtPos(const int subBoard, 
+                                          const int position) const{
     if(position < 0 || position > 8){
-        cerr << "Invalid position in getBoardAtPosition" << endl;
+        cerr << "Invalid position in getBoardAtPos" << endl;
         exit(1);
     }
     
@@ -277,9 +285,9 @@ States UltimateTTT<T1, T2>::getBoardAtPosition(const int subBoard, const int pos
 }
 
 template <class T1, class T2>
-States UltimateTTT<T1, T2>::getBoardAtPosition(const int i) const{
+States UltimateTTT<T1, T2>::getBoardAtPos(const int i) const{
     if(i < 0 || i > 81){
-        cerr << "Invalid position in getBoardAtPosition" << endl;
+        cerr << "Invalid position in getBoardAtPos" << endl;
         exit(1);
     }
 
@@ -315,9 +323,10 @@ States UltimateTTT<T1, T2>::getBoardAtPosition(const int i) const{
 /* This method sets the board square given by 'position' to a given value. 
  */
 template <class T1, class T2>
-void UltimateTTT<T1, T2>::setBoardAtPosition(const int subBoard, const int position, const States state){
+void UltimateTTT<T1, T2>::setBoardAtPos(const int subBoard, const int position,
+                                        const States state){
     if(position < 0 || position > 8){
-        cerr << "Invalid position in getBoardAtPosition" << endl;
+        cerr << "Invalid position in getBoardAtPos" << endl;
         exit(1);
     }
 
@@ -342,9 +351,9 @@ void UltimateTTT<T1, T2>::setBoardAtPosition(const int subBoard, const int posit
 }
 
 template <class T1, class T2>
-void UltimateTTT<T1, T2>::setBoardAtPosition(const int i, const States state){
+void UltimateTTT<T1, T2>::setBoardAtPos(const int i, const States state){
     if(i < 0 || i > 81){
-        cerr << "Invalid position in getBoardAtPosition" << endl;
+        cerr << "Invalid position in getBoardAtPos" << endl;
         exit(1);
     }
 
@@ -412,16 +421,17 @@ bool UltimateTTT<T1, T2>::takeTurn(const States state, const int turn){
     }
     
     //player 1 controls 'X' squares, player 2 controls 'O' squares
+    Matrix playerPerspective = toPlayerPerspective(state);
     if(state == States::playerX){
-        moves = bestMoves( m_player1.player.getMove(toPlayerPerspective(state)));
+        moves = bestMoves( m_player1.player.getMove(playerPerspective));
     } else{
-        moves = bestMoves( m_player2.player.getMove(toPlayerPerspective(state)));
+        moves = bestMoves( m_player2.player.getMove(playerPerspective));
     }
 
     //Make the best move from available squares
     for(int i = 0; i < NUM_OUTPUTS; ++i){
-        if(getBoardAtPosition(moves[i]) == States::empty){
-            setBoardAtPosition(moves[i], state);
+        if(getBoardAtPos(moves[i]) == States::empty){
+            setBoardAtPos(moves[i], state);
             break;
         }
     }

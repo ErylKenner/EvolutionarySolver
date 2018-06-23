@@ -45,21 +45,18 @@ void Player::resetFitness(){
 
 //----------NeuralPlayer--------------
 NeuralPlayer::NeuralPlayer()
-    : Player()
-    , neural(){
-    
+        : Player()
+        , neural(){
 }
 
 NeuralPlayer::NeuralPlayer(const vector<unsigned int>& layerSizes)
-    : Player()
-    , neural(layerSizes){
-    
+        : Player()
+        , neural(layerSizes){
 }
 
 NeuralPlayer::NeuralPlayer(const NeuralPlayer& p)
-    : Player(p)
-    , neural(p.neural){
-    
+        : Player(p)
+        , neural(p.neural){
 }
 
 NeuralPlayer::~NeuralPlayer(){
@@ -77,17 +74,15 @@ vector<double> NeuralPlayer::getMove(const Matrix& input) const{
 
 //----------ManualPlayer--------------
 ManualPlayer::ManualPlayer(istream& is, ostream& os)
-    : Player()
-    , m_is(is)
-    , m_os(os){
-    
+        : Player()
+        , m_is(is)
+        , m_os(os){
 }
 
 ManualPlayer::ManualPlayer(const ManualPlayer& p)
-    : Player(p)
-    , m_is(p.m_is)
-    , m_os(p.m_os){
-    
+        : Player(p)
+        , m_is(p.m_is)
+        , m_os(p.m_os){
 }
 
 ManualPlayer::~ManualPlayer(){
@@ -140,7 +135,8 @@ void PerfectPlayer::operator= (const PerfectPlayer& right){
     
 }
 
-vector<double> PerfectPlayer::getMove(const Matrix& input, int squareIdentity) const{
+vector<double> PerfectPlayer::getMove(const Matrix& input, 
+                                      int squareIdentity) const{
     Matrix board(3, 3);
     for(int i = 0; i < 3; ++i){
         for(int j = 0; j < 3; ++j){

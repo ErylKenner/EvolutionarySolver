@@ -3,9 +3,8 @@
 
 //mutationRate is in the range [0, 1], greedyPercent is in the range [0, 1]
 Genetic::Genetic(const float mutationRate, const float greedyPercent)
-	: m_mutationRate(clamp(mutationRate, 0.0f, 1.0f))
-	, m_greedyPercent(clamp(greedyPercent, 0.0f, 1.0f)){
-	
+		: m_mutationRate(clamp(mutationRate, 0.0f, 1.0f))
+		, m_greedyPercent(clamp(greedyPercent, 0.0f, 1.0f)){
 	m_populationSize = 0;
 }
 
@@ -31,8 +30,11 @@ void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population){
 	
 	//Iterates over the remaining child elements
 	for(int i = numToKeep; i < m_populationSize; ++i){
-		vector<Matrix> newWeights = crossOver(pickParent(population), pickParent(population));
-		playerContainer<NeuralPlayer> temp(population[m_populationSize - 1 - i]);
+		playerContainer<NeuralPlayer> parent1 = pickParent(population);
+		playerContainer<NeuralPlayer> parent2 = pickParent(population);
+		vector<Matrix> newWeights = crossOver(parent1, parent2);
+
+		playerContainer<NeuralPlayer> temp(population[m_populationSize-1 - i]);
 		temp.player.neural.setWeights(newWeights);
 		newPop[i] = temp;
 	}
@@ -71,8 +73,7 @@ void Genetic::mutate(vector<playerContainer<NeuralPlayer> >& population){
 }
 
 playerContainer<NeuralPlayer> Genetic::pickParent(
-	const vector<playerContainer<NeuralPlayer> >& population) const{
-	
+		const vector<playerContainer<NeuralPlayer> >& population) const{
 	//The sum of all player's fitness within the population
 	double totalPopulationFitness = 0;
 	for(int i = 0; i < m_populationSize; ++i){
@@ -87,7 +88,7 @@ playerContainer<NeuralPlayer> Genetic::pickParent(
 	for(int i = m_populationSize - 1; i >= 0; --i){
 		double curFitness = population[i].player.getFitness();
 		
-		//Keep adding the current player's fitness until it reaches the threshold
+		//Add the current player's fitness until it reaches the threshold
 		sum += curFitness;
 		if(sum >= threshold){
 			return population[i];
@@ -98,8 +99,7 @@ playerContainer<NeuralPlayer> Genetic::pickParent(
 }
 
 vector<Matrix> Genetic::crossOver(const playerContainer<NeuralPlayer> parent1, 
-	const playerContainer<NeuralPlayer> parent2){
-	
+								  const playerContainer<NeuralPlayer> parent2){
 	vector<Matrix> weights1;
 	vector<Matrix> weights2;
 	

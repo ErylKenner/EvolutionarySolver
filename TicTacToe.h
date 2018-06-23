@@ -24,7 +24,8 @@ enum States {empty = 0, playerX = 1, playerO = 2, invalid = 3};
 template <class T1, class T2>
 class TicTacToe {
 public:
-    TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose=false);
+    TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, 
+              bool verbose=false);
     void playGame();
     
     const static int NUM_INPUTS = 9;
@@ -58,11 +59,11 @@ private:
 
 
 template <class T1, class T2>
-TicTacToe<T1, T2>::TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2, bool verbose)
-    : m_player1(player1)
-    , m_player2(player2)
-    , m_verbose(verbose){
-
+TicTacToe<T1, T2>::TicTacToe(playerContainer<T1>& player1, 
+                             playerContainer<T2>& player2, bool verbose)
+        : m_player1(player1)
+        , m_player2(player2)
+        , m_verbose(verbose){
     m_board = (uint32_t)0;
 }
 
@@ -103,7 +104,8 @@ bool TicTacToe<T1, T2>::isFull() const{
 
 //Returns a vector of the preferred moves starting with most preferred
 template <class T1, class T2>
-vector<unsigned int> TicTacToe<T1, T2>::bestMoves(const vector<double>& input) const{
+vector<unsigned int> TicTacToe<T1, T2>::bestMoves(
+        const vector<double>& input) const{
     vector<unsigned int> temp;
     vector< pair<double, unsigned int> > inputPair;
     
@@ -129,7 +131,6 @@ vector<unsigned int> TicTacToe<T1, T2>::bestMoves(const vector<double>& input) c
 //Prints the current board to the console
 template <class T1, class T2>
 void TicTacToe<T1, T2>::printBoard() const{
-    
     cout << "+---+---+---+" << endl;
     for(int i = 0; i < 3; ++i){
         cout << "|";
@@ -165,7 +166,10 @@ Matrix TicTacToe<T1, T2>::toMatrix() const{
 }
 
 
-/* Makes the player's own squares a 1, opponent's squares a -1, and empty squares a 0
+/* Copy of the board with:
+    - player's own squares =  1,
+    - opponent's squares   = -1,
+    - empty squares        =  0
  */
 template <class T1, class T2>
 Matrix TicTacToe<T1, T2>::toPlayerPerspective(const States state) const{
@@ -212,7 +216,8 @@ States TicTacToe<T1, T2>::getBoardAtPosition(const int position) const{
 /* This method sets the board square given by 'position' to a given value. 
  */
 template <class T1, class T2>
-void TicTacToe<T1, T2>::setBoardAtPosition(const int position, const States state){
+void TicTacToe<T1, T2>::setBoardAtPosition(const int position, 
+                                           const States state){
     uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
     
     //Clear the 2-bit-wode field
@@ -261,10 +266,11 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
     }
     
     //player 1 controls 'X' squares, player 2 controls 'O' squares
+    Matrix playerPerspective = toPlayerPerspective(state);
     if(state == States::playerX){
-        moves = bestMoves( m_player1.player.getMove(toPlayerPerspective(state)));
+        moves = bestMoves(m_player1.player.getMove(playerPerspective));
     } else{
-        moves = bestMoves( m_player2.player.getMove(toPlayerPerspective(state)));
+        moves = bestMoves(m_player2.player.getMove(playerPerspective));
     }
 
     //Make the best move from available squares

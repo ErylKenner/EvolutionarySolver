@@ -6,9 +6,8 @@
 
 //Size Constructor
 Matrix::Matrix(const unsigned int rows, const unsigned int cols)
-    : m_rows(rows)
-    , m_cols(cols){
-
+        : m_rows(rows)
+        , m_cols(cols){
     if (rows == 0 || cols == 0){
         cerr << "Error: Matrix size constructor has 0 size" << endl;
         exit(1);
@@ -18,9 +17,8 @@ Matrix::Matrix(const unsigned int rows, const unsigned int cols)
 
 //Copy constructor
 Matrix::Matrix(const Matrix& m)
-    : m_rows(m.m_rows)
-    , m_cols(m.m_cols){
-    
+        : m_rows(m.m_rows)
+        , m_cols(m.m_cols){
     if (m_rows <= 0 || m_cols <= 0){
         cerr << "Error: Matrix copy constructor has 0 size" << endl;
         exit(1);
@@ -89,7 +87,8 @@ Matrix::~Matrix(){
 //Override = operator to copy each element
 void Matrix::operator= (const Matrix& m){
     if(m.numRows() != m_rows || m.numCols() != m_cols){
-        cerr << "Error: Matrix sizes are not equivalent. Cannot perform assignment." << endl;
+        cerr << "Error: Matrix sizes are not equivalent. Cannot perform \
+        assignment." << endl;
         exit(1);
     }
     for(unsigned int row = 0; row < m_rows; ++row){
@@ -113,13 +112,14 @@ Matrix Matrix::operator- () const{
 //Override + operator to add elementwise
 Matrix Matrix::operator+ (const Matrix& a) const{
     if(a.numRows() != m_rows || a.numCols() != m_cols){
-        cerr << "Error: Matrix sizes are not equivalent. Cannot perform addition." << endl;
+        cerr << "Error: Matrix sizes are not equivalent. Cannot perform \
+        addition." << endl;
         exit(1);
     }
     Matrix temp(m_rows, m_cols);
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            temp(row, col) = a.m_data[a.m_cols * row + col] + m_data[m_cols * row + col];
+            temp(row, col) = a(row, col) + m_data[m_cols * row + col];
         }
     }
     return temp;
@@ -128,13 +128,14 @@ Matrix Matrix::operator+ (const Matrix& a) const{
 //Override - operator to subtract elementwise
 Matrix Matrix::operator- (const Matrix& a) const{
     if(a.numRows() != m_rows || a.numCols() != m_cols){
-        cerr << "Error: Matrix sizes are not equivalent. Cannot perform subtraction." << endl;
+        cerr << "Error: Matrix sizes are not equivalent. Cannot perform \
+        subtraction." << endl;
         exit(1);
     }
     Matrix temp(m_rows, m_cols);
     for(unsigned int row = 0; row < m_rows; ++row){
         for(unsigned int col = 0; col < m_cols; ++col){
-            temp(row, col) = m_data[m_cols * row + col] - a.m_data[a.m_cols * row + col];
+            temp(row, col) = m_data[m_cols * row + col] - a(row, col);
         }
     }
     return temp;
@@ -154,16 +155,18 @@ Matrix Matrix::operator* (const int a) const{
 //Override * operator to perform standard matrix multiplication
 Matrix Matrix::operator* (const Matrix& a) const{
     if(m_cols != a.numRows()){
-        cerr << "Error: Matrix sizes are incompatible. Cannot perform matrix multiplication." << endl;
+        cerr << "Error: Matrix sizes are incompatible. Cannot perform \
+        matrix multiplication." << endl;
         exit(1);
     }
-    Matrix temp(m_rows, a.numCols());
+    Matrix temp(m_rows, a.m_cols);
     for(unsigned int row = 0; row < m_rows; ++row){
-        for(unsigned int col = 0; col < a.numCols(); ++col){
+        for(unsigned int col = 0; col < a.m_cols; ++col){
             //perform cross product between current row and current column
             temp(row, col) = 0;
             for(unsigned int element = 0; element < m_cols; ++element){
-                temp(row, col) += m_data[m_cols * row + element] * a(element, col);
+                temp(row, col) += m_data[m_cols * row + element] 
+                                  * a(element, col);
             }
         }
     }
@@ -180,7 +183,8 @@ double& Matrix::operator() (const unsigned int row, const unsigned int col){
 }
 
 //Override () operator to allow access at a specific location
-double Matrix::operator() (const unsigned int row, const unsigned int col) const{
+double Matrix::operator() (const unsigned int row, 
+                           const unsigned int col) const{
     if (row >= m_rows || col >= m_cols){
         cerr << "Error: Matrix subscript out of bounds (too large)." << endl;
         exit(1);
@@ -188,8 +192,10 @@ double Matrix::operator() (const unsigned int row, const unsigned int col) const
     return m_data[m_cols * row + col];
 }
 
-//Sets each element to a random double in the range [min, max] with specified resolution
-void Matrix::initRand(const double min, const double max, const unsigned int resolution){
+//Sets each element to a random double in the range [min, max] with specified
+//resolution
+void Matrix::initRand(const double min, const double max, 
+                      const unsigned int resolution){
     if(min > max){
         cerr << "Error: initRand(): Min is larger than max." << endl;
         exit(1);
@@ -214,7 +220,8 @@ void Matrix::initRand(const double min, const double max, const unsigned int res
     }
 }
 
-Matrix Matrix::addRowsCols(unsigned int extraRows, unsigned int extraCols, const double value){
+Matrix Matrix::addRowsCols(unsigned int extraRows, unsigned int extraCols, 
+                           const double value){
     unsigned int newRows = m_rows + extraRows;
     unsigned int newCols = m_cols + extraCols;
     Matrix temp(newRows, newCols);

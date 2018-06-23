@@ -37,7 +37,8 @@ private:
     vector<unsigned int> m_layerSizes;
     vector<Matrix> m_weights;
 
-    Matrix applyNonlinearity(const Matrix& input, double(*funct)(double)) const;
+    Matrix applyNonlinearity(const Matrix& input, 
+                             double(*funct)(double)) const;
     static double sigmoid(const double x);
 };
 

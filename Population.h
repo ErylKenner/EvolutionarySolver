@@ -46,7 +46,8 @@ private:
     
     string savePlayerToFile(const NeuralPlayer best, const string path) const;
     
-    playerContainer<NeuralPlayer> loadPlayerFromFile(const string path, string name = "");
+    playerContainer<NeuralPlayer> loadPlayerFromFile(const string path, 
+                                                     string name = "");
     
     void roundRobin();
     
@@ -56,13 +57,15 @@ private:
     void printSummary(const int generation, const double HOF_win_percent,
         const double HOF_loss_percent, const double HOF_tie_percent) const;
     
-    void printPopulationFrom(const unsigned int start, const unsigned int end) const;
+    void printPopulationFrom(const unsigned int start, 
+                             const unsigned int end) const;
 };
 
 
 
 template <template <class, class> class Game>
-string Population<Game>::savePlayerToFile(const NeuralPlayer best, const string path) const{
+string Population<Game>::savePlayerToFile(const NeuralPlayer best, 
+                                          const string path) const{
     string fileName;
     
     while(true){
@@ -78,13 +81,15 @@ string Population<Game>::savePlayerToFile(const NeuralPlayer best, const string 
 }
 
 template <template <class, class> class Game>
-playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(const string path, string name){
+playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(
+        const string path, string name){
     NeuralPlayer tempLoadedPlayer;
     
     if(name == ""){
         string fileName;
         while(true){
-            cout << "Player datafile name (located in '" << path << "'): " << endl;
+            cout << "Player datafile name (located in '" << path << "\
+            '): " << endl;
             cin >> fileName;
             
             if(tempLoadedPlayer.neural.loadFromFile(path + fileName)){
@@ -156,11 +161,12 @@ void Population<Game>::train(bool verbose){
         double HOF_win_percent;
         double HOF_loss_percent;
         double HOF_tie_percent;
-        playHallOfFame(m_population.back(), 
-            HOF_win_percent, HOF_loss_percent, HOF_tie_percent);
+        playHallOfFame(m_population.back(), HOF_win_percent, HOF_loss_percent,
+                       HOF_tie_percent);
         
         //Print epoch summary
-        printSummary(generation, HOF_win_percent, HOF_loss_percent, HOF_tie_percent);
+        printSummary(generation, HOF_win_percent, HOF_loss_percent, 
+                     HOF_tie_percent);
         
         //Make new players based on how successful the current ones are
         m_ga.breed(m_population);
@@ -242,13 +248,17 @@ void Population<Game>::roundRobin(){
     for(int i = 0; i < m_populationSize - 1; ++i){
         for(int j = i + 1; j < m_populationSize; ++j){
             //Game 1
-            //cout << "Game between [" << population[i].second << "] and [" << population[j].second << "]" << endl;
-            Game<NeuralPlayer, NeuralPlayer> game1(m_population[i], m_population[j], false);
+            /*cout << "Game between [" << population[i].second << "] \
+            and [" << population[j].second << "]" << endl;*/
+            Game<NeuralPlayer, NeuralPlayer> game1(m_population[i], 
+                                                   m_population[j], false);
             game1.playGame();
             
             //Game 2 (play 2 games so both players can start first)
-            //cout << "Game between [" << population[j].second << "] and [" << population[i].second << "]" << endl;
-            Game<NeuralPlayer, NeuralPlayer> game2(m_population[j], m_population[i], false);
+            /*cout << "Game between [" << population[j].second << "] \
+            and [" << population[i].second << "]" << endl;*/
+            Game<NeuralPlayer, NeuralPlayer> game2(m_population[j], 
+                                                   m_population[i], false);
             game2.playGame();
         }   
     }
@@ -256,8 +266,9 @@ void Population<Game>::roundRobin(){
 
 template <template <class, class> class Game>
 void Population<Game>::playHallOfFame(playerContainer<NeuralPlayer>& best,
-    double &winPercent, double &lossPercent, double &tiePercent){
-    
+                                      double &winPercent, 
+                                      double &lossPercent,
+                                      double &tiePercent){
     int numOpponents = m_hallOfFame.size() - 1;
     double initialFitness = best.player.getFitness();
     
@@ -308,19 +319,20 @@ void Population<Game>::playHallOfFame(playerContainer<NeuralPlayer>& best,
 }
 
 template <template <class, class> class Game>
-void Population<Game>::printSummary(const int generation, const double HOF_win_percent, 
-    const double HOF_loss_percent, const double HOF_tie_percent) const{
-    
+void Population<Game>::printSummary(const int generation, 
+        const double HOF_win_percent, 
+        const double HOF_loss_percent,
+        const double HOF_tie_percent) const{
     playerContainer<NeuralPlayer> maxPlayer = m_population.back();
     playerContainer<NeuralPlayer> minPlayer = m_population.front();
-    playerContainer<NeuralPlayer> medianPlayer = m_population[m_populationSize / 2];
+    playerContainer<NeuralPlayer> medPlyr = m_population[m_populationSize / 2];
     
     printf("Gen: %3d", generation);
     printf(", Min: %-6.1f [i=%-3d]", 
         minPlayer.player.getFitness(), minPlayer.index);
     
     printf(", Median: %-6.1f [i=%-3d]", 
-        medianPlayer.player.getFitness(), medianPlayer.index);
+        medPlyr.player.getFitness(), medPlyr.index);
     
     printf(", Max: %-6.1f [i=%-3d]", 
         maxPlayer.player.getFitness(), maxPlayer.index);
@@ -333,13 +345,15 @@ void Population<Game>::printSummary(const int generation, const double HOF_win_p
 }
 
 template <template <class, class> class Game>
-void  Population<Game>::printPopulationFrom(const unsigned int start, const unsigned int end) const{
+void  Population<Game>::printPopulationFrom(const unsigned int start, 
+                                            const unsigned int end) const{
     if (start > end){
         cerr << "Error: printPopulationFrom start is greater than end" << endl;
         exit(1);
     }
     if (end > m_population.size()){
-        cerr << "Error: printPopulationFrom end is larger than populationSize" << endl;
+        cerr << "Error: printPopulationFrom end is larger than \
+        populationSize" << endl;
         exit(1);
     }
     for(unsigned int i = start; i < end; ++i){

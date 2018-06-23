@@ -25,9 +25,10 @@ public:
 
 private:
     vector<Matrix> crossOver(const playerContainer<NeuralPlayer> parent1, 
-        const playerContainer<NeuralPlayer> parent2);
+                             const playerContainer<NeuralPlayer> parent2);
     
-    playerContainer<NeuralPlayer> pickParent(const vector<playerContainer<NeuralPlayer> >& population) const;
+    playerContainer<NeuralPlayer> pickParent(
+            const vector<playerContainer<NeuralPlayer> >& population) const;
     
     const float m_mutationRate;
     int m_populationSize;

@@ -11,12 +11,15 @@ Targets = main.cpp Matrix.cpp NeuralNet.cpp Player.cpp Genetic.cpp
 all: $(Targets)
 	$(RM) a
 	g++ $(CompilerFlags) $(Warnings) $(TestingFlags) $(Targets)
+
 run: $(Targets)
 	$(RM) a
 	g++ $(CompilerFlags) $(Warnings) $(TestingFlags) $(Targets)
 	./a.exe
+
 fast: $(Targets)
 	$(RM) a
 	g++ $(CompilerFlags) $(Warnings) $(ReleaseFlags) $(Targets)
+	
 clean: 
 	$(RM) a

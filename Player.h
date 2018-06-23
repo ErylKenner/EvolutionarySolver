@@ -77,7 +77,7 @@ public:
     
     void operator= (const PerfectPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input, int squareIdentity) const override;
+    virtual vector<double> getMove(const Matrix& input) const override;
     
 private:
     double winningMove() const;
@@ -93,7 +93,8 @@ template <class T>
 class playerContainer;
 
 template <class T>
-bool comparePlayerContainer(const playerContainer<T>& left, const playerContainer<T>& right);
+bool comparePlayerContainer(const playerContainer<T>& left, 
+                            const playerContainer<T>& right);
 
 template <class T>
 void swap(playerContainer<T>& left, playerContainer<T>& right);
@@ -113,7 +114,8 @@ public:
     void operator= (const playerContainer<T>& right);
     bool operator< (const playerContainer<T>& right) const;
     
-    friend bool comparePlayerContainer<>(const playerContainer<T>& left, const playerContainer<T>& right);
+    friend bool comparePlayerContainer<>(const playerContainer<T>& left, 
+                                         const playerContainer<T>& right);
     friend void swap<>(playerContainer<T>& left, playerContainer<T>& right);
 private:
     
@@ -121,7 +123,8 @@ private:
 
 //----------Friend Functions-------------
 template <class T>
-bool comparePlayerContainer(const playerContainer<T>& left, const playerContainer<T>& right){
+bool comparePlayerContainer(const playerContainer<T>& left, 
+                            const playerContainer<T>& right){
     return left.player.getFitness() < right.player.getFitness();
 }
 
@@ -147,24 +150,21 @@ unsigned int playerContainer<T>::count = 0;
 
 template <class T>
 playerContainer<T>::playerContainer()
-    : index(playerContainer::count++){
-    
+        : index(playerContainer::count++){
     //cout << "default playerContainer constructor" << endl;
 }
 
 template <class T>
 playerContainer<T>::playerContainer(const playerContainer<T>& other)
-    : index(other.index)
-    , player(other.player){
-    
+        : index(other.index)
+        , player(other.player){
     //cout << "copy playerContainer constructor" << endl;
 }
 
 template <class T>
 playerContainer<T>::playerContainer(T input)
-    : index(playerContainer::count++)
-    , player(input){
-    
+        : index(playerContainer::count++)
+        , player(input){
     //cout << "player playerContainer constructor" << endl;
 }
 

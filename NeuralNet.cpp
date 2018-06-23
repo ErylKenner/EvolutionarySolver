@@ -8,8 +8,7 @@ NeuralNet::NeuralNet(){
 
 //Constructor takes in the structure of the network as a matrix
 NeuralNet::NeuralNet(const vector<unsigned int>& layerSizes)
-    : m_layerSizes(layerSizes){
-
+        : m_layerSizes(layerSizes){
     //Create vectors for weights. Each entry is a matrix for that layer
     for(unsigned int i = 0; i < layerSizes.size() - 1; ++i){
         Matrix tempWeight(layerSizes[i] + 1, layerSizes[i+1]);
@@ -19,9 +18,8 @@ NeuralNet::NeuralNet(const vector<unsigned int>& layerSizes)
 }
 
 NeuralNet::NeuralNet(const NeuralNet& nn)
-    : m_layerSizes(nn.m_layerSizes)
-    , m_weights(nn.m_weights){
-    
+        : m_layerSizes(nn.m_layerSizes)
+        , m_weights(nn.m_weights){
 }
 
 void NeuralNet::operator= (const NeuralNet& nn){
@@ -123,7 +121,7 @@ Matrix NeuralNet::forward(const Matrix& input) const{
         //Add extra col with 1.0 in it for bias
         Matrix prev = (layers.back()).addRowsCols(0, 1, 1.0f);
         
-    	//Cur = f(layers * weights + bias) .... where f(x) is nonlinearity funtion
+    	//Cur = f(layers * weights + bias)...where f(x) is nonlinearity funtion
         layers.push_back( applyNonlinearity(prev * m_weights[lay], sigmoid) );
     }
     return layers.back();
@@ -145,7 +143,8 @@ void NeuralNet::setWeights(const vector<Matrix>& weights){
 }
 
 //Applies the nonlinearity function (sigmoid) elementwise
-Matrix NeuralNet::applyNonlinearity(const Matrix& input, double(*callback)(double)) const{
+Matrix NeuralNet::applyNonlinearity(const Matrix& input, 
+                                    double(*callback)(double)) const{
     Matrix temp(input);
     for(unsigned int row = 0; row < input.numRows(); ++row){
         for(unsigned int col = 0; col < input.numCols(); ++col){
