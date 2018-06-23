@@ -1,7 +1,6 @@
 TODO List
 
 - Code formatting
-- Use exceptions for error handling
 - Improve Matrix class functionality/cleanliness
 - Ultimate Tic Tac Toe
 - Random Player (chooses moves randomly)
@@ -10,6 +9,7 @@ TODO List
 - Organize codebase (.cpp and .h folders, build folder, more complex makefile, etc.)
 - Optimize (inline some small functions, reduce parameter copying, etc.)
 - Prettify/color-code command line output
+- Use exceptions for error handling
 - Perfect Player (via minimax)
 - Smarter weight crossover
 - Coevolution

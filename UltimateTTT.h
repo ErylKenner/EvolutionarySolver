@@ -152,10 +152,6 @@ vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(
 template <class T1, class T2>
 void UltimateTTT<T1, T2>::printBoard() const{
     for(int i = 0; i < 25; ++i){
-        if(i == 0 || i == 24){
-            cout << endl;
-            continue;
-        }
         for(int j = 0; j < 47; ++j){
             char cur = ' ';
 
@@ -164,12 +160,24 @@ void UltimateTTT<T1, T2>::printBoard() const{
 
             int subBoard = x / 3 + 3 * (int)(y / 3);
             int subPostion = x % 3 + 3 * (y % 3);
-            bool metaOccupied = getBoardAtPos(-1, subBoard) != States::empty;
 
             bool insideMetaBox_x = (j / 4) % 4 == 1 || (j / 4) % 4 == 2;
             bool insideMetaBox_y = (i / 2) % 4 == 1 || (i / 2) % 4 == 2;
-            
-            if(i % 2 == 1 && j % 4 == 1){
+            bool metaOccupied = true; //default
+
+            if(i != 0 && i != 24){
+                metaOccupied = getBoardAtPos(-1, subBoard) != States::empty;
+            }
+
+            if(i % 8 == 0 && (j / 16) == (activeBoard % 3) && j % 16 != 15
+                && ((i / 8) == (activeBoard / 3) || 
+                    (i / 8) == ((activeBoard / 3) + 1)) ){
+                cur = '#';
+            } else if((j % 16 == 0 || j % 16 == 14)
+                && (i / 8) == (activeBoard / 3)
+                && (j / 16) == (activeBoard % 3)){
+                cur = '#';
+            } else if(i % 2 == 1 && j % 4 == 1){
                 if(metaOccupied && dontRevisitSquares 
                         && insideMetaBox_x && insideMetaBox_y){
                     cur = ' ';
