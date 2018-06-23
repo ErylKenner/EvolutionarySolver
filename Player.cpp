@@ -73,16 +73,21 @@ vector<double> NeuralPlayer::getMove(const Matrix& input) const{
 }
 
 //----------ManualPlayer--------------
-ManualPlayer::ManualPlayer(istream& is, ostream& os)
+ManualPlayer::ManualPlayer(istream& is, ostream& os, 
+                           const int rows, const int cols)
         : Player()
         , m_is(is)
-        , m_os(os){
+        , m_os(os)
+        , m_rows(rows)
+        ,m_cols(cols){
 }
 
 ManualPlayer::ManualPlayer(const ManualPlayer& p)
         : Player(p)
         , m_is(p.m_is)
-        , m_os(p.m_os){
+        , m_os(p.m_os)
+        , m_rows(p.m_rows)
+        , m_cols(p.m_cols){
 }
 
 ManualPlayer::~ManualPlayer(){
@@ -95,21 +100,13 @@ void ManualPlayer::operator= (const ManualPlayer& right){
 
 vector<double> ManualPlayer::getMove(const Matrix& input) const{
     unsigned int row, col;
-    do{
-        char eater;
-        m_os << "Your move, in the range 1-3, of the form \"row, col\": ";
-        m_is >> row >> eater >> col;
-        row --;
-        col --;
-        if(row > 2){
-            row = 2;
-        }
-        if(col > 2){
-            col = 2;
-        }
-    } while((int)input(0, 3 * row + col) != 0);
+    char eater;
+    m_os << "Your move, of the form \"row, col\": ";
+    m_is >> row >> eater >> col;
+    row --;
+    col --;
     
-    Matrix temp(3,3);
+    Matrix temp(m_rows, m_cols);
     temp.initialize(0);
     temp(row, col) = 1;
     return temp.toVector();

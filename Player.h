@@ -55,7 +55,7 @@ private:
 //A player with a manual input brain
 class ManualPlayer : public Player{
 public:
-    ManualPlayer(istream& is, ostream& os);
+    ManualPlayer(istream& is, ostream& os, const int rows, const int cols);
     ManualPlayer(const ManualPlayer& p);
     virtual ~ManualPlayer();
     
@@ -66,6 +66,8 @@ public:
 private:
     istream& m_is;
     ostream& m_os;
+    const int m_rows;
+    const int m_cols;
 };
 /*
 //A player with a theoretically perfect brain

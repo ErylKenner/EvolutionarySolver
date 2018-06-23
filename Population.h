@@ -119,7 +119,7 @@ void Population<Game>::loadBest(string path, string name){
     loadedPlayer.player.neural.printWeights();
     
     //Set up a human-input player
-    ManualPlayer tempHuman(cin, cout);
+    ManualPlayer tempHuman(cin, cout, 3, 3);
     playerContainer<ManualPlayer> human(tempHuman);
     
     //Play each other
