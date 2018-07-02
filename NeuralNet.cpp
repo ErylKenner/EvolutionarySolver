@@ -148,14 +148,15 @@ void NeuralNet::setWeights(const vector<MatrixXd>& weights){
     }
 }
 
-RowVectorXd NeuralNet::applyNonlinearity(const RowVectorXd& input, Activations activation) const{
+RowVectorXd NeuralNet::applyNonlinearity(const RowVectorXd& input, 
+		Activations activation) const{
 	switch (activation){
-		case Activations::sigmoid: // 1 / (1 + e^-x)
-			return (((-1 * input.array()).exp() + 1).inverse()).matrix();
-		case Activations::relu: // max(0, x)
-			return ((input.array() > 0).cast<double>() * input.array()).matrix();
-		default:
-			return input;
+	case Activations::sigmoid: // 1.0/(1 + e^-x)
+		return (((-1 * input.array()).exp() + 1).inverse()).matrix();
+	case Activations::relu:    // max(0, x)
+		return ((input.array() > 0).cast<double>() * input.array()).matrix();
+	default:
+		return input;
 	}
 }
 

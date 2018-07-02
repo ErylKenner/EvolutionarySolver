@@ -44,11 +44,8 @@ private:
     vector<unsigned int> m_layerSizes;
     vector<MatrixXd> m_weights;
 
-    /*RowVectorXd applyNonlinearity(const RowVectorXd& input, 
-                             double(*funct)(double)) const;*/
-	RowVectorXd applyNonlinearity(const RowVectorXd& input, Activations activation) const;
-    //static double sigmoid(const double x);
-	//static double relu(const double x);
+	RowVectorXd applyNonlinearity(const RowVectorXd& input, 
+                                  Activations activation) const;
 };
 
 #endif

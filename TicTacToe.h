@@ -110,7 +110,10 @@ template <class T1, class T2>
 RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const{
     Matrix<int, 1, 9> ret;
     vector< pair<double, unsigned int> > inputPair;
+<<<<<<< HEAD
 	inputPair.reserve(9);
+=======
+>>>>>>> 6b3271d124512d58a526a75bb8932d46811d3a82
     
     //Populate inputPair
     for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
@@ -173,7 +176,11 @@ RowVectorXd TicTacToe<T1, T2>::toPlayerPerspective(const States state) const{
     RowVectorXd temp = toMatrix();
     
     for(unsigned int i = 0; i < 9; ++i){
+<<<<<<< HEAD
         States cur = static_cast<States>((int)temp(i));
+=======
+        States cur = static_cast<States>(temp(i));
+>>>>>>> 6b3271d124512d58a526a75bb8932d46811d3a82
         if(cur == States::empty){
             temp(i) = 0.0;
         } else if(cur == state){
