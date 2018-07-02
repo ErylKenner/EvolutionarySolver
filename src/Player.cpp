@@ -1,5 +1,5 @@
 
-#include "../include/Player.h"
+#include "Player.h"
 
 //---------------Player---------------
 Player::Player() {

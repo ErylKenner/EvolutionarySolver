@@ -1,7 +1,7 @@
 
 
-#include "../include/main.h"
-#include "../include/Population.h"
+#include "main.h"
+#include "Population.h"
 #include <Eigen/Dense>
 
 

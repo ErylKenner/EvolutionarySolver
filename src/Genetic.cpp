@@ -1,5 +1,5 @@
 
-#include "../include/Genetic.h"
+#include "Genetic.h"
 
 
 //mutationRate is in the range [0, 1], greedyPercent is in the range [0, 1]
