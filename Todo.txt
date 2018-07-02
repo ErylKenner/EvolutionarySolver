@@ -1,7 +1,8 @@
 TODO List
 
 - Code formatting
-- Improve Matrix class functionality/cleanliness
+- XXXXXXXXXXXXX Improve Matrix class functionality/cleanliness XXXXXXXXXXXXX
+- Use Eigen matrix library
 - Ultimate Tic Tac Toe
 - Random Player (chooses moves randomly)
 - Timekeeping (execution time)

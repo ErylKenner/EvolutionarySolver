@@ -7,13 +7,16 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <ctime>
 
-#include "Matrix.h"
+#include <Eigen/Dense>
+using namespace Eigen;
+
 #include "NeuralNet.h"
 #include "Player.h"
 #include "TicTacToe.h"
 #include "Genetic.h"
-#include "UltimateTTT.h"
+//#include "UltimateTTT.h"
 
 using std::cout;
 using std::cin;
@@ -29,7 +32,7 @@ public:
     Population<Game>();
     
     void init(unsigned int seed = 1, istream& is = cin, ostream& os = cout);
-    void train(bool verbose);
+    time_t train(bool verbose);
     string saveBest(string path);
     void loadBest(string path, string name = "");
     
@@ -140,7 +143,8 @@ string Population<Game>::saveBest(string path){
 
 
 template <template <class, class> class Game>
-void Population<Game>::train(bool verbose){
+time_t Population<Game>::train(bool verbose){
+    size_t startTime = time(NULL);
     for(int generation = 0; generation < m_iterations; ++generation){
         //Play games with every permutaiton of players
         roundRobin();
@@ -179,6 +183,7 @@ void Population<Game>::train(bool verbose){
             m_population[i].player.resetFitness();
         }
     }
+    return time(NULL) - startTime;
 }
 
 

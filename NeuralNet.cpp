@@ -11,8 +11,8 @@ NeuralNet::NeuralNet(const vector<unsigned int>& layerSizes)
         : m_layerSizes(layerSizes){
     //Create vectors for weights. Each entry is a matrix for that layer
     for(unsigned int i = 0; i < layerSizes.size() - 1; ++i){
-        Matrix tempWeight(layerSizes[i] + 1, layerSizes[i+1]);
-        tempWeight.initRand(-1, 1);
+        MatrixXd tempWeight = MatrixXd::Random(layerSizes[i] + 1, 
+                                               layerSizes[i+1]);
         m_weights.push_back(tempWeight);
     }
 }
@@ -32,7 +32,7 @@ void NeuralNet::printWeights() const{
     cout << "Current weights:" << endl;
     for(unsigned int i = 0; i < m_weights.size(); ++i){
         cout << "================================================" << endl;
-        m_weights[i].printData();
+        cout << m_weights[i] << endl;
     }
     cout << "================================================" << endl;
 }
@@ -54,13 +54,12 @@ bool NeuralNet::saveToFile(string fileName) const{
     outputFile << "\n";
     
     for(unsigned int lay = 0; lay < m_weights.size(); ++lay){
-        unsigned int numRows = m_weights[lay].numRows();
-        unsigned int numCols = m_weights[lay].numCols();
+        unsigned int rows = m_weights[lay].rows();
+        unsigned int cols = m_weights[lay].cols();
         
-        for(unsigned int i = 0; i < numRows; ++i){
-            for(unsigned int j = 0; j < numCols; ++j){
-                Matrix cur = m_weights[lay];
-                outputFile << cur(i, j) << " ";
+        for(unsigned int col = 0; col < cols; ++col){
+            for(unsigned int row = 0; row < rows; ++row){
+                outputFile << m_weights[lay](row, col) << " ";
             }
         }
     }
@@ -88,12 +87,14 @@ bool NeuralNet::loadFromFile(string fileName){
     }
     
     for(unsigned int lay = 0; lay < numLayers - 1; ++lay){
-        Matrix cur(m_layerSizes[lay] + 1, m_layerSizes[lay + 1]);
-        for(unsigned int i = 0; i < cur.numRows(); ++i){
-            for(unsigned int j = 0; j < cur.numCols(); ++j){
+        unsigned int rows = m_layerSizes[lay] + 1;
+        unsigned int cols = m_layerSizes[lay + 1];
+        MatrixXd cur(rows, cols);
+        for(unsigned int col = 0; col < cols; ++col){
+            for(unsigned int row = 0; row < rows; ++row){
                 double temp;
                 inputFile >> temp;
-                cur(i, j) = temp;
+                cur(row, col) = temp;
             }
         }
         m_weights.push_back(cur);
@@ -112,14 +113,17 @@ bool NeuralNet::loadFromFile(string fileName){
 }
 
 //Performs forward propagation using m_weights and 'input'
-Matrix NeuralNet::forward(const Matrix& input) const{
+RowVectorXd NeuralNet::forward(const RowVectorXd& input) const{
 	//Stores the previous layer's output
-    vector<Matrix> layers;
+    vector<RowVectorXd> layers;
     layers.push_back(input);
 
-    for(unsigned int lay = 0; lay < m_weights.size(); ++lay){
-        //Add extra col with 1.0 in it for bias
-        Matrix prev = (layers.back()).addRowsCols(0, 1, 1.0f);
+    unsigned int numLayers = m_weights.size();
+
+    for(unsigned int lay = 0; lay < numLayers; ++lay){
+        unsigned int numCols = layers.back().size();
+        RowVectorXd prev(numCols + 1);
+        prev << layers.back(), 1.0;
         
     	//Cur = f(layers * weights + bias)...where f(x) is nonlinearity funtion
         layers.push_back( applyNonlinearity(prev * m_weights[lay], sigmoid) );
@@ -127,12 +131,12 @@ Matrix NeuralNet::forward(const Matrix& input) const{
     return layers.back();
 }
 
-vector<Matrix> NeuralNet::getWeights() const{
+vector<MatrixXd> NeuralNet::getWeights() const{
     return m_weights;
 }
 
 //Sets the internal weights
-void NeuralNet::setWeights(const vector<Matrix>& weights){
+void NeuralNet::setWeights(const vector<MatrixXd>& weights){
     if (weights.size() == 0 || weights.size() != m_weights.size()){
     	cerr << "Error: setWeights(): Weights have different sizes." << endl;
         exit(1);
@@ -143,14 +147,14 @@ void NeuralNet::setWeights(const vector<Matrix>& weights){
 }
 
 //Applies the nonlinearity function (sigmoid) elementwise
-Matrix NeuralNet::applyNonlinearity(const Matrix& input, 
+RowVectorXd NeuralNet::applyNonlinearity(const RowVectorXd& input, 
                                     double(*callback)(double)) const{
-    Matrix temp(input);
-    for(unsigned int row = 0; row < input.numRows(); ++row){
-        for(unsigned int col = 0; col < input.numCols(); ++col){
-        	//Applies the callback to each element of input
-            temp(row, col) = callback(input(row, col));
-        }
+    RowVectorXd temp = input;
+    unsigned int cols = input.cols();
+
+    for(unsigned int col = 0; col < cols; ++col){
+        //Applies the callback to each element of input
+        temp(col) = callback(input(col));
     }
     return temp;
 }

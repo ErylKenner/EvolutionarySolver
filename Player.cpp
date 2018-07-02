@@ -24,8 +24,7 @@ void Player::operator= (const Player& right){
 }
 /*
 vector<double> Player::getMove() const{
-    Matrix temp(1, 9);
-    temp.initRand(-1, 1);
+    MatrixXd temp = MatrixXd::Random(1, 9);
     return temp.toVector();
 }*/
 
@@ -68,8 +67,8 @@ void NeuralPlayer::operator= (const NeuralPlayer& right){
     neural = right.neural;
 }
 
-vector<double> NeuralPlayer::getMove(const Matrix& input) const{
-    return neural.forward(input).toVector();
+RowVectorXd NeuralPlayer::getMove(const RowVectorXd& input) const{
+    return neural.forward(input);
 }
 
 //----------ManualPlayer--------------
@@ -98,7 +97,7 @@ void ManualPlayer::operator= (const ManualPlayer& right){
     Player::operator=(right);
 }
 
-vector<double> ManualPlayer::getMove(const Matrix& input) const{
+RowVectorXd ManualPlayer::getMove(const RowVectorXd& input) const{
     unsigned int row, col;
     char eater;
     m_os << "Your move, of the form \"row, col\": ";
@@ -106,10 +105,10 @@ vector<double> ManualPlayer::getMove(const Matrix& input) const{
     row --;
     col --;
     
-    Matrix temp(m_rows, m_cols);
-    temp.initialize(0);
-    temp(row, col) = 1;
-    return temp.toVector();
+    RowVectorXd temp(m_rows * m_cols);
+    temp << RowVectorXd::Constant(m_rows * m_cols, 0);
+    temp(row * m_cols + col) = 1.0;
+    return temp;
 }
 
 //----------PerfectPlayer--------------

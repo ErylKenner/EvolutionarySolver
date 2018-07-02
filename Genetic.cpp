@@ -1,6 +1,7 @@
 
 #include "Genetic.h"
 
+
 //mutationRate is in the range [0, 1], greedyPercent is in the range [0, 1]
 Genetic::Genetic(const float mutationRate, const float greedyPercent)
 		: m_mutationRate(clamp(mutationRate, 0.0f, 1.0f))
@@ -32,7 +33,7 @@ void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population){
 	for(int i = numToKeep; i < m_populationSize; ++i){
 		playerContainer<NeuralPlayer> parent1 = pickParent(population);
 		playerContainer<NeuralPlayer> parent2 = pickParent(population);
-		vector<Matrix> newWeights = crossOver(parent1, parent2);
+		vector<MatrixXd> newWeights = crossOver(parent1, parent2);
 
 		playerContainer<NeuralPlayer> temp(population[m_populationSize-1 - i]);
 		temp.player.neural.setWeights(newWeights);
@@ -50,17 +51,17 @@ void Genetic::mutate(vector<playerContainer<NeuralPlayer> >& population){
 	int numToKeep = (int)(m_greedyPercent * (float)m_populationSize);
 	
 	for(int i = numToKeep; i < m_populationSize; ++i){
-	    vector<Matrix> weights = population[i].player.neural.getWeights();
+	    vector<MatrixXd> weights = population[i].player.neural.getWeights();
 		size_t layers = weights.size();
 
 		//For each layer
 		for(size_t lay = 0; lay < layers; ++lay){
-			int rows = weights[lay].numRows();
-			int cols = weights[lay].numCols();
+			int rows = weights[lay].rows();
+			int cols = weights[lay].cols();
 
 			//Randomly mutate each element
-			for(int row = 0; row < rows; ++row){
-				for(int col = 0; col < cols; ++col){
+			for(int col = 0; col < cols; ++col){
+				for(int row = 0; row < rows; ++row){
 					//Mutate with a certain chance
 					if( ((float)rand() / float(RAND_MAX)) < m_mutationRate){
 						weights[lay](row, col) += distribution(gen);
@@ -98,10 +99,10 @@ playerContainer<NeuralPlayer> Genetic::pickParent(
 	return population.back();
 }
 
-vector<Matrix> Genetic::crossOver(const playerContainer<NeuralPlayer> parent1, 
-								  const playerContainer<NeuralPlayer> parent2){
-	vector<Matrix> weights1;
-	vector<Matrix> weights2;
+vector<MatrixXd> Genetic::crossOver(const playerContainer<NeuralPlayer>& parent1, 
+								  const playerContainer<NeuralPlayer>& parent2){
+	vector<MatrixXd> weights1;
+	vector<MatrixXd> weights2;
 	
 	//Parent 1
     weights1 = parent1.player.neural.getWeights();
@@ -111,12 +112,12 @@ vector<Matrix> Genetic::crossOver(const playerContainer<NeuralPlayer> parent1,
 	
 	//For each layer
 	for(size_t i = 0; i < length; ++i){
-		int rows = weights1[i].numRows();
-		int cols = weights1[i].numCols();
+		int rows = weights1[i].rows();
+		int cols = weights1[i].cols();
 		
 		//Cross breed matrix
-		for(int row = 0; row < rows; ++row){
-			for(int col = 0; col < cols; ++col){
+		for(int col = 0; col < cols; ++col){
+			for(int row = 0; row < rows; ++row){
 				//50% chance of being from parent1 or parent2
 				if(rand() % 2 == 0){
 					weights1[i](row, col) = weights2[i](row, col);

@@ -1,7 +1,9 @@
 #ifndef NN_H
 #define NN_H
 
-#include "Matrix.h"
+#include <Eigen/Dense>
+using namespace Eigen;
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -10,6 +12,7 @@
 
 using std::cout;
 using std::cin;
+using std::cerr;
 using std::endl;
 using std::vector;
 using std::ofstream;
@@ -22,22 +25,22 @@ public:
     NeuralNet(const vector<unsigned int>& layerSizes);
     NeuralNet(const NeuralNet& nn);
     
-    Matrix forward(const Matrix& input) const;
+    RowVectorXd forward(const RowVectorXd& input) const;
     
     void printWeights() const;
     
     void operator= (const NeuralNet& nn);
     
-    vector<Matrix> getWeights() const;
-    void setWeights(const vector<Matrix>& weights);
+    vector<MatrixXd> getWeights() const;
+    void setWeights(const vector<MatrixXd>& weights);
     
     bool saveToFile(string fileName) const;
     bool loadFromFile(string fileName);
 private:
     vector<unsigned int> m_layerSizes;
-    vector<Matrix> m_weights;
+    vector<MatrixXd> m_weights;
 
-    Matrix applyNonlinearity(const Matrix& input, 
+    RowVectorXd applyNonlinearity(const RowVectorXd& input, 
                              double(*funct)(double)) const;
     static double sigmoid(const double x);
 };

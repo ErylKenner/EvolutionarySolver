@@ -2,16 +2,17 @@
 
 #include "main.h"
 #include "Population.h"
+#include <Eigen/Dense>
 
 
 int main(){
     srand(time(NULL));
-    
+
     //Where your player log files are stored
     string path = "data/";
     Population<TicTacToe> pop;
     
-    
+    /*
     ManualPlayer tempHuman1(cin, cout, 10, 9);
     playerContainer<ManualPlayer> human1(tempHuman1);
 
@@ -26,7 +27,7 @@ int main(){
     
     UltimateTTT<NeuralPlayer, NeuralPlayer> ttt(machine1, machine2, true);
     ttt.playGame();
-    
+    */
     
     char loadPlayer;
     cout << "Do you want to load a trained player? (y/n): ";
@@ -37,7 +38,9 @@ int main(){
         pop.loadBest(path);
     } else{
         pop.init(time(NULL));
-        pop.train(false);
+        size_t trainingTime = pop.train(false);
+
+        cout << "Time to train: " << trainingTime << endl;
         
         char savePlayer;
         cout << "Do you want to save the best player to a file? (y/n): ";
