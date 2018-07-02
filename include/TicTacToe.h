@@ -31,8 +31,8 @@ public:
               bool verbose = false);
     void playGame();
 
-    const static int NUM_INPUTS = 9;
-    const static int NUM_OUTPUTS = 9;
+    static const int NUM_INPUTS = 9;
+    static const int NUM_OUTPUTS = 9;
 private:
     bool takeTurn(const States state, const int turns);
     bool isEmpty() const;
@@ -44,7 +44,7 @@ private:
     States getBoardAtPosition(const int position) const;
     void setBoardAtPosition(const int position, const States state);
 
-    RowVectorXi bestMoves(const RowVectorXd& input) const;
+    inline RowVectorXi bestMoves(const RowVectorXd& input) const;
     void printBoard() const;
     bool hasWon() const;
 
@@ -107,14 +107,14 @@ bool TicTacToe<T1, T2>::isFull() const {
 
 //Returns a vector of the preferred moves starting with most preferred
 template <class T1, class T2>
-RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const {
+inline RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const {
     Matrix<int, 1, 9> ret;
     vector< pair<double, unsigned int> > inputPair;
     inputPair.reserve(9);
 
     //Populate inputPair
     for (unsigned int i = 0; i < NUM_OUTPUTS; ++i) {
-        inputPair.push_back(make_pair(input(i), i));
+        inputPair.emplace_back(make_pair(input(i), i));
     }
 
     sort(inputPair.begin(), inputPair.end());

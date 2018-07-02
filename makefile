@@ -6,7 +6,7 @@ Sanitize = -fsanitize=address -fsanitize=undefined
 TestingFlags = -Og -g
 ReleaseFlags = -O3
 Targets = ./src/main.cpp ./src/NeuralNet.cpp ./src/Player.cpp ./src/Genetic.cpp
-Include = -isystem d:/MinGW/include/eigen-eigen-5a0156e40feb/
+Include = -isystem d:/MinGW/include/eigen-eigen-5a0156e40feb/ -I ./include
 
 
 all: $(Targets)

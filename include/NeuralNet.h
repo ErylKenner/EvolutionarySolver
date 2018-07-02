@@ -9,6 +9,7 @@ using namespace Eigen;
 #include <vector>
 #include <math.h>
 #include <string>
+#include <algorithm>
 
 using std::cout;
 using std::cin;
@@ -18,6 +19,8 @@ using std::vector;
 using std::ofstream;
 using std::ifstream;
 using std::string;
+using std::max;
+using std::exp;
 
 enum Activations { sigmoid, relu };
 
@@ -44,8 +47,10 @@ private:
     vector<unsigned int> m_layerSizes;
     vector<MatrixXd> m_weights;
 
-    RowVectorXd applyNonlinearity(const RowVectorXd& input,
-                                  Activations activation) const;
+    inline RowVectorXd applyNonlinearity(const RowVectorXd& input,
+                                         Activations activation) const;
+    static inline double relu(double x);
+    static inline double sigmoid(double x);
 };
 
 #endif

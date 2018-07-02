@@ -141,14 +141,14 @@ vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(
 
     //Populate inputPair
     for (unsigned int i = 0; i < NUM_OUTPUTS; ++i) {
-        inputPair.push_back(make_pair(input[i], i));
+        inputPair.emplace_back(make_pair(input[i], i));
     }
 
     sort(inputPair.begin(), inputPair.end());
 
     //Populate temp
     for (unsigned int i = 0; i < NUM_OUTPUTS; ++i) {
-        ret.push_back(inputPair[i].second);
+        ret.emplace_back(inputPair[i].second);
     }
 
     //Reverse temp

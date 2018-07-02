@@ -26,7 +26,7 @@ void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population) {
 
     //Copy the players which are being kept from greedyPercent
     for (int i = 0; i < numToKeep; ++i) {
-        newPop.push_back(population[m_populationSize - 1 - i]);
+        newPop.emplace_back(population[m_populationSize - 1 - i]);
     }
 
     //Iterates over the remaining child elements
@@ -37,7 +37,7 @@ void Genetic::breed(vector<playerContainer<NeuralPlayer> >& population) {
 
         playerContainer<NeuralPlayer> temp(population[m_populationSize - 1 - i]);
         temp.player.neural.setWeights(newWeights);
-        newPop.push_back(temp);
+        newPop.emplace_back(temp);
     }
     population = newPop;
 }

@@ -153,7 +153,7 @@ time_t Population<Game>::train(bool verbose) {
         sort(m_population.begin(), m_population.end(),
              comparePlayerContainer<NeuralPlayer>);
 
-        m_hallOfFame.push_back(m_population[m_populationSize - 1]);
+        m_hallOfFame.emplace_back(m_population[m_populationSize - 1]);
 
         //Print board
         if (verbose) {

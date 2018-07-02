@@ -14,7 +14,7 @@ NeuralNet::NeuralNet(const vector<unsigned int>& layerSizes)
 
     //Create vectors for weights. Each entry is a matrix for that layer
     for (unsigned int i = 0; i < numLayers; ++i) {
-        m_weights.push_back(MatrixXd::Random(layerSizes[i] + 1, layerSizes[i + 1]));
+        m_weights.emplace_back(MatrixXd::Random(layerSizes[i] + 1, layerSizes[i + 1]));
     }
 }
 
@@ -82,7 +82,7 @@ bool NeuralNet::loadFromFile(string fileName) {
     for (unsigned int i = 0; i < numLayers; ++i) {
         unsigned int cur;
         inputFile >> cur;
-        m_layerSizes.push_back(cur);
+        m_layerSizes.emplace_back(cur);
     }
 
     for (unsigned int lay = 0; lay < numLayers - 1; ++lay) {
@@ -96,7 +96,7 @@ bool NeuralNet::loadFromFile(string fileName) {
                 cur(row, col) = temp;
             }
         }
-        m_weights.push_back(cur);
+        m_weights.emplace_back(cur);
     }
 
     char check;
@@ -118,15 +118,15 @@ RowVectorXd NeuralNet::forward(const RowVectorXd& input) const {
     //Stores the previous layer's output
     vector<RowVectorXd> layers;
     layers.reserve(numLayers + 1);
-    layers.push_back(input);
+    layers.emplace_back(input);
 
     for (unsigned int lay = 0; lay < numLayers; ++lay) {
-        unsigned int numCols = layers[lay].size();
-        RowVectorXd prev(numCols + 1);
-        prev << layers[lay], 1.0;
+        unsigned int numCols = layers[lay].cols();
+        layers[lay].conservativeResize(NoChange, numCols + 1);
+        layers[lay](numCols) = 1.0;
 
         //Cur = f(layers * weights + bias)...where f(x) is nonlinearity funtion
-        layers.push_back(applyNonlinearity(prev * m_weights[lay], Activations::relu));
+        layers.emplace_back(applyNonlinearity(layers[lay] * m_weights[lay], Activations::relu));
     }
     return layers[numLayers];
 }
@@ -146,15 +146,23 @@ void NeuralNet::setWeights(const vector<MatrixXd>& weights) {
     }
 }
 
-RowVectorXd NeuralNet::applyNonlinearity(const RowVectorXd& input,
-                                         Activations activation) const {
+inline RowVectorXd NeuralNet::applyNonlinearity(const RowVectorXd& input,
+                                                Activations activation) const {
     switch (activation) {
         case Activations::sigmoid: // 1.0/(1 + e^-x)
-            return (((-1 * input.array()).exp() + 1).inverse()).matrix();
+            return input.unaryExpr(&NeuralNet::sigmoid);
         case Activations::relu:    // max(0, x)
-            return ((input.array() > 0).cast<double>() * input.array()).matrix();
+            return input.unaryExpr(&NeuralNet::relu);
         default:
             return input;
     }
+}
+
+inline double NeuralNet::relu(double x) {
+    return max(0.0, x);
+}
+
+inline double NeuralNet::sigmoid(double x) {
+    return 1.0 / (1.0 + exp(-x));
 }
 
