@@ -4,7 +4,9 @@
 #include <iostream>
 #include <random>
 
-#include "Matrix.h"
+#include <Eigen/Dense>
+using namespace Eigen;
+
 #include "NeuralNet.h"
 #include "Player.h"
 #include "main.h"
@@ -24,8 +26,8 @@ public:
     void mutate(vector<playerContainer<NeuralPlayer> >& population);
 
 private:
-    vector<Matrix> crossOver(const playerContainer<NeuralPlayer> parent1, 
-                             const playerContainer<NeuralPlayer> parent2);
+    vector<MatrixXd> crossOver(const playerContainer<NeuralPlayer>& parent1, 
+                             const playerContainer<NeuralPlayer>& parent2);
     
     playerContainer<NeuralPlayer> pickParent(
             const vector<playerContainer<NeuralPlayer> >& population) const;

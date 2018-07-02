@@ -1,7 +1,9 @@
 #ifndef TTT_H
 #define TTT_H
 
-#include "Matrix.h"
+#include <Eigen/Dense>
+using namespace Eigen;
+
 #include "NeuralNet.h"
 #include "Player.h"
 
@@ -12,6 +14,7 @@
 
 using std::cout;
 using std::cin;
+using std::cerr;
 using std::endl;
 using std::vector;
 using std::pair;
@@ -35,13 +38,13 @@ private:
     bool isEmpty() const;
     bool isFull() const;
 
-    Matrix toMatrix() const;
-    Matrix toPlayerPerspective(const States state) const;
+    RowVectorXd toMatrix() const;
+    RowVectorXd toPlayerPerspective(const States state) const;
     
     States getBoardAtPosition(const int position) const;
     void setBoardAtPosition(const int position, const States state);
 
-    vector<unsigned int> bestMoves(const vector<double>& input) const;
+    RowVectorXi bestMoves(const RowVectorXd& input) const;
     void printBoard() const;
     bool hasWon() const;
 
@@ -104,28 +107,24 @@ bool TicTacToe<T1, T2>::isFull() const{
 
 //Returns a vector of the preferred moves starting with most preferred
 template <class T1, class T2>
-vector<unsigned int> TicTacToe<T1, T2>::bestMoves(
-        const vector<double>& input) const{
-    vector<unsigned int> temp;
+RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const{
+    Matrix<int, 1, 9> ret;
     vector< pair<double, unsigned int> > inputPair;
-    
-    temp.resize(NUM_OUTPUTS, -1);
+	inputPair.reserve(9);
     
     //Populate inputPair
     for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
-        inputPair.push_back(make_pair(input[i], i));
+        inputPair.push_back(make_pair(input(i), i));
     }
     
     sort(inputPair.begin(), inputPair.end());
     
-    //Populate temp
+    //Populate ret
     for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
-        temp[i] = inputPair[i].second;
+        ret(8 - i) = inputPair[i].second;
     }
     
-    //Reverse temp
-    reverse(temp.begin(), temp.end());
-    return temp;
+    return ret;
 }
 
 //Prints the current board to the console
@@ -154,13 +153,11 @@ void TicTacToe<T1, T2>::printBoard() const{
  * representation so it can be passed into other methods.
  */
 template <class T1, class T2>
-Matrix TicTacToe<T1, T2>::toMatrix() const{
-    Matrix temp(1, NUM_OUTPUTS);
+RowVectorXd TicTacToe<T1, T2>::toMatrix() const{
+    RowVectorXd temp(NUM_OUTPUTS);
     
-    for(int i = 0; i < 3; ++i){
-        for(int j = 0; j < 3; ++j){
-            temp(0, 3 * i + j) = (float)getBoardAtPosition(3 * i + j);
-        }
+    for(int i = 0; i < 9; ++i){
+        temp(i) = (double)getBoardAtPosition(i);
     }
     return temp;
 }
@@ -172,19 +169,17 @@ Matrix TicTacToe<T1, T2>::toMatrix() const{
     - empty squares        =  0
  */
 template <class T1, class T2>
-Matrix TicTacToe<T1, T2>::toPlayerPerspective(const States state) const{
-    Matrix temp(toMatrix());
+RowVectorXd TicTacToe<T1, T2>::toPlayerPerspective(const States state) const{
+    RowVectorXd temp = toMatrix();
     
-    for(unsigned int i = 0; i < temp.numRows(); ++i){
-        for(unsigned int j = 0; j < temp.numCols(); ++j){
-            States cur = static_cast<States>(temp(i, j));
-            if(cur == States::empty){
-                temp(i, j) = 0.0;
-            } else if(cur == state){
-                temp(i, j) = 1.0;
-            } else{
-                temp(i, j) = -1.0;
-            }
+    for(unsigned int i = 0; i < 9; ++i){
+        States cur = static_cast<States>((int)temp(i));
+        if(cur == States::empty){
+            temp(i) = 0.0;
+        } else if(cur == state){
+            temp(i) = 1.0;
+        } else{
+            temp(i) = -1.0;
         }
     }
     return temp;
@@ -258,7 +253,7 @@ bool TicTacToe<T1, T2>::hasWon() const{
 template <class T1, class T2>
 bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
     //holds the list of desired moves in order of preference
-    vector<unsigned int> moves;
+    RowVectorXi moves;
     
     //Diagnostics
     if(m_verbose){
@@ -266,7 +261,7 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
     }
     
     //player 1 controls 'X' squares, player 2 controls 'O' squares
-    Matrix playerPerspective = toPlayerPerspective(state);
+    RowVectorXd playerPerspective = toPlayerPerspective(state);
     if(state == States::playerX){
         moves = bestMoves(m_player1.player.getMove(playerPerspective));
     } else{
@@ -275,8 +270,8 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn){
 
     //Make the best move from available squares
     for(int i = 0; i < NUM_OUTPUTS; ++i){
-        if(getBoardAtPosition(moves[i]) == States::empty){
-            setBoardAtPosition(moves[i], state);
+        if(getBoardAtPosition(moves(i)) == States::empty){
+            setBoardAtPosition(moves(i), state);
             break;
         }
     }

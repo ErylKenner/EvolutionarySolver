@@ -1,8 +1,10 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <Eigen/Dense>
+using namespace Eigen;
+
 #include <vector>
-#include "Matrix.h"
 #include "NeuralNet.h"
 
 using std::cout;
@@ -22,7 +24,7 @@ public:
     void operator= (const Player& right);
     bool operator< (const Player& right) const;
     
-    virtual vector<double> getMove(const Matrix& input) const = 0;
+    virtual RowVectorXd getMove(const RowVectorXd& input) const = 0;
     
     void addToFitness(const double a);
     double getFitness() const;
@@ -44,7 +46,7 @@ public:
     
     void operator= (const NeuralPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input) const override;
+    virtual RowVectorXd getMove(const RowVectorXd& input) const override;
     
     NeuralNet neural;
 private:
@@ -61,7 +63,7 @@ public:
     
     void operator= (const ManualPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input) const override;
+    virtual RowVectorXd getMove(const RowVectorXd& input) const override;
     
 private:
     istream& m_is;
@@ -79,7 +81,7 @@ public:
     
     void operator= (const PerfectPlayer& right);
     
-    virtual vector<double> getMove(const Matrix& input) const override;
+    virtual vector<double> getMove(const VectorXd& input) const override;
     
 private:
     double winningMove() const;

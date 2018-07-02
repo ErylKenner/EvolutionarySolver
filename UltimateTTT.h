@@ -133,10 +133,11 @@ bool UltimateTTT<T1, T2>::subBoardTied(const int subBoard) const{
 template <class T1, class T2>
 vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(
         const vector<double>& input) const{
-    vector<unsigned int> temp;
-    temp.resize(NUM_OUTPUTS, -1);
-    
-    vector< pair<double, unsigned int> > inputPair;
+
+    vector<unsigned int> ret;
+	vector< pair<double, unsigned int> > inputPair;
+    ret.reserve(NUM_OUTPUTS);
+    inputPair.reserve(NUM_OUTPUTS);
     
     //Populate inputPair
     for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
@@ -147,12 +148,12 @@ vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(
     
     //Populate temp
     for(unsigned int i = 0; i < NUM_OUTPUTS; ++i){
-        temp[i] = inputPair[i].second;
+        ret.push_back(inputPair[i].second);
     }
     
     //Reverse temp
-    reverse(temp.begin(), temp.end());
-    return temp;
+    reverse(ret.begin(), ret.end());
+    return ret;
 }
 
 //Prints the current board to the console
