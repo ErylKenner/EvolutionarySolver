@@ -1,25 +1,25 @@
 
-#include "Player.h"
+#include "../include/Player.h"
 
 //---------------Player---------------
-Player::Player(){
+Player::Player() {
     m_fitness = 0;
 }
 
 
-Player::Player(const Player& p){
+Player::Player(const Player& p) {
     m_fitness = p.m_fitness;
 }
 
-Player::~Player(){
-    
+Player::~Player() {
+
 }
 
-bool Player::operator< (const Player& right) const{
+bool Player::operator< (const Player& right) const {
     return m_fitness < right.m_fitness;
 }
 
-void Player::operator= (const Player& right){
+void Player::operator= (const Player& right) {
     m_fitness = right.m_fitness;
 }
 /*
@@ -28,15 +28,15 @@ vector<double> Player::getMove() const{
     return temp.toVector();
 }*/
 
-void Player::addToFitness(const double a){
+void Player::addToFitness(const double a) {
     m_fitness += a;
 }
 
-double Player::getFitness() const{
+double Player::getFitness() const {
     return m_fitness;
 }
 
-void Player::resetFitness(){
+void Player::resetFitness() {
     m_fitness = 0.0f;
 }
 
@@ -44,67 +44,62 @@ void Player::resetFitness(){
 
 //----------NeuralPlayer--------------
 NeuralPlayer::NeuralPlayer()
-        : Player()
-        , neural(){
-}
+    : Player()
+    , neural() {}
 
 NeuralPlayer::NeuralPlayer(const vector<unsigned int>& layerSizes)
-        : Player()
-        , neural(layerSizes){
-}
+    : Player()
+    , neural(layerSizes) {}
 
 NeuralPlayer::NeuralPlayer(const NeuralPlayer& p)
-        : Player(p)
-        , neural(p.neural){
+    : Player(p)
+    , neural(p.neural) {}
+
+NeuralPlayer::~NeuralPlayer() {
+
 }
 
-NeuralPlayer::~NeuralPlayer(){
-    
-}
-
-void NeuralPlayer::operator= (const NeuralPlayer& right){
+void NeuralPlayer::operator= (const NeuralPlayer& right) {
     Player::operator=(right);
     neural = right.neural;
 }
 
-RowVectorXd NeuralPlayer::getMove(const RowVectorXd& input) const{
+RowVectorXd NeuralPlayer::getMove(const RowVectorXd& input) const {
     return neural.forward(input);
 }
 
 //----------ManualPlayer--------------
-ManualPlayer::ManualPlayer(istream& is, ostream& os, 
+ManualPlayer::ManualPlayer(istream& is, ostream& os,
                            const int rows, const int cols)
-        : Player()
-        , m_is(is)
-        , m_os(os)
-        , m_rows(rows)
-        ,m_cols(cols){
-}
+    : Player()
+    , m_is(is)
+    , m_os(os)
+    , m_rows(rows)
+    , m_cols(cols) {}
 
 ManualPlayer::ManualPlayer(const ManualPlayer& p)
-        : Player(p)
-        , m_is(p.m_is)
-        , m_os(p.m_os)
-        , m_rows(p.m_rows)
-        , m_cols(p.m_cols){
+    : Player(p)
+    , m_is(p.m_is)
+    , m_os(p.m_os)
+    , m_rows(p.m_rows)
+    , m_cols(p.m_cols) {}
+
+ManualPlayer::~ManualPlayer() {
+
 }
 
-ManualPlayer::~ManualPlayer(){
-    
-}
-
-void ManualPlayer::operator= (const ManualPlayer& right){    
+void ManualPlayer::operator= (const ManualPlayer& right) {
     Player::operator=(right);
 }
 
-RowVectorXd ManualPlayer::getMove(const RowVectorXd& input) const{
+RowVectorXd ManualPlayer::getMove(const RowVectorXd& input) const {
     unsigned int row, col;
     char eater;
     m_os << "Your move, of the form \"row, col\": ";
     m_is >> row >> eater >> col;
-    row --;
-    col --;
-    
+    row--;
+    col--;
+
     RowVectorXd temp(m_rows * m_cols);
     temp << RowVectorXd::Constant(m_rows * m_cols, 0);
     temp(row * m_cols + col) = 1.0;
@@ -115,23 +110,23 @@ RowVectorXd ManualPlayer::getMove(const RowVectorXd& input) const{
 /*
 PerfectPlayer::PerfectPlayer()
     : Player(){
-    
+
 }
 
 PerfectPlayer::PerfectPlayer(const PerfectPlayer& p)
     : Player(p){
-    
+
 }
 
 PerfectPlayer::~PerfectPlayer(){
-    
+
 }
 
 void PerfectPlayer::operator= (const PerfectPlayer& right){
-    
+
 }
 
-vector<double> PerfectPlayer::getMove(const Matrix& input, 
+vector<double> PerfectPlayer::getMove(const Matrix& input,
                                       int squareIdentity) const{
     Matrix board(3, 3);
     for(int i = 0; i < 3; ++i){
@@ -139,9 +134,9 @@ vector<double> PerfectPlayer::getMove(const Matrix& input,
             board(i, j) = input(3 * i + j, 0);
         }
     }
-    
+
     double nextMove = -1;
-    
+
     //First check if you can win immediately
     nextMove = winningMove();
     if(nextMove >= 0){
@@ -149,7 +144,7 @@ vector<double> PerfectPlayer::getMove(const Matrix& input,
         ret.push_back(nextMove);
         return ret;
     }
-    
+
     nextMove = opponentWinningMove();
     if(nextMove >= 0){
         vector<double> ret;
@@ -159,8 +154,8 @@ vector<double> PerfectPlayer::getMove(const Matrix& input,
         }
         return ret;
     }
-    
-    
+
+
     ret vector<double>;
 }
 

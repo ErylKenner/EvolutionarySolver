@@ -21,20 +21,20 @@ public:
     Genetic(const float mutationRate, const float greedyPercent);
 
     void setPopulationSize(int populationSize);
-    
+
     void breed(vector<playerContainer<NeuralPlayer> >& population);
     void mutate(vector<playerContainer<NeuralPlayer> >& population);
 
 private:
-    vector<MatrixXd> crossOver(const playerContainer<NeuralPlayer>& parent1, 
-                             const playerContainer<NeuralPlayer>& parent2);
-    
+    vector<MatrixXd> crossOver(const playerContainer<NeuralPlayer>& parent1,
+                               const playerContainer<NeuralPlayer>& parent2);
+
     playerContainer<NeuralPlayer> pickParent(
-            const vector<playerContainer<NeuralPlayer> >& population) const;
-    
+        const vector<playerContainer<NeuralPlayer> >& population) const;
+
     const float m_mutationRate;
     int m_populationSize;
-    const float m_greedyPercent; 
+    const float m_greedyPercent;
 };
 
 #endif

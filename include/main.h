@@ -14,12 +14,12 @@ using std::string;
 
 
 template <class T>
-T clamp(const T& value, const T& min, const T& max){
-    if(value > max){
+T clamp(const T& value, const T& min, const T& max) {
+    if (value > max) {
         return max;
-    } else if(value < min){
+    } else if (value < min) {
         return min;
-    } else{
+    } else {
         return value;
     }
 }

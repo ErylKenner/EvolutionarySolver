@@ -5,7 +5,7 @@ Warnings = -Wall -Wextra -Wdouble-promotion -Wswitch-default -Wfloat-equal \
 Sanitize = -fsanitize=address -fsanitize=undefined
 TestingFlags = -Og -g
 ReleaseFlags = -O3
-Targets = main.cpp NeuralNet.cpp Player.cpp Genetic.cpp
+Targets = ./src/main.cpp ./src/NeuralNet.cpp ./src/Player.cpp ./src/Genetic.cpp
 Include = -isystem d:/MinGW/include/eigen-eigen-5a0156e40feb/
 
 

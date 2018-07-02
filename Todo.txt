@@ -1,14 +1,14 @@
 TODO List
 
-- Code formatting
-- XXXXXXXXXXXXX Improve Matrix class functionality/cleanliness XXXXXXXXXXXXX
-- Use Eigen matrix library
-- Ultimate Tic Tac Toe
+X Code formatting
+X XXXXXXXXXXXXX Improve Matrix class functionality/cleanliness XXXXXXXXXXXXX
+X Use Eigen matrix library
+X Ultimate Tic Tac Toe
 - Random Player (chooses moves randomly)
-- Timekeeping (execution time)
+X Timekeeping (execution time)
 - More statistics/metrics
-- Organize codebase (.cpp and .h folders, build folder, more complex makefile, etc.)
-- Optimize (inline some small functions, reduce parameter copying, etc.)
+X Organize codebase (.cpp and .h folders, build folder, more complex makefile, etc.)
+X Optimize (inline some small functions, reduce parameter copying, etc.)
 - Prettify/color-code command line output
 - Use exceptions for error handling
 - Perfect Player (via minimax)

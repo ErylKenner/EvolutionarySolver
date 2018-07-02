@@ -15,45 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Genetic.cpp">
+    <ClCompile Include="src\Genetic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Matrix.cpp">
+    <ClCompile Include="src\NeuralNet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NeuralNet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
+    <ClCompile Include="src\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Genetic.h">
+    <ClInclude Include="include\Genetic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
+    <ClInclude Include="include\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Matrix.h">
+    <ClInclude Include="include\NeuralNet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NeuralNet.h">
+    <ClInclude Include="include\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="include\Population.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Population.h">
+    <ClInclude Include="include\TicTacToe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TicTacToe.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UltimateTTT.h">
+    <ClInclude Include="include\UltimateTTT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
