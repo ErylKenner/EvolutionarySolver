@@ -33,6 +33,9 @@
     <ClInclude Include="include\TicTacToe.h" />
     <ClInclude Include="include\UltimateTTT.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Eigen_visualizer.natvis" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{AE943583-6E21-47EC-BFC2-F37CA248C5A9}</ProjectGuid>
@@ -88,7 +91,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:/MinGW/include/eigen-eigen-5a0156e40feb/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;D:/MinGW/include/eigen-eigen-5a0156e40feb/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>

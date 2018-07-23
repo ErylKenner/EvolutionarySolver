@@ -9,7 +9,7 @@ int main() {
     srand((unsigned int)time(NULL));
 
     //Where your player log files are stored
-    string path = "data/";
+    string path = "../data/";
     Population<TicTacToe> pop;
 
     /*
@@ -37,7 +37,7 @@ int main() {
     if (loadPlayer == 'y' || loadPlayer == 'Y') {
         pop.loadBest(path);
     } else {
-        pop.init((unsigned int)time(NULL));
+        pop.init();
         time_t trainingTime = pop.train(false);
 
         cout << "Time to train: " << trainingTime << endl;

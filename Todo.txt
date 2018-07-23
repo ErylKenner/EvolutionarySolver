@@ -4,7 +4,7 @@ X Code formatting
 X XXXXXXXXXXXXX Improve Matrix class functionality/cleanliness XXXXXXXXXXXXX
 X Use Eigen matrix library
 X Ultimate Tic Tac Toe
-- Random Player (chooses moves randomly)
+X Random Player (chooses moves randomly)
 X Timekeeping (execution time)
 - More statistics/metrics
 X Organize codebase (.cpp and .h folders, build folder, more complex makefile, etc.)
@@ -12,7 +12,7 @@ X Optimize (inline some small functions, reduce parameter copying, etc.)
 - Prettify/color-code command line output
 - Use exceptions for error handling
 - Perfect Player (via minimax)
-- Smarter weight crossover
+- Smarter weight crossover (single point crossover?)
 - Coevolution
 - Keep population diverse (to prevent sub-optimal strategies)
 - SFML (Simple Fast Media Library) pretty visualization

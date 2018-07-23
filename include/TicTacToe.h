@@ -11,6 +11,8 @@ using namespace Eigen;
 #include <vector>
 #include <algorithm>
 #include <cstdint>
+#include <iomanip>
+#include <type_traits>
 
 using std::cout;
 using std::cin;
@@ -38,15 +40,16 @@ private:
     bool isEmpty() const;
     bool isFull() const;
 
-    RowVectorXd toMatrix() const;
+    RowVectorXd toRowVector() const;
     RowVectorXd toPlayerPerspective(const States state) const;
 
     States getBoardAtPosition(const int position) const;
     void setBoardAtPosition(const int position, const States state);
 
     inline RowVectorXi bestMoves(const RowVectorXd& input) const;
-    void printBoard() const;
+    void printBoard(RowVectorXd moves, bool printProbabilities) const;
     bool hasWon() const;
+    void populateMoves(const States state, RowVectorXd &moves);
 
     uint32_t m_board;
 
@@ -113,14 +116,14 @@ inline RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const 
     inputPair.reserve(9);
 
     //Populate inputPair
-    for (unsigned int i = 0; i < NUM_OUTPUTS; ++i) {
+    for (unsigned int i = 0; i < 9; ++i) {
         inputPair.emplace_back(make_pair(input(i), i));
     }
 
     sort(inputPair.begin(), inputPair.end());
 
     //Populate ret
-    for (unsigned int i = 0; i < NUM_OUTPUTS; ++i) {
+    for (unsigned int i = 0; i < 9; ++i) {
         ret(8 - i) = inputPair[i].second;
     }
 
@@ -129,7 +132,7 @@ inline RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const 
 
 //Prints the current board to the console
 template <class T1, class T2>
-void TicTacToe<T1, T2>::printBoard() const {
+void TicTacToe<T1, T2>::printBoard(RowVectorXd moves, bool printProbabilities) const {
     cout << "+---+---+---+" << endl;
     for (int i = 0; i < 3; ++i) {
         cout << "|";
@@ -139,6 +142,8 @@ void TicTacToe<T1, T2>::printBoard() const {
                 cout << " X |";
             } else if (cur == States::playerO) {
                 cout << " O |";
+            } else if (printProbabilities) {
+                cout << std::setfill(' ') << std::setw(3) << std::setprecision(0) << (int)(100 * moves(3 * i + j)) << "|";
             } else {
                 cout << "   |";
             }
@@ -148,12 +153,8 @@ void TicTacToe<T1, T2>::printBoard() const {
     cout << endl;
 }
 
-/* The board is stored as a 3x3 matrix.
- * This helper method converts that into a 1D column matrix
- * representation so it can be passed into other methods.
- */
 template <class T1, class T2>
-RowVectorXd TicTacToe<T1, T2>::toMatrix() const {
+RowVectorXd TicTacToe<T1, T2>::toRowVector() const {
     RowVectorXd temp(NUM_OUTPUTS);
 
     for (int i = 0; i < 9; ++i) {
@@ -162,7 +163,6 @@ RowVectorXd TicTacToe<T1, T2>::toMatrix() const {
     return temp;
 }
 
-
 /* Copy of the board with:
     - player's own squares =  1,
     - opponent's squares   = -1,
@@ -170,7 +170,7 @@ RowVectorXd TicTacToe<T1, T2>::toMatrix() const {
  */
 template <class T1, class T2>
 RowVectorXd TicTacToe<T1, T2>::toPlayerPerspective(const States state) const {
-    RowVectorXd temp = toMatrix();
+    RowVectorXd temp = toRowVector();
 
     for (unsigned int i = 0; i < 9; ++i) {
         States cur = static_cast<States>((int)temp(i));
@@ -249,31 +249,89 @@ bool TicTacToe<T1, T2>::hasWon() const {
     return false;
 }
 
+template <class T1, class T2>
+void TicTacToe<T1, T2>::populateMoves(const States state, RowVectorXd &moves) {
+    RowVectorXd startBoard = toPlayerPerspective(state);
+
+    if (state == States::playerX && std::is_same_v<T1, ManualPlayer>) {
+        double index = (m_player1.player.getMove(startBoard))(0);
+        moves((int)index) = 1.0;
+    } else if (state == States::playerO && std::is_same_v<T2, ManualPlayer>) {
+        double index = (m_player2.player.getMove(startBoard))(0);
+        moves((int)index) = 1.0;
+    } else {
+        RowVectorXd cur;
+        for (int i = 0; i < 9; ++i) {
+            cur = startBoard;
+            if ((int)cur(i) != 0) {
+                continue;
+            }
+            cur(i) = 1.0;
+            RowVectorXd temp;
+            if (state == States::playerX) {
+                //moves = m_player1.player.getMove(toPlayerPerspective(state));
+                temp = m_player1.player.getMove(cur);
+            } else {
+                //moves = m_player2.player.getMove(toPlayerPerspective(state));
+                temp = m_player2.player.getMove(cur);
+            }
+            moves(i) = temp(0);
+        }
+    }
+}
+
 //helper function to handle the steps required to take a turn
 template <class T1, class T2>
 bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn) {
     //holds the list of desired moves in order of preference
-    RowVectorXi moves;
+    RowVectorXd moves = RowVectorXd::Constant(9, 0.0);
 
-    //Diagnostics
-    if (m_verbose) {
-        printBoard();
+
+    if (m_verbose && turn == 1) {
+        printBoard(moves, false);
     }
 
-    //player 1 controls 'X' squares, player 2 controls 'O' squares
-    RowVectorXd playerPerspective = toPlayerPerspective(state);
-    if (state == States::playerX) {
-        moves = bestMoves(m_player1.player.getMove(playerPerspective));
-    } else {
-        moves = bestMoves(m_player2.player.getMove(playerPerspective));
+    populateMoves(state, moves);
+
+    if (m_verbose) {
+        //Array of the values of only empty spaces
+        int index = 0;
+        RowVectorXd startBoard = toPlayerPerspective(state);
+        RowVectorXd availableMoves(9 - (turn - 1));
+        for (int i = 0; i < 9; ++i) {
+            if ((int)(startBoard(i)) == 0) {
+                availableMoves(index++) = moves(i);
+            }
+        }
+
+        //Softmax for visualizing probabilities
+        double max = availableMoves.maxCoeff();
+        double sum = (availableMoves.array() - max).exp().sum();
+        availableMoves = (availableMoves.array() - max - log(sum)).exp().matrix();
+
+        //Bring array of empty space values back into moves array
+        index = 0;
+        for (int i = 0; i < 9; ++i) {
+            if ((int)(startBoard(i)) == 0) {
+                moves(i) = availableMoves(index++);
+            } else {
+                moves(i) = 0.0;
+            }
+        }
+        printBoard(moves, true);
     }
 
     //Make the best move from available squares
-    for (int i = 0; i < NUM_OUTPUTS; ++i) {
-        if (getBoardAtPosition(moves(i)) == States::empty) {
-            setBoardAtPosition(moves(i), state);
+    RowVectorXi orderedMoves = bestMoves(moves);
+    for (int i = 0; i < 9; ++i) {
+        if (getBoardAtPosition(orderedMoves(i)) == States::empty) {
+            setBoardAtPosition(orderedMoves(i), state);
             break;
         }
+    }
+
+    if (m_verbose) {
+        printBoard(moves, false);
     }
 
     //Check if the move played was a winning move
@@ -286,8 +344,6 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn) {
             }
 
             if (m_verbose) {
-                printBoard();
-
                 char symbol;
                 if (state == States::playerX) {
                     symbol = 'X';
@@ -309,14 +365,12 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn) {
             m_player1.player.addToFitness(1.0);
             m_player2.player.addToFitness(1.0);
             if (m_verbose) {
-                printBoard();
                 cout << "Tie game" << endl;
                 cout << "=============" << endl;
             }
             return true;
         }
     }
-
 
     //If the game is not over, return false
     return false;

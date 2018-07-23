@@ -22,11 +22,6 @@ bool Player::operator< (const Player& right) const {
 void Player::operator= (const Player& right) {
     m_fitness = right.m_fitness;
 }
-/*
-vector<double> Player::getMove() const{
-    MatrixXd temp = MatrixXd::Random(1, 9);
-    return temp.toVector();
-}*/
 
 void Player::addToFitness(const double a) {
     m_fitness += a;
@@ -95,15 +90,37 @@ void ManualPlayer::operator= (const ManualPlayer& right) {
 RowVectorXd ManualPlayer::getMove(const RowVectorXd& input) const {
     unsigned int row, col;
     char eater;
-    m_os << "Your move, of the form \"row, col\": ";
-    m_is >> row >> eater >> col;
+    do {
+        m_os << "Your move, of the form \"row, col\": ";
+        m_is >> row >> eater >> col;
+    } while (row < 1 || row >(unsigned int)m_rows || col < 1 || col >(unsigned int)m_cols);
     row--;
     col--;
 
-    RowVectorXd temp(m_rows * m_cols);
-    temp << RowVectorXd::Constant(m_rows * m_cols, 0);
-    temp(row * m_cols + col) = 1.0;
+    RowVectorXd temp(1);
+    temp << row * m_cols + col;
     return temp;
+}
+
+//----------RandomPlayer--------------
+RandomPlayer::RandomPlayer(const int size)
+    : Player() {}
+
+RandomPlayer::RandomPlayer(const RandomPlayer& p)
+    : Player(p) {}
+
+RandomPlayer::~RandomPlayer() {
+
+}
+
+void RandomPlayer::operator= (const RandomPlayer& right) {
+    Player::operator=(right);
+}
+
+RowVectorXd RandomPlayer::getMove(const RowVectorXd& input) const {
+    RowVectorXd ret(1);
+    ret << (double)rand() / RAND_MAX;
+    return ret;
 }
 
 //----------PerfectPlayer--------------

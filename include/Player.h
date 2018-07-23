@@ -71,6 +71,21 @@ private:
     const int m_rows;
     const int m_cols;
 };
+
+//A player with a random input brain
+class RandomPlayer : public Player {
+public:
+    RandomPlayer(const int size);
+    RandomPlayer(const RandomPlayer& p);
+    virtual ~RandomPlayer();
+
+    void operator= (const RandomPlayer& right);
+
+    virtual RowVectorXd getMove(const RowVectorXd& input) const override;
+
+private:
+};
+
 /*
 //A player with a theoretically perfect brain
 class PerfectPlayer : public Player{

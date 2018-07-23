@@ -75,28 +75,26 @@ void Genetic::mutate(vector<playerContainer<NeuralPlayer> >& population) {
 
 playerContainer<NeuralPlayer> Genetic::pickParent(
     const vector<playerContainer<NeuralPlayer> >& population) const {
-//The sum of all player's fitness within the population
-    double totalPopulationFitness = 0;
+
+    double best = population[m_populationSize - 1].player.getFitness();
+    double total = 0;
     for (int i = 0; i < m_populationSize; ++i) {
         double cur = population[i].player.getFitness();
-        totalPopulationFitness += cur;
+        total += std::exp(cur / best);
     }
 
-    //A random number in the range [0, totalPopulationFitness - 1]
-    int threshold = rand() % (int)totalPopulationFitness;
+    int threshold = rand() % (int)total;
 
     double sum = 0;
     for (int i = m_populationSize - 1; i >= 0; --i) {
-        double curFitness = population[i].player.getFitness();
-
-        //Add the current player's fitness until it reaches the threshold
-        sum += curFitness;
+        double cur = population[i].player.getFitness();
+        sum += std::exp(cur / best);
         if (sum >= threshold) {
             return population[i];
         }
     }
     //Default, return the highest fitness player
-    return population.back();
+    return population[m_populationSize - 1];
 }
 
 vector<MatrixXd> Genetic::crossOver(const playerContainer<NeuralPlayer>& parent1,
@@ -104,28 +102,33 @@ vector<MatrixXd> Genetic::crossOver(const playerContainer<NeuralPlayer>& parent1
     vector<MatrixXd> weights1;
     vector<MatrixXd> weights2;
 
-    //Parent 1
     weights1 = parent1.player.neural.getWeights();
     weights2 = parent2.player.neural.getWeights();
 
     size_t length = weights1.size();
+    int totalParams = 0;
+    for (size_t i = 0; i < length; ++i) {
+        totalParams += weights1[i].rows() * weights1[i].cols();
+    }
 
-    //For each layer
+    int crossoverPoint = rand() % totalParams;
+
+    int total = 0;
     for (size_t i = 0; i < length; ++i) {
         int rows = weights1[i].rows();
         int cols = weights1[i].cols();
-
-        //Cross breed matrix
-        for (int col = 0; col < cols; ++col) {
-            for (int row = 0; row < rows; ++row) {
-                //50% chance of being from parent1 or parent2
-                if (rand() % 2 == 0) {
-                    weights1[i](row, col) = weights2[i](row, col);
+        if (total >= crossoverPoint - rows * cols) {
+            for (int col = 0; col < cols; ++col) {
+                for (int row = 0; row < rows; ++row) {
+                    if (total + row * cols + col >= crossoverPoint) {
+                        weights1[i](row, col) = weights2[i](row, col);
+                    }
                 }
             }
         }
-
+        total += rows * cols;
     }
+
     return weights1;
 }
 

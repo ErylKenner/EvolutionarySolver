@@ -21,8 +21,9 @@ using std::ifstream;
 using std::string;
 using std::max;
 using std::exp;
+using std::log;
 
-enum Activations { sigmoid, relu };
+enum Activations { sigmoid, relu, softmax };
 
 class NeuralNet {
 
