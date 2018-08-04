@@ -132,3 +132,13 @@ vector<MatrixXd> Genetic::crossOver(const playerContainer<NeuralPlayer>& parent1
     return weights1;
 }
 
+
+void Genetic::setMutationRate(const float mutationRate) {
+    m_mutationRate = clamp(mutationRate, 0.0f, 1.0f);
+}
+
+
+void Genetic::setGreedyPercent(const float greedyPercent) {
+    m_greedyPercent = clamp(greedyPercent, 0.0f, 1.0f);
+}
+

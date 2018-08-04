@@ -69,7 +69,7 @@ private:
 
 
 template <template <class, class> class Game>
-Population<Game>::Population() : m_ga(0.03f, 0.03f), m_opponent(Game<NeuralPlayer, RandomPlayer>::NUM_OUTPUTS) {
+Population<Game>::Population() : m_ga(0.05f, 0.02f), m_opponent(Game<NeuralPlayer, RandomPlayer>::NUM_OUTPUTS) {
 
 }
 
@@ -141,9 +141,22 @@ void Population<Game>::init(istream& is, ostream& os) {
 template <template <class, class> class Game>
 time_t Population<Game>::train(bool verbose) {
     time_t startTime = time(NULL);
+    int stage = 1;
+    cout << "STAGE 1: RANDOM PLAYERS" << endl;
     for (int generation = 0; generation < m_iterations; ++generation) {
-        //Play games with every permutaiton of players
-        playGames();
+
+        //Training stage selector
+        switch (stage) {
+            case 1:
+                playGames();
+                break;
+            case 2:
+                roundRobin();
+                break;
+            default:
+                break;
+        }
+
 
         //Sorts the players by fitness (ascending)
         sort(m_population.begin(), m_population.end(),
@@ -167,6 +180,15 @@ time_t Population<Game>::train(bool verbose) {
         //Print epoch summary
         printSummary(generation, HOF_win_percent, HOF_loss_percent,
                      HOF_tie_percent);
+
+        //Stage selection
+        if (stage == 1 && m_population[m_populationSize - 1].player.getFitness() >= 1.25 * m_gamesToSimulate && m_population[m_populationSize / 2].player.getFitness() >= m_gamesToSimulate) {
+            stage = 2;
+            generation = 0;
+            m_ga.setMutationRate(0.03);
+            m_ga.setGreedyPercent(0.05);
+            cout << "MOVING TO STAGE 2: ROUND ROBIN" << endl;
+        }
 
         //Make new players based on how successful the current ones are
         m_ga.breed(m_population);

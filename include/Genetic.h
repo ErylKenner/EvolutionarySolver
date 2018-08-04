@@ -22,6 +22,9 @@ public:
 
     void setPopulationSize(int populationSize);
 
+    void setMutationRate(const float mutationRate);
+    void setGreedyPercent(const float greedyPercent);
+
     void breed(vector<playerContainer<NeuralPlayer> >& population);
     void mutate(vector<playerContainer<NeuralPlayer> >& population);
 
@@ -32,9 +35,9 @@ private:
     playerContainer<NeuralPlayer> pickParent(
         const vector<playerContainer<NeuralPlayer> >& population) const;
 
-    const float m_mutationRate;
+    float m_mutationRate;
     int m_populationSize;
-    const float m_greedyPercent;
+    float m_greedyPercent;
 };
 
 #endif
