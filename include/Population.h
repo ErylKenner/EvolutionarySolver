@@ -34,8 +34,9 @@ public:
     void init(istream& is = cin, ostream& os = cout);
     time_t train(bool verbose);
 
-    string saveBest(const string path);
-    void loadBest(const string path, string name = "");
+    bool load(const string path);
+    bool save(const string path);
+    bool playBest();
 
 private:
     int m_populationSize;
@@ -50,9 +51,13 @@ private:
 
     Genetic m_ga;
 
-    string savePlayerToFile(const NeuralPlayer best, const string path) const;
+    void playTestGame(playerContainer<NeuralPlayer> loadedPlayer);
     playerContainer<NeuralPlayer> loadPlayerFromFile(const string path,
                                                      string name = "");
+    string savePlayerToFile(const NeuralPlayer best, const string path) const;
+
+
+
 
     void roundRobin();
     void playGames();
@@ -136,23 +141,25 @@ void Population<Game>::init(istream& is, ostream& os) {
 
     m_ga.setPopulationSize(m_populationSize);
     m_hallOfFame.reserve(m_iterations);
+    cout << endl << endl;
 }
 
 template <template <class, class> class Game>
 time_t Population<Game>::train(bool verbose) {
     time_t startTime = time(NULL);
-    int stage = 1;
+    int trainingStage = 1;
     cout << "STAGE 1: RANDOM PLAYERS" << endl;
     for (int generation = 0; generation < m_iterations; ++generation) {
-
-        //Training stage selector
-        switch (stage) {
+        switch (trainingStage) {
             case 1:
                 playGames();
                 break;
             case 2:
                 roundRobin();
+                playGames();
                 break;
+            case 3:
+                roundRobin();
             default:
                 break;
         }
@@ -182,13 +189,37 @@ time_t Population<Game>::train(bool verbose) {
                      HOF_tie_percent);
 
         //Stage selection
-        if (stage == 1 && m_population[m_populationSize - 1].player.getFitness() >= 1.25 * m_gamesToSimulate && m_population[m_populationSize / 2].player.getFitness() >= m_gamesToSimulate) {
-            stage = 2;
-            generation = 0;
-            m_ga.setMutationRate(0.03);
-            m_ga.setGreedyPercent(0.05);
-            cout << "MOVING TO STAGE 2: ROUND ROBIN" << endl;
+        double highestFit = m_population.back().player.getFitness();
+        double medFit = m_population[m_populationSize / 2].player.getFitness();
+        double roundRobinFit = 2 * (m_populationSize - 1);
+        switch (trainingStage) {
+            case 1:
+                if ((highestFit >= 1.2 * m_gamesToSimulate
+                     && medFit >= 0.95 * m_gamesToSimulate)
+                    || generation == m_iterations - 1) {
+                    trainingStage = 2;
+                    generation = 0;
+                    m_ga.setMutationRate((float)0.03);
+                    m_ga.setGreedyPercent((float)0.05);
+                    cout << "MOVING TO STAGE 2: ROUND ROBIN & RANDOM PLAYERS"
+                        << endl;
+                }
+                break;
+            case 2:
+                if ((highestFit >= 1.2 * m_gamesToSimulate + 1.1 * roundRobinFit
+                     && medFit >= 0.95 * m_gamesToSimulate + 0.8 * roundRobinFit)
+                    || generation == m_iterations - 1) {
+                    trainingStage = 3;
+                    generation = 0;
+                    m_ga.setMutationRate((float)0.01);
+                    m_ga.setGreedyPercent((float)0.08);
+                    cout << "MOVING TO STAGE 3: ROUND ROBIN" << endl;
+                }
+                break;
+            default:
+                break;
         }
+
 
         //Make new players based on how successful the current ones are
         m_ga.breed(m_population);
@@ -247,18 +278,7 @@ playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(
 
 
 template <template <class, class> class Game>
-void Population<Game>::loadBest(const string path, string name) {
-    playerContainer<NeuralPlayer> loadedPlayer;
-
-    if (name == "") {
-        loadedPlayer = m_population.back();
-    } else {
-        loadedPlayer = loadPlayerFromFile(path, name);
-    }
-
-    loadedPlayer.player.neural.printWeights();
-
-    //Set up a human-input player
+void Population<Game>::playTestGame(playerContainer<NeuralPlayer> loadedPlayer) {
     ManualPlayer tempHuman(cin, cout, 3, 3);
     playerContainer<ManualPlayer> human(tempHuman);
 
@@ -268,14 +288,6 @@ void Population<Game>::loadBest(const string path, string name) {
 
     Game<NeuralPlayer, ManualPlayer> testGame2(loadedPlayer, human, true);
     testGame2.playGame();
-}
-
-template <template <class, class> class Game>
-string Population<Game>::saveBest(const string path) {
-    NeuralPlayer best = m_population.back().player;
-    best.neural.printWeights();
-    string name = savePlayerToFile(best, path);
-    return name;
 }
 
 template <template <class, class> class Game>
@@ -413,6 +425,48 @@ void  Population<Game>::printPopulationFrom(const unsigned int start,
         printf("%5.1f\n", m_population[i].player.getFitness());
     }
 }
+
+
+template <template <class, class> class Game>
+bool Population<Game>::load(const string path) {
+    char loadPlayer;
+    cout << "Do you want to load a trained player? (y/n): ";
+    cin >> loadPlayer;
+
+    if (loadPlayer == 'y' || loadPlayer == 'Y') {
+        playTestGame(loadPlayerFromFile(path));
+        return true;
+    }
+    return false;
+}
+
+template <template <class, class> class Game>
+bool Population<Game>::save(const string path) {
+    char savePlayer;
+    cout << "Do you want to save the best player to a file? (y/n): ";
+    cin >> savePlayer;
+
+    if (savePlayer == 'y' || savePlayer == 'Y') {
+        savePlayerToFile(m_population.back().player, path);
+        return true;
+    }
+    return false;
+}
+
+template <template <class, class> class Game>
+bool Population<Game>::playBest() {
+    char playBest;
+    cout << "Do you want to play against the best player? (y/n): ";
+    cin >> playBest;
+
+    if (playBest == 'y' || playBest == 'Y') {
+        playTestGame(m_population.back());
+        return true;
+    }
+    return false;
+}
+
+
 
 #endif
 
