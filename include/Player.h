@@ -7,6 +7,7 @@ using namespace Eigen;
 #include <vector>
 #include "NeuralNet.h"
 
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -86,9 +87,9 @@ public:
 private:
 };
 
-/*
+
 //A player with a theoretically perfect brain
-class PerfectPlayer : public Player{
+class PerfectPlayer : public Player {
 public:
     PerfectPlayer();
     PerfectPlayer(const PerfectPlayer& p);
@@ -96,13 +97,10 @@ public:
 
     void operator= (const PerfectPlayer& right);
 
-    virtual vector<double> getMove(const VectorXd& input) const override;
-
+    virtual RowVectorXd getMove(const RowVectorXd& input) const override;
 private:
-    double winningMove() const;
-    double opponentWinningMove() const;
 };
-*/
+
 
 
 

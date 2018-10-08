@@ -4,6 +4,7 @@
 #include "Population.h"
 #include <Eigen/Dense>
 
+#define TEST_MODE 0
 
 int main() {
     srand((unsigned int)time(NULL));
@@ -12,39 +13,31 @@ int main() {
     string path = "data/";
     Population<TicTacToe> pop;
 
-    /*
-    ManualPlayer tempHuman1(cin, cout, 10, 9);
+#if TEST_MODE
+    ManualPlayer tempHuman1(cin, cout, 3, 3);
     playerContainer<ManualPlayer> human1(tempHuman1);
 
-    std::vector<unsigned int> layersizes;
-    layersizes.push_back(81);
-    layersizes.push_back(1);
-    layersizes.push_back(90);
-    NeuralPlayer NeuralPlayer1(layersizes);
-    NeuralPlayer NeuralPlayer2(layersizes);
-    playerContainer<NeuralPlayer> machine1(NeuralPlayer1);
-    playerContainer<NeuralPlayer> machine2(NeuralPlayer1);
+    PerfectPlayer perfPlayer;
+    playerContainer<PerfectPlayer> perf(perfPlayer);
 
-    UltimateTTT<NeuralPlayer, NeuralPlayer> ttt(machine1, machine2, true);
-    ttt.playGame();
-    */
-
+    TicTacToe<ManualPlayer, PerfectPlayer> game1(human1, perf, true);
+    game1.playGame();
+    TicTacToe<PerfectPlayer, ManualPlayer> game2(perf, human1, true);
+    game2.playGame();
+#else
 
 
     if (!pop.load(path)) {
         pop.init();
         time_t trainingTime = pop.train(false);
 
-        cout << "Time to train: " << trainingTime;
-        if (trainingTime == 1) {
-            cout << " second" << endl;
-        } else {
-            cout << " seconds" << endl;
-        }
+        cout << "Time to train: " << trainingTime << (trainingTime == 1 ? "second" : " seconds") << endl;
 
         pop.save(path);
         pop.playBest();
     }
+
+#endif
 
     return 0;
 }

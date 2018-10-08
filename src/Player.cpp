@@ -124,66 +124,33 @@ RowVectorXd RandomPlayer::getMove(const RowVectorXd& input) const {
 }
 
 //----------PerfectPlayer--------------
-/*
+
 PerfectPlayer::PerfectPlayer()
-    : Player(){
+    : Player() {
 
 }
 
 PerfectPlayer::PerfectPlayer(const PerfectPlayer& p)
-    : Player(p){
+    : Player(p) {
 
 }
 
-PerfectPlayer::~PerfectPlayer(){
+PerfectPlayer::~PerfectPlayer() {
 
 }
 
-void PerfectPlayer::operator= (const PerfectPlayer& right){
-
+void PerfectPlayer::operator= (const PerfectPlayer& right) {
+    Player::operator=(right);
 }
 
-vector<double> PerfectPlayer::getMove(const Matrix& input,
-                                      int squareIdentity) const{
-    Matrix board(3, 3);
-    for(int i = 0; i < 3; ++i){
-        for(int j = 0; j < 3; ++j){
-            board(i, j) = input(3 * i + j, 0);
-        }
-    }
-
-    double nextMove = -1;
-
-    //First check if you can win immediately
-    nextMove = winningMove();
-    if(nextMove >= 0){
-        vector<double> ret;
-        ret.push_back(nextMove);
-        return ret;
-    }
-
-    nextMove = opponentWinningMove();
-    if(nextMove >= 0){
-        vector<double> ret;
-        ret.push_back(nextMove);
-        for(int i = 0; i < 8; ++i){
-            ret.push_back(0);
-        }
-        return ret;
-    }
-
-
-    ret vector<double>;
+RowVectorXd PerfectPlayer::getMove(const RowVectorXd& input) const {
+    RowVectorXd ret(1);
+    ret << (double)rand() / RAND_MAX;
+    return ret;
 }
 
-double PerfectPlayer::winningMove() const{
-    return 0;
-}
 
-double PerfectPlayer::opponentWinningMove() const{
-    return 0;
-}
-*/
+
 
 
 

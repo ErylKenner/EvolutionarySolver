@@ -26,19 +26,21 @@ enum States { empty = 0, playerX = 1, playerO = 2, invalid = 3 };
 
 
 
-template <class T1, class T2>
+template <class P1, class P2>
 class TicTacToe {
 public:
-    TicTacToe(playerContainer<T1>& player1, playerContainer<T2>& player2,
+    TicTacToe(playerContainer<P1>& player1, playerContainer<P2>& player2,
               bool verbose = false);
     void playGame();
 
     static const int NUM_INPUTS = 9;
     static const int NUM_OUTPUTS = 9;
 private:
-    bool takeTurn(const States state, const int turns);
+    bool takeTurn(const States state, const int turn);
+
     bool isEmpty() const;
-    bool isFull() const;
+    bool hasTied() const;
+    bool hasWon() const;
 
     RowVectorXd toRowVector() const;
     RowVectorXd toPlayerPerspective(const States state) const;
@@ -48,13 +50,16 @@ private:
 
     inline RowVectorXi bestMoves(const RowVectorXd& input) const;
     void printBoard(RowVectorXd moves, bool printProbabilities) const;
-    bool hasWon() const;
-    void populateMoves(const States state, RowVectorXd &moves);
+    void populateMoves(const States state, RowVectorXd &moves, const int turn);
+    double minimax(const States state, const int turn);
+
+    double winReward(const int turn) const;
+    double tieReward(const int turn) const;
 
     uint32_t m_board;
 
-    playerContainer<T1>& m_player1;
-    playerContainer<T2>& m_player2;
+    playerContainer<P1>& m_player1;
+    playerContainer<P2>& m_player2;
 
     bool m_verbose;
 
@@ -64,42 +69,37 @@ private:
 
 
 
-template <class T1, class T2>
-TicTacToe<T1, T2>::TicTacToe(playerContainer<T1>& player1,
-                             playerContainer<T2>& player2, bool verbose)
+template <class P1, class P2>
+TicTacToe<P1, P2>::TicTacToe(playerContainer<P1>& player1,
+                             playerContainer<P2>& player2, bool verbose)
     : m_player1(player1)
     , m_player2(player2)
     , m_verbose(verbose) {
     m_board = (uint32_t)0;
 }
 
-/* Plays until a player wins or the board is full.
- * Player's fitness is updated within takeTurn().
- */
-template <class T1, class T2>
-void TicTacToe<T1, T2>::playGame() {
-    int turns = 0;
+template <class P1, class P2>
+void TicTacToe<P1, P2>::playGame() {
+    int turn = 0;
     while (true) {
-        turns++;
-        if (takeTurn(States::playerX, turns)) {
+        if (takeTurn(States::playerX, turn)) {
             break;
         }
-        turns++;
-        if (takeTurn(States::playerO, turns)) {
+        turn++;
+        if (takeTurn(States::playerO, turn)) {
             break;
         }
+        turn++;
     }
 }
 
-//Helper method to determine if the board is empty
-template <class T1, class T2>
-bool TicTacToe<T1, T2>::isEmpty() const {
+template <class P1, class P2>
+bool TicTacToe<P1, P2>::isEmpty() const {
     return m_board == (uint32_t)0;
 }
 
-//Helper method to determine if the board is full
-template <class T1, class T2>
-bool TicTacToe<T1, T2>::isFull() const {
+template <class P1, class P2>
+bool TicTacToe<P1, P2>::hasTied() const {
     for (int i = 0; i < 9; ++i) {
         if (getBoardAtPosition(i) == States::empty) {
             return false;
@@ -109,8 +109,8 @@ bool TicTacToe<T1, T2>::isFull() const {
 }
 
 //Returns a vector of the preferred moves starting with most preferred
-template <class T1, class T2>
-inline RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const {
+template <class P1, class P2>
+inline RowVectorXi TicTacToe<P1, P2>::bestMoves(const RowVectorXd& input) const {
     Matrix<int, 1, 9> ret;
     vector< pair<double, unsigned int> > inputPair;
     inputPair.reserve(9);
@@ -130,9 +130,8 @@ inline RowVectorXi TicTacToe<T1, T2>::bestMoves(const RowVectorXd& input) const 
     return ret;
 }
 
-//Prints the current board to the console
-template <class T1, class T2>
-void TicTacToe<T1, T2>::printBoard(RowVectorXd moves, bool printProbabilities) const {
+template <class P1, class P2>
+void TicTacToe<P1, P2>::printBoard(RowVectorXd moves, bool printProbabilities) const {
     cout << "+---+---+---+" << endl;
     for (int i = 0; i < 3; ++i) {
         cout << "|";
@@ -153,10 +152,9 @@ void TicTacToe<T1, T2>::printBoard(RowVectorXd moves, bool printProbabilities) c
     cout << endl;
 }
 
-template <class T1, class T2>
-RowVectorXd TicTacToe<T1, T2>::toRowVector() const {
-    RowVectorXd temp(NUM_OUTPUTS);
-
+template <class P1, class P2>
+RowVectorXd TicTacToe<P1, P2>::toRowVector() const {
+    RowVectorXd temp(9);
     for (int i = 0; i < 9; ++i) {
         temp(i) = (double)getBoardAtPosition(i);
     }
@@ -164,19 +162,18 @@ RowVectorXd TicTacToe<T1, T2>::toRowVector() const {
 }
 
 /* Copy of the board with:
-    - player's own squares =  1,
-    - opponent's squares   = -1,
+    - player's own squares =  1
+    - opponent's squares   = -1
     - empty squares        =  0
  */
-template <class T1, class T2>
-RowVectorXd TicTacToe<T1, T2>::toPlayerPerspective(const States state) const {
+template <class P1, class P2>
+RowVectorXd TicTacToe<P1, P2>::toPlayerPerspective(const States state) const {
     RowVectorXd temp = toRowVector();
-
-    for (unsigned int i = 0; i < 9; ++i) {
-        States cur = static_cast<States>((int)temp(i));
-        if (cur == States::empty) {
+    for (int i = 0; i < 9; ++i) {
+        int cur = (int)temp(i);
+        if (cur == (int)States::empty) {
             temp(i) = 0.0;
-        } else if (cur == state) {
+        } else if (cur == (int)state) {
             temp(i) = 1.0;
         } else {
             temp(i) = -1.0;
@@ -185,15 +182,8 @@ RowVectorXd TicTacToe<T1, T2>::toPlayerPerspective(const States state) const {
     return temp;
 }
 
-/* 'position' is an integer between [0,8], but the board is a 3x3 matrix
- * This method returns the board position at that position.
- */
-template <class T1, class T2>
-States TicTacToe<T1, T2>::getBoardAtPosition(const int position) const {
-    if (position < 0 || position > 8) {
-        cerr << "Invalid position in getBoardAtPosition" << endl;
-        exit(1);
-    }
+template <class P1, class P2>
+States TicTacToe<P1, P2>::getBoardAtPosition(const int position) const {
     uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
     uint32_t ret = m_board >> shiftAmount;
     ret &= (uint32_t)3;
@@ -208,14 +198,12 @@ States TicTacToe<T1, T2>::getBoardAtPosition(const int position) const {
     }
 }
 
-/* This method sets the board square given by 'position' to a given value.
- */
-template <class T1, class T2>
-void TicTacToe<T1, T2>::setBoardAtPosition(const int position,
+template <class P1, class P2>
+void TicTacToe<P1, P2>::setBoardAtPosition(const int position,
                                            const States state) {
     uint32_t shiftAmount = (uint32_t)(8 - position) << 1;
 
-    //Clear the 2-bit-wode field
+    //Clear the 2-bit-wide field
     m_board &= ~((uint32_t)3 << shiftAmount);
 
     //Set the new state at the 2-bit-wide field
@@ -223,9 +211,8 @@ void TicTacToe<T1, T2>::setBoardAtPosition(const int position,
     m_board |= (val << shiftAmount);
 }
 
-//Helper function to determine if a player has won
-template <class T1, class T2>
-bool TicTacToe<T1, T2>::hasWon() const {
+template <class P1, class P2>
+bool TicTacToe<P1, P2>::hasWon() const {
     //PlayerX
     if ((m_board & (uint32_t)65793) == (uint32_t)65793) { return true; }
     if ((m_board & (uint32_t)4368) == (uint32_t)4368) { return true; }
@@ -249,75 +236,93 @@ bool TicTacToe<T1, T2>::hasWon() const {
     return false;
 }
 
-template <class T1, class T2>
-void TicTacToe<T1, T2>::populateMoves(const States state, RowVectorXd &moves) {
+template <class P1, class P2>
+double TicTacToe<P1, P2>::winReward(const int turn) const {
+    return 1.0 + (9.0 - turn) / 10.0;
+}
+
+template <class P1, class P2>
+double TicTacToe<P1, P2>::tieReward(const int turn) const {
+    return 1.0;
+}
+
+template <class P1, class P2>
+void TicTacToe<P1, P2>::populateMoves(const States state, RowVectorXd &moves, const int turn) {
     RowVectorXd startBoard = toPlayerPerspective(state);
 
-    if (state == States::playerX && std::is_same_v<T1, ManualPlayer>) {
-        double index = (m_player1.player.getMove(startBoard))(0);
-        moves((int)index) = 1.0;
-    } else if (state == States::playerO && std::is_same_v<T2, ManualPlayer>) {
-        double index = (m_player2.player.getMove(startBoard))(0);
-        moves((int)index) = 1.0;
+    if (state == States::playerX) {
+        if (std::is_same_v<P1, ManualPlayer>) {
+            double index = (m_player1.player.getMove(startBoard))(0);
+            moves((int)index) = 1.0;
+        } else if (std::is_same_v<P1, PerfectPlayer>) {
+            uint32_t currentBoard = m_board;
+
+            for (int i = 0; i < 9; ++i) {
+                if (getBoardAtPosition(i) == States::empty) {
+                    setBoardAtPosition(i, States::playerX);
+                    moves(i) = minimax(States::playerO, turn);
+                    m_board = currentBoard;
+                }
+            }
+
+            m_board = currentBoard;
+        } else {
+            RowVectorXd cur;
+            for (int i = 0; i < 9; ++i) {
+                cur = startBoard;
+                if ((int)cur(i) == (int)States::empty) {
+                    cur(i) = 1.0;
+                    moves(i) = m_player1.player.getMove(cur)(0);
+                }
+            }
+        }
     } else {
-        RowVectorXd cur;
-        for (int i = 0; i < 9; ++i) {
-            cur = startBoard;
-            if ((int)cur(i) != 0) {
-                continue;
+        if (std::is_same_v<P2, ManualPlayer>) {
+            double index = (m_player2.player.getMove(startBoard))(0);
+            moves((int)index) = 1.0;
+        } else if (std::is_same_v<P2, PerfectPlayer>) {
+            uint32_t currentBoard = m_board;
+
+            for (int i = 0; i < 9; ++i) {
+                if (getBoardAtPosition(i) == States::empty) {
+                    setBoardAtPosition(i, States::playerO);
+                    moves(i) = minimax(States::playerX, turn);
+                    m_board = currentBoard;
+                }
             }
-            cur(i) = 1.0;
-            RowVectorXd temp;
-            if (state == States::playerX) {
-                //moves = m_player1.player.getMove(toPlayerPerspective(state));
-                temp = m_player1.player.getMove(cur);
-            } else {
-                //moves = m_player2.player.getMove(toPlayerPerspective(state));
-                temp = m_player2.player.getMove(cur);
+            moves *= -1;
+
+            m_board = currentBoard;
+        } else {
+            RowVectorXd cur;
+            for (int i = 0; i < 9; ++i) {
+                cur = startBoard;
+                if ((int)cur(i) == (int)States::empty) {
+                    cur(i) = 1.0;
+                    moves(i) = m_player2.player.getMove(cur)(0);
+                }
             }
-            moves(i) = temp(0);
         }
     }
+
+
+
 }
 
 //helper function to handle the steps required to take a turn
-template <class T1, class T2>
-bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn) {
-    //holds the list of desired moves in order of preference
+template <class P1, class P2>
+bool TicTacToe<P1, P2>::takeTurn(const States state, const int turn) {
+    //List of desired moves in order of preference
     RowVectorXd moves = RowVectorXd::Constant(9, 0.0);
 
-
-    if (m_verbose && turn == 1) {
+    if (m_verbose && turn == 0) {
         printBoard(moves, false);
+        cout << "===========================================" << endl;
     }
 
-    populateMoves(state, moves);
+    populateMoves(state, moves, turn);
 
     if (m_verbose) {
-        //Array of the values of only empty spaces
-        int index = 0;
-        RowVectorXd startBoard = toPlayerPerspective(state);
-        RowVectorXd availableMoves(9 - (turn - 1));
-        for (int i = 0; i < 9; ++i) {
-            if ((int)(startBoard(i)) == 0) {
-                availableMoves(index++) = moves(i);
-            }
-        }
-
-        //Softmax for visualizing probabilities
-        double max = availableMoves.maxCoeff();
-        double sum = (availableMoves.array() - max).exp().sum();
-        availableMoves = (availableMoves.array() - max - log(sum)).exp().matrix();
-
-        //Bring array of empty space values back into moves array
-        index = 0;
-        for (int i = 0; i < 9; ++i) {
-            if ((int)(startBoard(i)) == 0) {
-                moves(i) = availableMoves(index++);
-            } else {
-                moves(i) = 0.0;
-            }
-        }
         printBoard(moves, true);
     }
 
@@ -332,48 +337,82 @@ bool TicTacToe<T1, T2>::takeTurn(const States state, const int turn) {
 
     if (m_verbose) {
         printBoard(moves, false);
+        cout << "===========================================" << endl;
     }
 
     //Check if the move played was a winning move
-    if (turn >= 5) {
-        if (hasWon()) {
-            if (state == States::playerX) {
-                m_player1.player.addToFitness(1.0 + (10.0 - turn) / 10.0);
-            } else {
-                m_player2.player.addToFitness(1.0 + (10.0 - turn) / 10.0);
-            }
-
-            if (m_verbose) {
-                char symbol;
-                if (state == States::playerX) {
-                    symbol = 'X';
-                } else {
-                    symbol = 'O';
-                }
-
-                cout << "Player " << symbol << " has won the game!" << endl;
-                cout << "=============" << endl;
-            }
-            return true;
+    if (turn >= 4 && hasWon()) {
+        if (state == States::playerX) {
+            m_player1.player.addToFitness(winReward(turn));
+        } else {
+            m_player2.player.addToFitness(winReward(turn));
         }
+
+        if (m_verbose) {
+            cout << "===========================================" << endl;
+            cout << "Player " << (state == States::playerX ? 'X' : 'O') << " has won the game!" << endl;
+            cout << "===========================================" << endl;
+            cout << "===========================================" << endl;
+        }
+        return true;
     }
 
-
     //Check if the board is now full
-    if (turn == 9) {
-        if (isFull()) {
-            m_player1.player.addToFitness(1.0);
-            m_player2.player.addToFitness(1.0);
-            if (m_verbose) {
-                cout << "Tie game" << endl;
-                cout << "=============" << endl;
-            }
-            return true;
+    if (turn == 8 && hasTied()) {
+        m_player1.player.addToFitness(tieReward(turn));
+        m_player2.player.addToFitness(tieReward(turn));
+        if (m_verbose) {
+            cout << "===========================================" << endl;
+            cout << "Tie game" << endl;
+            cout << "===========================================" << endl;
+            cout << "===========================================" << endl;
         }
+        return true;
     }
 
     //If the game is not over, return false
     return false;
+}
+
+template <class P1, class P2>
+double TicTacToe<P1, P2>::minimax(const States state, const int turn) {
+    if (turn >= 4 && hasWon()) {
+        double score = 9.0 - turn;
+        if (state == States::playerX) {
+            return -score;
+        } else {
+            return score;
+        }
+    } else if (turn == 8 && hasTied()) {
+        return 0.0;
+    }
+
+    double bestValue;
+    if (state == States::playerX) {
+        bestValue = -1000.0;
+        uint32_t currentBoard = m_board;
+        for (int i = 0; i < 9; ++i) {
+            if (getBoardAtPosition(i) == States::empty) {
+                setBoardAtPosition(i, States::playerX);
+                bestValue = std::max(bestValue, minimax(States::playerO, turn + 1));
+                m_board = currentBoard;
+            }
+        }
+        return bestValue;
+    } else {
+        bestValue = 1000.0;
+        uint32_t currentBoard = m_board;
+        for (int i = 0; i < 9; ++i) {
+            if (getBoardAtPosition(i) == States::empty) {
+                setBoardAtPosition(i, States::playerO);
+                bestValue = std::min(bestValue, minimax(States::playerX, turn + 1));
+                m_board = currentBoard;
+            }
+        }
+        return bestValue;
+    }
+
+
 }
 
 #endif

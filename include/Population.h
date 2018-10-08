@@ -46,7 +46,7 @@ private:
     int m_gamesToSimulate;
 
     vector< playerContainer<NeuralPlayer> > m_population;
-    playerContainer<RandomPlayer> m_opponent;
+    playerContainer<PerfectPlayer> m_opponent;
     vector< playerContainer<NeuralPlayer> > m_hallOfFame;
 
     Genetic m_ga;
@@ -74,7 +74,7 @@ private:
 
 
 template <template <class, class> class Game>
-Population<Game>::Population() : m_ga(0.05f, 0.02f), m_opponent(Game<NeuralPlayer, RandomPlayer>::NUM_OUTPUTS) {
+Population<Game>::Population() : m_ga(0.05f, 0.02f), m_opponent(/*Game<NeuralPlayer, PerfectPlayer>::NUM_OUTPUTS*/) {
 
 }
 
@@ -206,9 +206,7 @@ time_t Population<Game>::train(bool verbose) {
                 }
                 break;
             case 2:
-                if ((highestFit >= 1.2 * m_gamesToSimulate + 1.1 * roundRobinFit
-                     && medFit >= 0.95 * m_gamesToSimulate + 0.8 * roundRobinFit)
-                    || generation == m_iterations - 1) {
+                if (generation == m_iterations - 1) {
                     trainingStage = 3;
                     generation = 0;
                     m_ga.setMutationRate((float)0.01);
@@ -316,13 +314,13 @@ void Population<Game>::playGames() {
     for (int i = 0; i < m_populationSize; ++i) {
         for (int j = 0; j < 0.5 * m_gamesToSimulate; ++j) {
             //Game 1
-            Game<NeuralPlayer, RandomPlayer> game1(m_population[i],
-                                                   m_opponent, false);
+            Game<NeuralPlayer, PerfectPlayer> game1(m_population[i],
+                                                    m_opponent, false);
             game1.playGame();
 
             //Game 2 (play 2 games so both players can start first)
-            Game<RandomPlayer, NeuralPlayer> game2(m_opponent,
-                                                   m_population[i], false);
+            Game<PerfectPlayer, NeuralPlayer> game2(m_opponent,
+                                                    m_population[i], false);
             game2.playGame();
         }
     }
