@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <string>
 #include <ctime>
+#include <filesystem>
+#include <Windows.h>
 
 #include <Eigen/Dense>
 using namespace Eigen;
@@ -50,6 +52,9 @@ private:
     vector< playerContainer<NeuralPlayer> > m_hallOfFame;
 
     Genetic m_ga;
+
+	ofstream m_logFile;
+	ofstream m_playerDumpFile;
 
     //void playTestGame(playerContainer<NeuralPlayer> loadedPlayer);
     //playerContainer<NeuralPlayer> loadPlayerFromFile(const string path,
@@ -141,6 +146,45 @@ void Population<Game>::init(istream& is, ostream& os) {
 
     m_ga.setPopulationSize(m_populationSize);
     m_hallOfFame.reserve(m_iterations);
+
+	//Log and dump file paths
+	int highestLog = 0;
+	int highestDump = 0;
+	//string path = "C:/Users/erylk/Documents/Programming Projects/TicTacToeMachineLearning/Log";
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	string::size_type pos = string(buffer).find_last_of("\\/");
+	string path = string(buffer).substr(0, pos);
+	path += string("\\..\\..\\Log");
+	
+	for(const auto &entry : std::filesystem::directory_iterator(path)){
+		string cur = entry.path().string();
+		cur.erase(0, path.length() + 1);
+
+		if (cur.find("TrainingLog") != string::npos && cur.find(".log") != string::npos) {
+			cur.erase(0, 11);
+			cur.erase(cur.length() - 4, cur.length());
+			highestLog = std::stoi(cur);
+		}
+		if (cur.find("PlayerDump") != string::npos && cur.find(".log") != string::npos) {
+			cur.erase(0, 10);
+			cur.erase(cur.length() - 4, cur.length());
+			highestDump = std::stoi(cur);
+		}
+	}
+	string logFile = path + string("\\TrainingLog") + std::to_string(highestLog + 1) + string(".log");
+	string dumpFile = path + string("\\PlayerDump") + std::to_string(highestDump + 1) + string(".log");
+
+	m_logFile.open(logFile.c_str());
+	if (!m_logFile.is_open()) {
+		cout << "Error opening log file at: " << logFile << endl;
+	}
+
+	m_playerDumpFile.open(dumpFile.c_str());
+	if (!m_playerDumpFile.is_open()) {
+		cout << "Error opening player dump file at: " << dumpFile << endl;
+	}
+
     cout << endl << endl;
 }
 
