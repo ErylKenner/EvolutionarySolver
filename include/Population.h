@@ -34,9 +34,9 @@ public:
     void init(istream& is = cin, ostream& os = cout);
     time_t train(bool verbose);
 
-    bool load(const string path);
-    bool save(const string path);
-    bool playBest();
+    //bool load(const string path);
+    //bool save(const string path);
+    //bool playBest();
 
 private:
     int m_populationSize;
@@ -51,10 +51,10 @@ private:
 
     Genetic m_ga;
 
-    void playTestGame(playerContainer<NeuralPlayer> loadedPlayer);
-    playerContainer<NeuralPlayer> loadPlayerFromFile(const string path,
-                                                     string name = "");
-    string savePlayerToFile(const NeuralPlayer best, const string path) const;
+    //void playTestGame(playerContainer<NeuralPlayer> loadedPlayer);
+    //playerContainer<NeuralPlayer> loadPlayerFromFile(const string path,
+    //                                                 string name = "");
+    //string savePlayerToFile(const NeuralPlayer best, const string path) const;
 
 
 
@@ -235,6 +235,7 @@ time_t Population<Game>::train(bool verbose) {
     return time(NULL) - startTime;
 }
 
+/*
 template <template <class, class> class Game>
 string Population<Game>::savePlayerToFile(const NeuralPlayer best,
                                           const string path) const {
@@ -251,7 +252,9 @@ string Population<Game>::savePlayerToFile(const NeuralPlayer best,
     }
     return fileName;
 }
+*/
 
+/*
 template <template <class, class> class Game>
 playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(
     const string path, string name) {
@@ -275,8 +278,9 @@ playerContainer<NeuralPlayer> Population<Game>::loadPlayerFromFile(
     playerContainer<NeuralPlayer> loadedPlayer(tempLoadedPlayer);
     return loadedPlayer;
 }
+*/
 
-
+/*
 template <template <class, class> class Game>
 void Population<Game>::playTestGame(playerContainer<NeuralPlayer> loadedPlayer) {
     ManualPlayer tempHuman(cin, cout, 3, 3);
@@ -289,6 +293,7 @@ void Population<Game>::playTestGame(playerContainer<NeuralPlayer> loadedPlayer) 
     Game<NeuralPlayer, ManualPlayer> testGame2(loadedPlayer, human, true);
     testGame2.playGame();
 }
+*/
 
 template <template <class, class> class Game>
 void Population<Game>::roundRobin() {
@@ -426,7 +431,7 @@ void  Population<Game>::printPopulationFrom(const unsigned int start,
     }
 }
 
-
+/*
 template <template <class, class> class Game>
 bool Population<Game>::load(const string path) {
     char loadPlayer;
@@ -439,7 +444,9 @@ bool Population<Game>::load(const string path) {
     }
     return false;
 }
+*/
 
+/*
 template <template <class, class> class Game>
 bool Population<Game>::save(const string path) {
     char savePlayer;
@@ -452,7 +459,9 @@ bool Population<Game>::save(const string path) {
     }
     return false;
 }
+*/
 
+/*
 template <template <class, class> class Game>
 bool Population<Game>::playBest() {
     char playBest;
@@ -465,7 +474,7 @@ bool Population<Game>::playBest() {
     }
     return false;
 }
-
+*/
 
 
 #endif

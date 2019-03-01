@@ -31,7 +31,7 @@ int main() {
 
 
 
-    if (!pop.load(path)) {
+    //if (!pop.load(path)) {
         pop.init();
         time_t trainingTime = pop.train(false);
 
@@ -42,9 +42,9 @@ int main() {
             cout << " seconds" << endl;
         }
 
-        pop.save(path);
-        pop.playBest();
-    }
+        //pop.save(path);
+        //pop.playBest();
+    //}
 
     return 0;
 }
