@@ -53,8 +53,8 @@ private:
 
     Genetic m_ga;
 
-	ofstream m_logFile;
-	ofstream m_playerDumpFile;
+	string m_logFile;
+	string m_playerDumpFile;
 
     //void playTestGame(playerContainer<NeuralPlayer> loadedPlayer);
     //playerContainer<NeuralPlayer> loadPlayerFromFile(const string path,
@@ -72,6 +72,9 @@ private:
 
     void printSummary(const int generation, const double HOF_win_percent,
                       const double HOF_loss_percent, const double HOF_tie_percent) const;
+
+	void logTraining(const int generation, const double HOF_win_percent,
+		const double HOF_loss_percent, const double HOF_tie_percent) const;
 
     void printPopulationFrom(const unsigned int start,
                              const unsigned int end) const;
@@ -172,9 +175,9 @@ void Population<Game>::init(istream& is, ostream& os) {
 			highestDump = std::stoi(cur);
 		}
 	}
-	string logFile = path + string("\\TrainingLog") + std::to_string(highestLog + 1) + string(".log");
-	string dumpFile = path + string("\\PlayerDump") + std::to_string(highestDump + 1) + string(".log");
-
+	m_logFile = path + string("\\TrainingLog") + std::to_string(highestLog + 1) + string(".log");
+	m_playerDumpFile = path + string("\\PlayerDump") + std::to_string(highestDump + 1) + string(".log");
+	/*
 	m_logFile.open(logFile.c_str());
 	if (!m_logFile.is_open()) {
 		cout << "Error opening log file at: " << logFile << endl;
@@ -183,7 +186,7 @@ void Population<Game>::init(istream& is, ostream& os) {
 	m_playerDumpFile.open(dumpFile.c_str());
 	if (!m_playerDumpFile.is_open()) {
 		cout << "Error opening player dump file at: " << dumpFile << endl;
-	}
+	}*/
 
     cout << endl << endl;
 }
@@ -231,6 +234,10 @@ time_t Population<Game>::train(bool verbose) {
         //Print epoch summary
         printSummary(generation, HOF_win_percent, HOF_loss_percent,
                      HOF_tie_percent);
+
+		//Log training
+		logTraining(generation, HOF_win_percent, HOF_loss_percent,
+			HOF_tie_percent);
 
         //Stage selection
         double highestFit = m_population.back().player.getFitness();
@@ -440,21 +447,36 @@ void Population<Game>::printSummary(const int generation,
     playerContainer<NeuralPlayer> minPlayer = m_population.front();
     playerContainer<NeuralPlayer> medPlyr = m_population[m_populationSize / 2];
 
-    printf("Gen: %3d", generation);
-    printf(", Min: %-6.1f [i=%-3d]",
-           minPlayer.player.getFitness(), minPlayer.index);
-
-    printf(", Median: %-6.1f [i=%-3d]",
-           medPlyr.player.getFitness(), medPlyr.index);
-
-    printf(", Max: %-6.1f [i=%-3d]",
-           maxPlayer.player.getFitness(), maxPlayer.index);
-
-    printf("  HOF: ");
-    printf("W: %.2lf%%, ", HOF_win_percent);
-    printf("L: %.2lf%%, ", HOF_loss_percent);
-    printf("T: %.2lf%%", HOF_tie_percent);
+	cout << std::setiosflags(std::ios::fixed) << std::setprecision(2);
+	cout << "Gen: " << generation << "   ";
+	cout << "Min: " << minPlayer.player.getFitness() << ", "
+		<< "Median: " << medPlyr.player.getFitness() << ", "
+		<< "Max: " << maxPlayer.player.getFitness() << "   ";
+	cout << std::setprecision(2);
+	cout << "HOF:  W: " << HOF_win_percent <<
+		", L: " << HOF_loss_percent << 
+		", T: " << HOF_tie_percent;
     cout << endl;
+}
+
+template <template <class, class> class Game>
+void Population<Game>::logTraining(const int generation,
+	const double HOF_win_percent,
+	const double HOF_loss_percent,
+	const double HOF_tie_percent) const {
+	playerContainer<NeuralPlayer> maxPlayer = m_population.back();
+	playerContainer<NeuralPlayer> minPlayer = m_population.front();
+	playerContainer<NeuralPlayer> medPlyr = m_population[m_populationSize / 2];
+
+	ofstream logFile;
+	logFile.open(m_logFile.c_str(), std::ios_base::app);
+	logFile << generation << " ";
+	logFile << minPlayer.player.getFitness() << " " << minPlayer.index << " ";
+	logFile << medPlyr.player.getFitness() << " " << medPlyr.index << " ";
+	logFile << maxPlayer.player.getFitness() << " " << maxPlayer.index << " ";
+	logFile << HOF_win_percent << " " << HOF_loss_percent << " " << HOF_tie_percent << " ";
+	logFile << "\n";
+	logFile.close();
 }
 
 template <template <class, class> class Game>
