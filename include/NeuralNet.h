@@ -29,29 +29,29 @@ class NeuralNet {
 
 
 public:
-    NeuralNet();
-    NeuralNet(const vector<unsigned int>& layerSizes);
-    NeuralNet(const NeuralNet& nn);
+	NeuralNet();
+	NeuralNet(const vector<unsigned int>& layerSizes);
+	NeuralNet(const NeuralNet& nn);
 
-    RowVectorXd forward(const RowVectorXd& input) const;
+	RowVectorXd forward(const RowVectorXd& input) const;
 
-    void printWeights() const;
+	void printWeights() const;
 
-    void operator= (const NeuralNet& nn);
+	void operator= (const NeuralNet& nn);
 
-    vector<MatrixXd> getWeights() const;
-    void setWeights(const vector<MatrixXd>& weights);
+	vector<MatrixXd> getWeights() const;
+	void setWeights(const vector<MatrixXd>& weights);
 
-    bool saveToFile(string fileName) const;
-    bool loadFromFile(string fileName);
+	bool saveToFile(string fileName) const;
+	bool loadFromFile(string fileName);
 private:
-    vector<unsigned int> m_layerSizes;
-    vector<MatrixXd> m_weights;
+	vector<unsigned int> m_layerSizes;
+	vector<MatrixXd> m_weights;
 
-    inline RowVectorXd applyNonlinearity(const RowVectorXd& input,
-                                         Activations activation) const;
-    static inline double relu(double x);
-    static inline double sigmoid(double x);
+	inline RowVectorXd applyNonlinearity(const RowVectorXd& input,
+		Activations activation) const;
+	static inline double relu(double x);
+	static inline double sigmoid(double x);
 };
 
 #endif
