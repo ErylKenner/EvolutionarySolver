@@ -35,7 +35,7 @@ unsigned int Player::count = 0;
 //----------NeuralPlayer--------------
 NeuralPlayer::NeuralPlayer() : Player(), neural() {}
 
-NeuralPlayer::NeuralPlayer(const vector<unsigned int> &layerSizes)
+NeuralPlayer::NeuralPlayer(const std::vector<unsigned int> &layerSizes)
     : Player(), neural(layerSizes) {}
 
 NeuralPlayer::NeuralPlayer(const NeuralPlayer &other)
@@ -53,7 +53,8 @@ RowVectorXd NeuralPlayer::getMove(const RowVectorXd &input) const {
 }
 
 //----------ManualPlayer--------------
-ManualPlayer::ManualPlayer(istream &is, ostream &os, const int numActions)
+ManualPlayer::ManualPlayer(std::istream &is, std::ostream &os,
+                           const int numActions)
     : Player(), m_is(is), m_os(os), m_numActions(numActions) {}
 
 ManualPlayer::ManualPlayer(const ManualPlayer &other)

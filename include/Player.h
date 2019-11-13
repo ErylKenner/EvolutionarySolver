@@ -2,19 +2,10 @@
 #define PLAYER_H
 
 #include <Eigen/Dense>
-using namespace Eigen;
-
 #include <vector>
+using namespace Eigen;
 #include "NeuralNet.h"
 
-using std::cin;
-using std::cout;
-using std::endl;
-using std::istream;
-using std::ostream;
-using std::vector;
-
-// Base class Player
 class Player {
  public:
   Player();
@@ -38,23 +29,20 @@ class Player {
 class NeuralPlayer : public Player {
  public:
   NeuralPlayer();
-  NeuralPlayer(const vector<unsigned int> &layerSizes);
+  NeuralPlayer(const std::vector<unsigned int> &layerSizes);
   NeuralPlayer(const NeuralPlayer &other);
   virtual ~NeuralPlayer();
 
   void operator=(const NeuralPlayer &right);
-
-  virtual RowVectorXd getMove(const RowVectorXd &input) const override;
-
   NeuralNet neural;
 
- private:
+  virtual RowVectorXd getMove(const RowVectorXd &input) const override;
 };
 
 // A player with a manual input brain
 class ManualPlayer : public Player {
  public:
-  ManualPlayer(istream &is, ostream &os, const int numActions);
+  ManualPlayer(std::istream &is, std::ostream &os, const int numActions);
   ManualPlayer(const ManualPlayer &other);
   virtual ~ManualPlayer();
 
@@ -63,8 +51,8 @@ class ManualPlayer : public Player {
   virtual RowVectorXd getMove(const RowVectorXd &input) const override;
 
  private:
-  istream &m_is;
-  ostream &m_os;
+  std::istream &m_is;
+  std::ostream &m_os;
   const int m_numActions;
 };
 
@@ -93,8 +81,6 @@ class PerfectPlayer : public Player {
   void operator=(const PerfectPlayer &right);
 
   virtual RowVectorXd getMove(const RowVectorXd &input) const override;
-
- private:
 };
 
 #endif

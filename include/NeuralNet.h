@@ -2,33 +2,18 @@
 #define NN_H
 
 #include <Eigen/Dense>
-using namespace Eigen;
-
-#include <math.h>
-#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-
-using std::cerr;
-using std::cin;
-using std::cout;
-using std::endl;
-using std::exp;
-using std::ifstream;
-using std::log;
-using std::max;
-using std::ofstream;
-using std::string;
-using std::vector;
+using namespace Eigen;
 
 enum Activations { sigmoid, relu, softmax };
 
 class NeuralNet {
  public:
   NeuralNet();
-  NeuralNet(const vector<unsigned int> &layerSizes);
+  NeuralNet(const std::vector<unsigned int> &layerSizes);
   NeuralNet(const NeuralNet &nn);
 
   RowVectorXd forward(const RowVectorXd &input) const;
@@ -37,15 +22,15 @@ class NeuralNet {
 
   void operator=(const NeuralNet &nn);
 
-  vector<MatrixXd> &getWeights();
-  void setWeights(const vector<MatrixXd> &weights);
+  std::vector<MatrixXd> &getWeights();
+  void setWeights(const std::vector<MatrixXd> &weights);
 
-  bool saveToFile(string fileName) const;
-  bool loadFromFile(string fileName);
+  bool saveToFile(std::string fileName) const;
+  bool loadFromFile(std::string fileName);
 
  private:
-  vector<unsigned int> m_layerSizes;
-  vector<MatrixXd> m_weights;
+  std::vector<unsigned int> m_layerSizes;
+  std::vector<MatrixXd> m_weights;
 
   inline RowVectorXd applyNonlinearity(const RowVectorXd &input,
                                        Activations activation) const;

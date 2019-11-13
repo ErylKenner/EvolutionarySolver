@@ -1,20 +1,9 @@
 #include "Genetic.h"
 
-// mutationRate is in the range [0, 1], greedyPercent is in the range [0, 1]
-/*Genetic::Genetic(const float mutationRate, const float greedyPercent)
-    : m_mutationRate(clamp(mutationRate, 0.0f, 1.0f))
-    , m_greedyPercent(clamp(greedyPercent, 0.0f, 1.0f)) {
-    m_populationSize = 0;
-}
-
-void Genetic::setPopulationSize(int populationSize) {
-    m_populationSize = populationSize;
-}*/
-
 // Make new players based on how successful the current ones are
-void Genetic::Breed(vector<Player *> *population, float greedyPercent) {
+void Genetic::Breed(std::vector<Player *> *population, float greedyPercent) {
   unsigned int populationSize = population->size();
-  vector<NeuralPlayer> newPop;
+  std::vector<NeuralPlayer> newPop;
   newPop.reserve(populationSize);
 
   // Copy the players which are being kept from greedyPercent
@@ -29,7 +18,7 @@ void Genetic::Breed(vector<Player *> *population, float greedyPercent) {
   for (unsigned int i = numToKeep; i < populationSize; ++i) {
     NeuralPlayer *parent1 = Genetic::pickParent(population);
     NeuralPlayer *parent2 = Genetic::pickParent(population);
-    vector<MatrixXd> newWeights = Genetic::crossOver(
+    std::vector<MatrixXd> newWeights = Genetic::crossOver(
         parent1->neural.getWeights(), parent2->neural.getWeights());
 
     NeuralPlayer *temp =
@@ -46,7 +35,7 @@ void Genetic::Breed(vector<Player *> *population, float greedyPercent) {
   }
 }
 
-void Genetic::Mutate(vector<Player *> *population, float greedyPercent,
+void Genetic::Mutate(std::vector<Player *> *population, float greedyPercent,
                      float mutationRate) {
   unsigned int populationSize = population->size();
   // Intialize random object for gaussian distribution (mean=0)
@@ -59,7 +48,7 @@ void Genetic::Mutate(vector<Player *> *population, float greedyPercent,
   int numToKeep = (int)(greedyPercent * populationSize + 0.5f);
   for (unsigned int i = numToKeep; i < populationSize; ++i) {
     NeuralPlayer *temp = static_cast<NeuralPlayer *>((*population)[i]);
-    vector<MatrixXd> &weights = temp->neural.getWeights();
+    std::vector<MatrixXd> &weights = temp->neural.getWeights();
     for (size_t layer = 0; layer < weights.size(); ++layer) {
       // Randomly mutate each element
       for (int col = 0; col < weights[layer].cols(); ++col) {
@@ -71,7 +60,7 @@ void Genetic::Mutate(vector<Player *> *population, float greedyPercent,
   }
 }
 
-NeuralPlayer *Genetic::pickParent(vector<Player *> *population) {
+NeuralPlayer *Genetic::pickParent(std::vector<Player *> *population) {
   unsigned int populationSize = population->size();
   double best = (*population)[populationSize - 1]->fitness;
   double total = 0;
@@ -79,7 +68,7 @@ NeuralPlayer *Genetic::pickParent(vector<Player *> *population) {
     total += (*population)[i]->fitness;
   }
 
-  int threshold = rand() % (int)total;
+  double threshold = (rand() % (int)(total * 1000.0)) / 1000.0;
   double sum = 0;
   for (int i = populationSize - 1; i >= 0; --i) {
     sum += (*population)[i]->fitness;
@@ -91,17 +80,14 @@ NeuralPlayer *Genetic::pickParent(vector<Player *> *population) {
   return static_cast<NeuralPlayer *>((*population)[populationSize - 1]);
 }
 
-vector<MatrixXd> Genetic::crossOver(vector<MatrixXd> &parent1,
-                                    vector<MatrixXd> &parent2) {
-  vector<MatrixXd> newWeights = parent1;
-
+std::vector<MatrixXd> Genetic::crossOver(std::vector<MatrixXd> &parent1,
+                                         std::vector<MatrixXd> &parent2) {
+  std::vector<MatrixXd> newWeights = parent1;
   /*int totalParams = 0;
   for (size_t i = 0; i < weights1.size(); ++i) {
     totalParams += weights1[i].rows() * weights1[i].cols();
   }
-
   int crossoverPoint = rand() % totalParams;
-
   int total = 0;
   for (size_t i = 0; i < weights1.size(); ++i) {
     int rows = weights1[i].rows();
@@ -128,14 +114,5 @@ vector<MatrixXd> Genetic::crossOver(vector<MatrixXd> &parent1,
       }
     }
   }
-
   return newWeights;
 }
-
-/*(void Genetic::setMutationRate(const float mutationRate) {
-  m_mutationRate = clamp(mutationRate, 0.0f, 1.0f);
-}
-
-void Genetic::setGreedyPercent(const float greedyPercent) {
-  m_greedyPercent = clamp(greedyPercent, 0.0f, 1.0f);
-}*/

@@ -17,7 +17,8 @@ class Population {
  public:
   Population();
   ~Population();
-  void Init(int numActions, istream &is = cin, ostream &os = cout);
+  void Init(int numActions, std::istream &is = std::cin,
+            std::ostream &os = std::cout);
   bool SaveBestPlayer(std::string path);
   Player *LoadPlayerFromFile(std::string path);
 
@@ -31,8 +32,8 @@ class Population {
   int m_populationSize;
   int m_iterations;
   int m_gamesToSimulate;
-  vector<Player *> m_population;
-  vector<Player *> m_hallOfFame;
+  std::vector<Player *> m_population;
+  std::vector<Player *> m_hallOfFame;
 
   template <class Game>
   void playTestGame(Player *loadedPlayer);
@@ -67,31 +68,31 @@ Population::~Population() {
   }
 }
 
-void Population::Init(int numActions, istream &is, ostream &os) {
+void Population::Init(int numActions, std::istream &is, std::ostream &os) {
   // Get population size
   os << "Population size: ";
   is >> m_populationSize;
-  if (m_populationSize < 2 || cin.fail()) {
-    cin.clear();
-    cin.ignore();
+  if (m_populationSize < 2 || std::cin.fail()) {
+    std::cin.clear();
+    std::cin.ignore();
     m_populationSize = 2;
   }
 
   // Get number of iterations
   os << "Iterations: ";
   is >> m_iterations;
-  if (m_iterations < 1 || cin.fail()) {
-    cin.clear();
-    cin.ignore();
+  if (m_iterations < 1 || std::cin.fail()) {
+    std::cin.clear();
+    std::cin.ignore();
     m_iterations = 1;
   }
 
   // Get number of games to simulate
   os << "Games to simulate per player: ";
   is >> m_gamesToSimulate;
-  if (m_gamesToSimulate < 1 || cin.fail()) {
-    cin.clear();
-    cin.ignore();
+  if (m_gamesToSimulate < 1 || std::cin.fail()) {
+    std::cin.clear();
+    std::cin.ignore();
     m_gamesToSimulate = 1;
   }
 
@@ -99,22 +100,22 @@ void Population::Init(int numActions, istream &is, ostream &os) {
   int hiddenLayers;
   os << "Number of hidden layers: ";
   is >> hiddenLayers;
-  if (cin.fail()) {
-    cin.clear();
-    cin.ignore();
+  if (std::cin.fail()) {
+    std::cin.clear();
+    std::cin.ignore();
     hiddenLayers = 0;
   }
 
   // Populate m_layerSizes
-  vector<unsigned int> m_layerSizes;
+  std::vector<unsigned int> m_layerSizes;
   m_layerSizes.push_back(numActions);
   for (int i = 0; i < hiddenLayers; ++i) {
     os << "Number in hidden layer " << i + 1 << ": ";
     unsigned int layerSize;
     is >> layerSize;
-    if (layerSize < 1 || cin.fail()) {
-      cin.clear();
-      cin.ignore();
+    if (layerSize < 1 || std::cin.fail()) {
+      std::cin.clear();
+      std::cin.ignore();
       layerSize = 1;
     }
     m_layerSizes.push_back(layerSize);
@@ -128,7 +129,7 @@ void Population::Init(int numActions, istream &is, ostream &os) {
   }
 
   m_hallOfFame.reserve(m_iterations);
-  os << endl << endl;
+  os << std::endl << std::endl;
 }
 
 template <class Game>
@@ -141,7 +142,7 @@ double Population::Train(bool verbose) {
   float greedyPercent = 0.02f;
   float mutationRate = 0.05f;
 
-  cout << "STAGE 1: RANDOM PLAYERS" << endl;
+  std::cout << "STAGE 1: RANDOM PLAYERS" << std::endl;
   for (int generation = 0; generation < m_iterations; ++generation) {
     Player *opponent = new RandomPlayer(Game::NUM_ACTIONS);
     switch (stage) {
@@ -160,7 +161,7 @@ double Population::Train(bool verbose) {
     delete opponent;
 
     sort(m_population.begin(), m_population.end(), Player::ComparePlayer);
-    NeuralPlayer *curBest = dynamic_cast<NeuralPlayer *>(m_population.back());
+    NeuralPlayer *curBest = static_cast<NeuralPlayer *>(m_population.back());
     if (curBest == NULL) {
       throw new std::bad_cast();
     }
@@ -180,7 +181,8 @@ double Population::Train(bool verbose) {
           generation = 0;
           mutationRate = 0.03f;
           greedyPercent = 0.05f;
-          cout << "MOVING TO STAGE 2: ROUND ROBIN & RANDOM PLAYERS" << endl;
+          std::cout << "MOVING TO STAGE 2: ROUND ROBIN & RANDOM PLAYERS"
+                    << std::endl;
         }
         break;
       case TrainingStage::Both:
@@ -189,7 +191,7 @@ double Population::Train(bool verbose) {
           generation = 0;
           mutationRate = 0.01f;
           greedyPercent = 0.08f;
-          cout << "MOVING TO STAGE 3: ROUND ROBIN" << endl;
+          std::cout << "MOVING TO STAGE 3: ROUND ROBIN" << std::endl;
         }
         break;
       default:
@@ -309,21 +311,22 @@ void Population::printSummary(const int generation, Statistics stats) const {
   printf("W: %.2lf%%, ", stats.winPercent);
   printf("L: %.2lf%%, ", stats.lossPercent);
   printf("T: %.2lf%%", stats.tiePercent);
-  cout << endl;
+  std::cout << std::endl;
 }
 
 void Population::printPopulationFrom(const unsigned int start,
                                      const unsigned int lastIndex) const {
   if (start > lastIndex) {
-    cerr << "Error: start is greater than lastIndex" << endl;
+    std::cerr << "Error: start is greater than lastIndex" << std::endl;
     exit(1);
   }
   if (lastIndex > m_population.size() - 1) {
-    cerr << "Error: lastIndex is larger than population's last index" << endl;
+    std::cerr << "Error: lastIndex is larger than population's last index"
+              << std::endl;
     exit(1);
   }
   for (unsigned int i = start; i <= lastIndex; ++i) {
-    cout << "Population[" << m_population[i]->index << "] fitness: ";
+    std::cout << "Population[" << m_population[i]->index << "] fitness: ";
     printf("%5.1f\n", m_population[i]->fitness);
   }
 }

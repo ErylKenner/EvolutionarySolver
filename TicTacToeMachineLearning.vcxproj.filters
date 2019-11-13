@@ -47,9 +47,6 @@
     <ClInclude Include="include\UltimateTTT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Eigen_visualizer.natvis" />

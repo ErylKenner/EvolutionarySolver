@@ -4,7 +4,7 @@
 NeuralNet::NeuralNet() {}
 
 // Constructor takes in the structure of the network as a matrix
-NeuralNet::NeuralNet(const vector<unsigned int> &layerSizes)
+NeuralNet::NeuralNet(const std::vector<unsigned int> &layerSizes)
     : m_layerSizes(layerSizes) {
   unsigned int numLayers = layerSizes.size() - 1;
   m_weights.reserve(numLayers);
@@ -25,16 +25,17 @@ void NeuralNet::operator=(const NeuralNet &nn) {
 
 // Prints the current weights to the console
 void NeuralNet::printWeights() const {
-  cout << "Current weights:" << endl;
+  std::cout << "Current weights:" << std::endl;
   for (unsigned int i = 0; i < m_weights.size(); ++i) {
-    cout << "================================================" << endl;
-    cout << m_weights[i] << endl;
+    std::cout << "================================================"
+              << std::endl;
+    std::cout << m_weights[i] << std::endl;
   }
-  cout << "================================================" << endl;
+  std::cout << "================================================" << std::endl;
 }
 
-bool NeuralNet::saveToFile(string fileName) const {
-  ofstream outputFile;
+bool NeuralNet::saveToFile(std::string fileName) const {
+  std::ofstream outputFile;
   outputFile.open(fileName.c_str());
   if (!outputFile.is_open()) {
     return false;
@@ -65,8 +66,8 @@ bool NeuralNet::saveToFile(string fileName) const {
   return true;
 }
 
-bool NeuralNet::loadFromFile(string fileName) {
-  ifstream inputFile;
+bool NeuralNet::loadFromFile(std::string fileName) {
+  std::ifstream inputFile;
   inputFile.open(fileName.c_str());
   if (!inputFile.is_open()) {
     return false;
@@ -99,7 +100,8 @@ bool NeuralNet::loadFromFile(string fileName) {
   char check;
   inputFile >> check;
   if (check != 'D') {
-    cerr << "Error: Check at the end of input file was incorrect" << endl;
+    std::cerr << "Error: Check at the end of input file was incorrect"
+              << std::endl;
     return false;
   }
 
@@ -112,7 +114,7 @@ RowVectorXd NeuralNet::forward(const RowVectorXd &input) const {
   unsigned int numLayers = m_weights.size();
 
   // Stores the previous layer's output
-  vector<RowVectorXd> layers;
+  std::vector<RowVectorXd> layers;
   layers.reserve(numLayers + 1);
   layers.push_back(input);
 
@@ -128,12 +130,13 @@ RowVectorXd NeuralNet::forward(const RowVectorXd &input) const {
   return layers[numLayers];
 }
 
-vector<MatrixXd> &NeuralNet::getWeights() { return m_weights; }
+std::vector<MatrixXd> &NeuralNet::getWeights() { return m_weights; }
 
 // Sets the internal weights
-void NeuralNet::setWeights(const vector<MatrixXd> &weights) {
+void NeuralNet::setWeights(const std::vector<MatrixXd> &weights) {
   if (weights.size() == 0 || weights.size() != m_weights.size()) {
-    cerr << "Error: setWeights(): Weights have different sizes." << endl;
+    std::cerr << "Error: setWeights(): Weights have different sizes."
+              << std::endl;
     exit(1);
   }
   for (unsigned int i = 0; i < m_weights.size(); ++i) {
@@ -158,6 +161,6 @@ inline RowVectorXd NeuralNet::applyNonlinearity(const RowVectorXd &input,
   }
 }
 
-inline double NeuralNet::relu(double x) { return max(0.0, x); }
+inline double NeuralNet::relu(double x) { return std::max(0.0, x); }
 
 inline double NeuralNet::sigmoid(double x) { return 1.0 / (1.0 + exp(-x)); }

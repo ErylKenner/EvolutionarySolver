@@ -1,21 +1,13 @@
 #ifndef ULT_H
 #define ULT_H
 
-#include "NeuralNet.h"
-#include "Player.h"
-#include "TicTacToe.h"
-
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <vector>
-
-using std::cin;
-using std::cout;
-using std::endl;
-using std::make_pair;
-using std::pair;
-using std::vector;
+#include "NeuralNet.h"
+#include "Player.h"
+#include "TicTacToe.h"
 
 template <class T1, class T2>
 class UltimateTTT {
@@ -45,11 +37,11 @@ class UltimateTTT {
                      const States state);
   void setBoardAtPos(const int i, const States state);
 
-  vector<unsigned int> bestMoves(const vector<double> &input) const;
+  std::vector<unsigned int> bestMoves(const std::vector<double> &input) const;
   // void printBoard() const;
   bool boardHasWon(const uint32_t board) const;
 
-  vector<uint32_t> m_board;
+  std::vector<uint32_t> m_board;
   uint32_t m_metaBoard;
   int activeBoard;
 
@@ -125,9 +117,9 @@ bool UltimateTTT<T1, T2>::subBoardTied(const int subBoard) const {
 // Returns a vector of the preferred moves starting with most preferred
 template <class T1, class T2>
 vector<unsigned int> UltimateTTT<T1, T2>::bestMoves(
-    const vector<double> &input) const {
-  vector<unsigned int> ret;
-  vector<pair<double, unsigned int>> inputPair;
+    const std::vector<double> &input) const {
+  std::vector<unsigned int> ret;
+  std::vector<pair<double, unsigned int>> inputPair;
   ret.reserve(NUM_OUTPUTS);
   inputPair.reserve(NUM_OUTPUTS);
 
@@ -439,7 +431,7 @@ bool UltimateTTT<T1, T2>::boardHasWon(const uint32_t board) const {
 template <class T1, class T2>
 bool UltimateTTT<T1, T2>::takeTurn(const States state, const int turn) {
   // holds the list of desired moves in order of preference
-  vector<unsigned int> moves;
+  std::vector<unsigned int> moves;
 
   // Diagnostics
   if (m_verbose) {
