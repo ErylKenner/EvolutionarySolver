@@ -32,6 +32,7 @@
     <ClInclude Include="include\Population.h" />
     <ClInclude Include="include\TicTacToe.h" />
     <ClInclude Include="include\UltimateTTT.h" />
+    <ClInclude Include="include\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Eigen_visualizer.natvis" />

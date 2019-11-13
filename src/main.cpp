@@ -1,7 +1,6 @@
-
-
 #include <Eigen/Dense>
 #include "Population.h"
+#include "Utils.h"
 #include "main.h"
 
 #define TEST_MODE 0
