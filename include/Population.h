@@ -2,84 +2,72 @@
 #ifndef POPULATION_H
 #define POPULATION_H
 
-#include <algorithm>
-#include <ctime>
-#include <iostream>
-#include <string>
-#include <typeinfo>
-#include <vector>
-
 #include <Eigen/Dense>
+#include <chrono>
 using namespace Eigen;
-
 #include "Genetic.h"
-#include "NeuralNet.h"
-#include "Player.h"
-#include "TicTacToe.h"
-//#include "UltimateTTT.h"
 
-using std::cin;
-using std::cout;
-using std::endl;
-using std::istream;
-using std::ostream;
-using std::string;
-using std::vector;
+struct Statistics {
+  double winPercent;
+  double lossPercent;
+  double tiePercent;
+};
 
-template <class Game>
 class Population {
  public:
   Population();
   ~Population();
+  void Init(int numActions, istream &is = cin, ostream &os = cout);
+  bool SaveBestPlayer(std::string path);
+  Player *LoadPlayerFromFile(std::string path);
 
-  void Init(istream &is = cin, ostream &os = cout);
-  time_t Train(bool verbose);
+  template <class Game>
+  double Train(bool verbose);
 
-  Player *LoadPlayer(const string path);
-  bool SavePlayer(const string path);
-  bool PlayBest();
+  template <class Game>
+  void PlayBest();
 
  private:
   int m_populationSize;
   int m_iterations;
   int m_gamesToSimulate;
-
   vector<Player *> m_population;
   vector<Player *> m_hallOfFame;
 
-  //--------------------------------FUNCTIONS--------------------------------
-
+  template <class Game>
   void playTestGame(Player *loadedPlayer);
-  Player *loadPlayerFromFile(const string path, string name);
-  string savePlayerToFile(const Player *best, const string path) const;
 
+  template <class Game>
   void roundRobin();
+
+  template <class Game>
   void playGames(Player *opponent);
 
-  void playHallOfFame(Player *player, double *winPercent, double *lossPercent,
-                      double *tiePercent);
-  void printSummary(const int generation, const double HOF_win_percent,
-                    const double HOF_loss_percent,
-                    const double HOF_tie_percent) const;
+  template <class Game>
+  Statistics playHallOfFame(Player *player);
+
+  void printSummary(const int generation, Statistics stats) const;
   void printPopulationFrom(const unsigned int start,
                            const unsigned int end) const;
 };
 
-template <class Game>
-Population<Game>::Population() {}
+//--------------------------------FUNCTIONS--------------------------------
 
-template <class Game>
-Population<Game>::~Population() {
+Population::Population()
+    : m_populationSize(0), m_iterations(0), m_gamesToSimulate(0) {}
+
+Population::~Population() {
   for (unsigned int i = 0; i < m_population.size(); ++i) {
     delete m_population[i];
+    m_population[i] = NULL;
   }
   for (unsigned int i = 0; i < m_hallOfFame.size(); ++i) {
     delete m_hallOfFame[i];
+    m_hallOfFame[i] = NULL;
   }
 }
 
-template <class Game>
-void Population<Game>::Init(istream &is, ostream &os) {
+void Population::Init(int numActions, istream &is, ostream &os) {
   // Get population size
   os << "Population size: ";
   is >> m_populationSize;
@@ -119,7 +107,7 @@ void Population<Game>::Init(istream &is, ostream &os) {
 
   // Populate m_layerSizes
   vector<unsigned int> m_layerSizes;
-  m_layerSizes.push_back(Game::NUM_OUTPUTS);
+  m_layerSizes.push_back(numActions);
   for (int i = 0; i < hiddenLayers; ++i) {
     os << "Number in hidden layer " << i + 1 << ": ";
     unsigned int layerSize;
@@ -136,7 +124,7 @@ void Population<Game>::Init(istream &is, ostream &os) {
   // Instantiate the Players
   m_population.reserve(m_populationSize);
   for (int i = 0; i < m_populationSize; ++i) {
-    m_population.emplace_back(new NeuralPlayer(m_layerSizes));
+    m_population.push_back(new NeuralPlayer(m_layerSizes));
   }
 
   m_hallOfFame.reserve(m_iterations);
@@ -144,72 +132,60 @@ void Population<Game>::Init(istream &is, ostream &os) {
 }
 
 template <class Game>
-time_t Population<Game>::Train(bool verbose) {
-  time_t startTime = time(NULL);
-  int trainingStage = 1;
+double Population::Train(bool verbose) {
+  using namespace std::chrono;
+  auto startTime = steady_clock::now();
+
+  enum class TrainingStage { PlayRandom, RoundRobin, Both };
+  TrainingStage stage = TrainingStage::PlayRandom;
   float greedyPercent = 0.02f;
   float mutationRate = 0.05f;
 
   cout << "STAGE 1: RANDOM PLAYERS" << endl;
   for (int generation = 0; generation < m_iterations; ++generation) {
-    Player *opponent = new RandomPlayer(9);
-    switch (trainingStage) {
-      case 1:
-        playGames(opponent);
+    Player *opponent = new RandomPlayer(Game::NUM_ACTIONS);
+    switch (stage) {
+      case TrainingStage::PlayRandom:
+        playGames<Game>(opponent);
         break;
-      case 2:
-        roundRobin();
-        playGames(opponent);
+      case TrainingStage::Both:
+        roundRobin<Game>();
+        playGames<Game>(opponent);
         break;
-      case 3:
-        roundRobin();
+      case TrainingStage::RoundRobin:
+        roundRobin<Game>();
       default:
         break;
     }
     delete opponent;
 
-    // Sorts the players by fitness (ascending)
     sort(m_population.begin(), m_population.end(), Player::ComparePlayer);
-
     NeuralPlayer *curBest = dynamic_cast<NeuralPlayer *>(m_population.back());
-
     if (curBest == NULL) {
       throw new std::bad_cast();
     }
-
-    // Copy best player and add them to the hall of fame
-    m_hallOfFame.emplace_back(new NeuralPlayer(*curBest));
-
+    m_hallOfFame.push_back(new NeuralPlayer(*curBest));
     if (verbose) {
       curBest->neural.printWeights();
     }
 
-    // Test the current best vs. the best from each previous generation
-    double winPercent;
-    double lossPercent;
-    double tiePercent;
-    playHallOfFame(m_population.back(), &winPercent, &lossPercent, &tiePercent);
-    printSummary(generation, winPercent, lossPercent, tiePercent);
+    Statistics stats = playHallOfFame<Game>(m_population.back());
+    printSummary(generation, stats);
 
     // Stage selection
-    double highestFit = m_population[m_populationSize - 1]->fitness;
-    double medFit = m_population[m_populationSize / 2]->fitness;
-
-    switch (trainingStage) {
-      case 1:
-        if ((highestFit >= 1.2 * m_populationSize &&
-             medFit >= 0.95 * m_populationSize) ||
-            generation == m_iterations - 1) {
-          trainingStage = 2;
+    switch (stage) {
+      case TrainingStage::PlayRandom:
+        if (generation == m_iterations - 1) {
+          stage = TrainingStage::Both;
           generation = 0;
           mutationRate = 0.03f;
           greedyPercent = 0.05f;
           cout << "MOVING TO STAGE 2: ROUND ROBIN & RANDOM PLAYERS" << endl;
         }
         break;
-      case 2:
+      case TrainingStage::Both:
         if (generation == m_iterations - 1) {
-          trainingStage = 3;
+          stage = TrainingStage::RoundRobin;
           generation = 0;
           mutationRate = 0.01f;
           greedyPercent = 0.08f;
@@ -220,10 +196,7 @@ time_t Population<Game>::Train(bool verbose) {
         break;
     }
 
-    // Make new players based on how successful the current ones are
     Genetic::Breed(&m_population, greedyPercent);
-
-    // Each weight has a small chance to change by some random value
     Genetic::Mutate(&m_population, greedyPercent, mutationRate);
 
     // Reset fitness values for next generation
@@ -231,98 +204,65 @@ time_t Population<Game>::Train(bool verbose) {
       m_population[i]->fitness = 0.0f;
     }
   }
-  return time(NULL) - startTime;
+  auto endTime = steady_clock::now();
+  return duration_cast<milliseconds>(endTime - startTime).count() / 1000.0;
 }
 
-template <class Game>
-string Population<Game>::savePlayerToFile(const Player *player,
-                                          const string path) const {
-  string fileName;
-  while (true) {
-    cout << "Player datafile name (saved to '" << path << "'): " << endl;
-    cin >> fileName;
-
-    NeuralPlayer *playerNeural = dynamic_cast<NeuralPlayer *>(player);
-    if (playerNeural == NULL) {
-      throw new std::bad_cast();
-    }
-
-    bool success = player->neural.saveToFile(path + fileName);
-    if (!success) {
-      cout << "Invalid file name or path. Please try again." << endl;
-      continue;
-    }
+bool Population::SaveBestPlayer(std::string path) {
+  NeuralPlayer *playerNeural =
+      dynamic_cast<NeuralPlayer *>(m_population.back());
+  if (playerNeural == NULL) {
+    throw new std::bad_cast();
   }
-  return fileName;
+  return playerNeural->neural.saveToFile(path);
 }
 
 template <class Game>
-Player *Population<Game>::loadPlayerFromFile(const string path, string name) {
-  NeuralPlayer *temp = new NeuralPlayer();
-  temp->neural.loadFromFile(path + name);
-  return temp;
+void Population::playTestGame(Player *loadedPlayer) {
+  ManualPlayer human(std::cin, std::cout, Game::NUM_ACTIONS);
+  Game testGame1(&human, loadedPlayer, true);
+  testGame1.playGame();
+  Game testGame2(loadedPlayer, &human, true);
+  testGame2.playGame();
 }
 
 template <class Game>
-void Population<Game>::playTestGame(Player *loadedPlayer) {
-  ManualPlayer human(cin, cout, 3, 3);
-
-  // Play each other
-  Game testGameA(&human, loadedPlayer, true);
-  testGameA.playGame();
-
-  Game testGameB(loadedPlayer, &human, true);
-  testGameB.playGame();
-}
-
-template <class Game>
-void Population<Game>::roundRobin() {
+void Population::roundRobin() {
   for (int i = 0; i < m_populationSize - 1; ++i) {
     for (int j = i + 1; j < m_populationSize; ++j) {
-      // Game 1
-      /*cout << "Game between [" << population[i].second << "] \
-      and [" << population[j].second << "]" << endl;*/
-      Game gameA(m_population[i], m_population[j], false);
-      gameA.playGame();
-
-      // Game 2 (play 2 games so both players can start first)
-      /*cout << "Game between [" << population[j].second << "] \
-      and [" << population[i].second << "]" << endl;*/
-      Game gameB(m_population[j], m_population[i], false);
-      gameB.playGame();
+      Game game1(m_population[i], m_population[j], false);
+      game1.playGame();
+      Game game2(m_population[j], m_population[i], false);
+      game2.playGame();
     }
   }
 }
 
 template <class Game>
-void Population<Game>::playGames(Player *opponent) {
+void Population::playGames(Player *opponent) {
   for (int i = 0; i < m_populationSize; ++i) {
-    Game gameA(m_population[i], opponent, false);
-    Game gameB(opponent, m_population[i], false);
+    Game game1(m_population[i], opponent, false);
+    Game game2(opponent, m_population[i], false);
     for (int j = 0; j <= m_gamesToSimulate / 2; ++j) {
-      gameA.playGame();
-      gameA.Reset();
-      gameB.playGame();
-      gameB.Reset();
+      game1.playGame();
+      game1.Reset();
+      game2.playGame();
+      game2.Reset();
     }
   }
 }
 
 template <class Game>
-void Population<Game>::playHallOfFame(Player *best, double *winPercent,
-                                      double *lossPercent, double *tiePercent) {
+Statistics Population::playHallOfFame(Player *best) {
   int numOpponents = m_hallOfFame.size() - 1;
   double initialFitness = best->fitness;
-
-  double numWins = 0.0;
-  double numTies = 0.0;
-  double numLoss = 0.0;
-
+  int numWins = 0;
+  int numTies = 0;
+  int numLoss = 0;
   for (int i = 0; i < numOpponents; ++i) {
-    // Game 1
     best->fitness = 0.0f;
-    Game gameA(m_hallOfFame[i], best, false);
-    gameA.playGame();
+    Game game1(m_hallOfFame[i], best, false);
+    game1.playGame();
 
     // Check if best won or not
     if (best->fitness > 1.0) {
@@ -333,10 +273,9 @@ void Population<Game>::playHallOfFame(Player *best, double *winPercent,
       numLoss++;
     }
 
-    // Game 2 (so both players can start first)
     best->fitness = 0;
-    Game gameB(best, m_hallOfFame[i], false);
-    gameB.playGame();
+    Game game2(best, m_hallOfFame[i], false);
+    game2.playGame();
 
     // Check if best won or not
     if (best->fitness > 1.0) {
@@ -347,38 +286,34 @@ void Population<Game>::playHallOfFame(Player *best, double *winPercent,
       numLoss++;
     }
   }
-
-  *winPercent = 100.0 * numWins / (2 * numOpponents);
-  *tiePercent = 100.0 * numTies / (2 * numOpponents);
-  *lossPercent = 100.0 * numLoss / (2 * numOpponents);
+  Statistics ret;
+  ret.winPercent = 100.0 * numWins / (2 * numOpponents);
+  ret.lossPercent = 100.0 * numLoss / (2 * numOpponents);
+  ret.tiePercent = 100.0 * numTies / (2 * numOpponents);
 
   // Set the best player's fitness to what it was before this function
   best->fitness = initialFitness;
+  return ret;
 }
 
-template <class Game>
-void Population<Game>::printSummary(const int generation,
-                                    const double HOF_win_percent,
-                                    const double HOF_loss_percent,
-                                    const double HOF_tie_percent) const {
+void Population::printSummary(const int generation, Statistics stats) const {
   Player *minPlayer = m_population[0];
-  Player *medPlyr = m_population[m_populationSize / 2];
+  Player *medPlayer = m_population[m_populationSize / 2];
   Player *maxPlayer = m_population[m_populationSize - 1];
 
   printf("Gen: %3d", generation);
   printf(", Min: %-6.1f [i=%-3d]", minPlayer->fitness, minPlayer->index);
-  printf(", Median: %-6.1f [i=%-3d]", medPlyr->fitness, medPlyr->index);
+  printf(", Median: %-6.1f [i=%-3d]", medPlayer->fitness, medPlayer->index);
   printf(", Max: %-6.1f [i=%-3d]", maxPlayer->fitness, maxPlayer->index);
   printf("  HOF: ");
-  printf("W: %.2lf%%, ", HOF_win_percent);
-  printf("L: %.2lf%%, ", HOF_loss_percent);
-  printf("T: %.2lf%%", HOF_tie_percent);
+  printf("W: %.2lf%%, ", stats.winPercent);
+  printf("L: %.2lf%%, ", stats.lossPercent);
+  printf("T: %.2lf%%", stats.tiePercent);
   cout << endl;
 }
 
-template <class Game>
-void Population<Game>::printPopulationFrom(const unsigned int start,
-                                           const unsigned int lastIndex) const {
+void Population::printPopulationFrom(const unsigned int start,
+                                     const unsigned int lastIndex) const {
   if (start > lastIndex) {
     cerr << "Error: start is greater than lastIndex" << endl;
     exit(1);
@@ -394,41 +329,14 @@ void Population<Game>::printPopulationFrom(const unsigned int start,
 }
 
 template <class Game>
-Player *Population<Game>::LoadPlayer(const string path) {
-  char loadPlayer;
-  cout << "Do you want to load a trained player? (y/n): ";
-  cin >> loadPlayer;
-
-  if (loadPlayer == 'y' || loadPlayer == 'Y') {
-    return (path, std::to_string(""));
-  }
-  return NULL;
+void Population::PlayBest() {
+  playTestGame<Game>(m_population.back());
 }
 
-template <class Game>
-bool Population<Game>::SavePlayer(const string path) {
-  char savePlayer;
-  cout << "Do you want to save the best player to a file? (y/n): ";
-  cin >> savePlayer;
-
-  if (savePlayer == 'y' || savePlayer == 'Y') {
-    savePlayerToFile(m_population.back(), path);
-    return true;
-  }
-  return false;
-}
-
-template <class Game>
-bool Population<Game>::PlayBest() {
-  char playBest;
-  cout << "Do you want to play against the best player? (y/n): ";
-  cin >> playBest;
-
-  if (playBest == 'y' || playBest == 'Y') {
-    playTestGame(m_population.back());
-    return true;
-  }
-  return false;
+Player *Population::LoadPlayerFromFile(std::string path) {
+  NeuralPlayer *temp = new NeuralPlayer();
+  temp->neural.loadFromFile(path);
+  return temp;
 }
 
 #endif

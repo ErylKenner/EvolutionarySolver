@@ -11,8 +11,7 @@ NeuralNet::NeuralNet(const vector<unsigned int> &layerSizes)
 
   // Create vectors for weights. Each entry is a matrix for that layer
   for (unsigned int i = 0; i < numLayers; ++i) {
-    m_weights.emplace_back(
-        MatrixXd::Random(layerSizes[i] + 1, layerSizes[i + 1]));
+    m_weights.push_back(MatrixXd::Random(layerSizes[i] + 1, layerSizes[i + 1]));
   }
 }
 
@@ -80,7 +79,7 @@ bool NeuralNet::loadFromFile(string fileName) {
   for (unsigned int i = 0; i < numLayers; ++i) {
     unsigned int cur;
     inputFile >> cur;
-    m_layerSizes.emplace_back(cur);
+    m_layerSizes.push_back(cur);
   }
 
   for (unsigned int lay = 0; lay < numLayers - 1; ++lay) {
@@ -94,7 +93,7 @@ bool NeuralNet::loadFromFile(string fileName) {
         cur(row, col) = temp;
       }
     }
-    m_weights.emplace_back(cur);
+    m_weights.push_back(cur);
   }
 
   char check;
@@ -115,7 +114,7 @@ RowVectorXd NeuralNet::forward(const RowVectorXd &input) const {
   // Stores the previous layer's output
   vector<RowVectorXd> layers;
   layers.reserve(numLayers + 1);
-  layers.emplace_back(input);
+  layers.push_back(input);
 
   for (unsigned int lay = 0; lay < numLayers; ++lay) {
     unsigned int numCols = layers[lay].cols();
@@ -123,7 +122,7 @@ RowVectorXd NeuralNet::forward(const RowVectorXd &input) const {
     layers[lay](numCols) = 1.0;
 
     // Cur = f(layers * weights + bias)...where f(x) is nonlinearity funtion
-    layers.emplace_back(
+    layers.push_back(
         applyNonlinearity(layers[lay] * m_weights[lay], Activations::sigmoid));
   }
   return layers[numLayers];

@@ -9,7 +9,6 @@ using namespace Eigen;
 
 #include "NeuralNet.h"
 #include "Player.h"
-#include "main.h"
 
 using std::cin;
 using std::cout;

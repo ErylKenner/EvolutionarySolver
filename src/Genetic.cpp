@@ -22,7 +22,7 @@ void Genetic::Breed(vector<Player *> *population, float greedyPercent) {
   for (int i = 0; i < numToKeep; ++i) {
     NeuralPlayer *temp =
         static_cast<NeuralPlayer *>((*population)[populationSize - 1 - i]);
-    newPop.emplace_back(*temp);
+    newPop.push_back(*temp);
   }
 
   // Iterates over the remaining child elements
@@ -36,7 +36,7 @@ void Genetic::Breed(vector<Player *> *population, float greedyPercent) {
         static_cast<NeuralPlayer *>((*population)[populationSize - 1 - i]);
     NeuralPlayer temp2 = *temp;
     temp2.neural.setWeights(newWeights);
-    newPop.emplace_back(temp2);
+    newPop.push_back(temp2);
   }
 
   // Copies new weights to population

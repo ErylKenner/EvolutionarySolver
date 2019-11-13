@@ -53,16 +53,14 @@ RowVectorXd NeuralPlayer::getMove(const RowVectorXd &input) const {
 }
 
 //----------ManualPlayer--------------
-ManualPlayer::ManualPlayer(istream &is, ostream &os, const int rows,
-                           const int cols)
-    : Player(), m_is(is), m_os(os), m_rows(rows), m_cols(cols) {}
+ManualPlayer::ManualPlayer(istream &is, ostream &os, const int numActions)
+    : Player(), m_is(is), m_os(os), m_numActions(numActions) {}
 
 ManualPlayer::ManualPlayer(const ManualPlayer &other)
     : Player(other),
       m_is(other.m_is),
       m_os(other.m_os),
-      m_rows(other.m_rows),
-      m_cols(other.m_cols) {}
+      m_numActions(other.m_numActions) {}
 
 ManualPlayer::~ManualPlayer() {}
 
@@ -71,18 +69,14 @@ void ManualPlayer::operator=(const ManualPlayer &right) {
 }
 
 RowVectorXd ManualPlayer::getMove(const RowVectorXd &input) const {
-  unsigned int row, col;
-  char eater;
+  int move;
   do {
-    m_os << "Your move, of the form \"row, col\": ";
-    m_is >> row >> eater >> col;
-  } while (row < 1 || row > (unsigned int)m_rows || col < 1 ||
-           col > (unsigned int)m_cols);
-  row--;
-  col--;
+    m_os << "Your move, as a number from 0 to " << m_numActions - 1 << ": ";
+    m_is >> move;
+  } while (move < 0 || move >= m_numActions);
 
   RowVectorXd temp(1);
-  temp << row * m_cols + col;
+  temp << move;
   return temp;
 }
 

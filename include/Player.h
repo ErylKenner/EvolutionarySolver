@@ -54,7 +54,7 @@ class NeuralPlayer : public Player {
 // A player with a manual input brain
 class ManualPlayer : public Player {
  public:
-  ManualPlayer(istream &is, ostream &os, const int rows, const int cols);
+  ManualPlayer(istream &is, ostream &os, const int numActions);
   ManualPlayer(const ManualPlayer &other);
   virtual ~ManualPlayer();
 
@@ -65,8 +65,7 @@ class ManualPlayer : public Player {
  private:
   istream &m_is;
   ostream &m_os;
-  const int m_rows;
-  const int m_cols;
+  const int m_numActions;
 };
 
 // A player with a random input brain

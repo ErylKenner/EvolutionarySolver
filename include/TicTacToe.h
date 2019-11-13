@@ -30,8 +30,8 @@ class TicTacToe {
   void playGame();
   void Reset();
 
-  static const int NUM_INPUTS = 9;
-  static const int NUM_OUTPUTS = 9;
+  static const int NUM_PERCEPTS = 9;
+  static const int NUM_ACTIONS = 9;
 
  private:
   bool takeTurn(const States state, const int turn);
@@ -102,7 +102,7 @@ inline RowVectorXi TicTacToe::bestMoves(const RowVectorXd &input) const {
 
   // Populate inputPair
   for (unsigned int i = 0; i < 9; ++i) {
-    inputPair.emplace_back(make_pair(input(i), i));
+    inputPair.push_back(make_pair(input(i), i));
   }
 
   sort(inputPair.begin(), inputPair.end());

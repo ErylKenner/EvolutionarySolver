@@ -32,9 +32,6 @@
     <ClInclude Include="include\Genetic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\NeuralNet.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -1,40 +1,40 @@
 #include <Eigen/Dense>
 #include "Population.h"
+#include "TicTacToe.h"
 #include "Utils.h"
-#include "main.h"
-
-#define TEST_MODE 0
 
 int main() {
   srand((unsigned int)time(NULL));
 
   // Where your player log files are stored
-  string path = "data/";
-  Population<TicTacToe> pop;
+  string logFilePath = "data/";
 
-#if TEST_MODE
-  ManualPlayer tempHuman1(cin, cout, 3, 3);
-  playerContainer<ManualPlayer> human1(tempHuman1);
+  Population pop;
+  pop.Init(TicTacToe::NUM_ACTIONS, std::cin, std::cout);
+  double trainingTime = pop.Train<TicTacToe>(false);
+  cout << "Time to train: " << trainingTime << " seconds" << endl;
 
-  PerfectPlayer perfPlayer;
-  playerContainer<PerfectPlayer> perf(perfPlayer);
+  char input;
+  cout << "Do you want to play against the best player? (y/n): ";
+  cin >> input;
+  if (input == 'y' || input == 'Y') {
+    pop.PlayBest<TicTacToe>();
+  }
 
-  TicTacToe<ManualPlayer, PerfectPlayer> game1(human1, perf, true);
-  game1.playGame();
-  TicTacToe<PerfectPlayer, ManualPlayer> game2(perf, human1, true);
-  game2.playGame();
-#else
-
-  pop.Init();
-  time_t trainingTime = pop.Train(false);
-
-  cout << "Time to train: " << trainingTime
-       << (trainingTime == 1 ? "second" : " seconds") << endl;
-
-  // pop.SavePlayer(path);
-  pop.PlayBest();
-
-#endif
+  cout << "Do you want to save the best player to a file? (y/n): ";
+  cin >> input;
+  if (input == 'y' || input == 'Y') {
+    std::string playerName;
+    std::cout << "File name: ";
+    std::cin >> playerName;
+    if (pop.SaveBestPlayer(logFilePath + playerName)) {
+      std::cout << "Player saved to: " << logFilePath << playerName
+                << std::endl;
+    } else {
+      std::cout << "ERROR: Unable to save player to specified location."
+                << std::endl;
+    }
+  }
 
   return 0;
 }
