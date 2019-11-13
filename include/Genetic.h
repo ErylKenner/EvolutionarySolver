@@ -11,33 +11,33 @@ using namespace Eigen;
 #include "Player.h"
 #include "main.h"
 
-using std::cout;
 using std::cin;
+using std::cout;
 using std::endl;
 using std::vector;
 
 class Genetic {
-public:
-    Genetic(const float mutationRate, const float greedyPercent);
+ public:
+  // Genetic(const float mutationRate, const float greedyPercent);
 
-    void setPopulationSize(int populationSize);
+  // void setPopulationSize(int populationSize);
 
-    void setMutationRate(const float mutationRate);
-    void setGreedyPercent(const float greedyPercent);
+  // void setMutationRate(const float mutationRate);
+  // void setGreedyPercent(const float greedyPercent);
 
-    void breed(vector<playerContainer<NeuralPlayer> >& population);
-    void mutate(vector<playerContainer<NeuralPlayer> >& population);
+  static void Breed(vector<Player *> *population, float greedyPercent);
+  static void Mutate(vector<Player *> *population, float greedyPercent,
+                     float mutationRate);
 
-private:
-    vector<MatrixXd> crossOver(const playerContainer<NeuralPlayer>& parent1,
-                               const playerContainer<NeuralPlayer>& parent2);
+ private:
+  static vector<MatrixXd> crossOver(vector<MatrixXd> &parent1,
+                                    vector<MatrixXd> &parent2);
 
-    playerContainer<NeuralPlayer> pickParent(
-        const vector<playerContainer<NeuralPlayer> >& population) const;
+  static NeuralPlayer *pickParent(vector<Player *> *population);
 
-    float m_mutationRate;
-    int m_populationSize;
-    float m_greedyPercent;
+  // float m_mutationRate;
+  // int m_populationSize;
+  // float m_greedyPercent;
 };
 
 #endif
