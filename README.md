@@ -1,11 +1,4 @@
 # TicTacToeMachineLearning
-The goal of this project is to train a computer to play tic tac toe at a 
-superhuman level. Although this is a trivial problem, I'm just using it as
-an opportunity to learn more about machine learning, and to have fun.
+Created a genetic algorithm which uses a population of neural networks to learn to play games. Written from scratch in C++. Currently Tic-tac-toe and Ultimate tic-tac-toe are implemented as games. This has been a long-term passion project of mine which I began after first learning about genetic algorithms.
 
-I'm using a neural network trained by a genetic algorithm to learn the game.
-I start with a random population of players, and each generation they play the
-other players round robin. Fitness points are awarded as: 0 points for 
-each loss, 0.5 for each tie, and 1 point for each win. I then evolve the the 
-players based on normal genetic algorithm techniques (mutation, breeding, 
-crossover, etc.). The goal is to maximize the player's fitness.
+While tic-tac-toe is fully solvable using algorithms such as minimax, a player’s move in Ultimate tic-tac-toe affects the available moves an opponent has, meaning the game cannot easily be solved using DFS. This is partly because it is hard to find a good heuristic for the strength of a board position. My approach therefore does not attempt to fully solve the game. Instead it learns to find acceptable moves through a random exploration of the game space.
